@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Given(
+data class GivenDTO(
     @SerialName("isGiven")
     val isGiven: Boolean
 )

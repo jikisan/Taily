@@ -5,13 +5,13 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Owner(
-    @SerialName("email")
-    val email: String,
-    @SerialName("fullName")
-    val fullName: String,
+data class PetIdDTO(
     @SerialName("_id")
     val id: String,
-    @SerialName("id")
-    val userId: String
+    @SerialName("idName")
+    val idName: String,
+    @SerialName("idUrl")
+    val idUrl: String,
+    @SerialName("petId")
+    val petId: String
 )

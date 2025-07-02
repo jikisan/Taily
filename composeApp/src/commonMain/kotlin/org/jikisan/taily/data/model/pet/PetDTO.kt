@@ -3,10 +3,10 @@ package org.jikisan.taily.model.pet
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jikisan.taily.model.Weight
+import org.jikisan.taily.data.model.WeightDTO
 
 @Serializable
-data class PetItem(
+data class PetDTO(
     @SerialName("_id")
     val id: String,
     @SerialName("name")
@@ -22,19 +22,19 @@ data class PetItem(
     @SerialName("photoUrl")
     val photoUrl: String,
     @SerialName("weight")
-    val weight: Weight,
+    val weight: WeightDTO,
     @SerialName("ownerId")
-    val ownerId: Owner,
+    val ownerId: OwnerDTO,
     @SerialName("identifiers")
-    val identifiers: Identifiers,
+    val identifiers: IdentifiersDTO,
     @SerialName("passport")
-    val passport: Passport,
+    val passport: PassportDTO,
     @SerialName("medicalRecords")
-    val medicalRecords: List<MedicalRecord>,
+    val medicalRecords: List<MedicalRecordDTO>,
     @SerialName("petCare")
-    val petCare: List<PetCare>,
+    val petCare: List<PetCareDTO>,
     @SerialName("petIds")
-    val petIds: List<PetId>,
+    val petIds: List<PetIdDTO>,
     @SerialName("createdAt")
     val createdAt: String,
     @SerialName("updatedAt")

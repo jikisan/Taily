@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Groomed(
+data class GroomedDTO(
     @SerialName("groomedDateTime")
     val groomedDateTime: String,
     @SerialName("isGroomed")

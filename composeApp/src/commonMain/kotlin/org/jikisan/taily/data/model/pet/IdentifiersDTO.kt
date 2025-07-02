@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Identifiers(
+data class IdentifiersDTO(
     @SerialName("allergies")
     val allergies: List<String>,
     @SerialName("clipLocation")

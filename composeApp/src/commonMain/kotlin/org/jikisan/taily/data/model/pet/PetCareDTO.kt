@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import org.jikisan.taily.model.Weight
 
 @Serializable
-data class PetCare(
+data class PetCareDTO(
     @SerialName("careType")
     val careType: String,
     @SerialName("clinic")

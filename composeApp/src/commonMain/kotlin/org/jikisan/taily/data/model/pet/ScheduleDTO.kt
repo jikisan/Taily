@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 import org.jikisan.taily.model.Weight
 
 @Serializable
-data class Schedule(
+data class ScheduleDTO(
     @SerialName("given")
     val given: Given,
     @SerialName("hospital")

@@ -1,11 +1,10 @@
-package org.jikisan.taily.model.pet
-
+package org.jikisan.taily.data.model.pet
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Completion(
+data class CompletionDTO(
     @SerialName("dateTime")
     val dateTime: String,
     @SerialName("isComplete")
