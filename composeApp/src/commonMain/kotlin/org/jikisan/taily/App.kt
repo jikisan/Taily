@@ -46,7 +46,7 @@ fun App() {
             bottomBar = { BottomNavBar(
                 navHostController = navHostController,
                 bottomNavItems = topLevelDestinations,
-                modifier = Modifier
+                modifier = Modifier.wrapContentHeight()
             ) }
         ) { innerPadding ->
             AppNavigation(

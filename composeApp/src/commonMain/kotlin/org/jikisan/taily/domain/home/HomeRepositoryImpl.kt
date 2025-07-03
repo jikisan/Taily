@@ -1,5 +1,6 @@
 package org.jikisan.taily.domain.home
 
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -7,27 +8,30 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.retry
-import org.jikisan.taily.data.toDomain
+import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
+import org.jikisan.taily.data.mapper.toDomain
 import org.jikisan.taily.domain.model.pet.Pet
-import org.jikisan.taily.viewmodel.PetApi
+import org.jikisan.taily.model.pet.PetDTO
+import org.jikisan.taily.viewmodel.PetApiService
 import kotlin.time.Duration.Companion.seconds
 
-class HomeRepositoryImpl(private val petApi: PetApi) : HomeRepository {
+class HomeRepositoryImpl(private val petApi: PetApiService) : HomeRepository {
 
     override suspend fun getPets(): Flow<List<Pet>> = flow {
-        try {
-            val pets = petApi.fetchAllPets().map { it.toDomain() }
+        val result = petApi.fetchAllPets()
+        if (result.isSuccess) {
+            val pets = result.getOrThrow().map { it.toDomain() }
+            Napier.v("$TAG Get All Pets")
             emit(pets)
-        } catch (e: Exception) {
-            // Log the error for debugging purposes
-            println("Error fetching pets: ${e.message}")
-
-            // Emit empty list as fallback
-            emit(emptyList<Pet>())
+        } else {
+            Napier.e("$TAG Error fetching pets: ${result.exceptionOrNull()?.message}")
+            Napier.e("$TAG Get All Pets Failed")
+            emit(emptyList()) // fallback for UI
         }
     }
         .retry(retries = 2) { cause ->
             // Retry on generic exceptions (Kotlin Multiplatform compatible)
+            Napier.v("$TAG Retry to Get All Pets")
             when (cause) {
                 is Exception -> {
                     delay(1.seconds)
@@ -37,4 +41,6 @@ class HomeRepositoryImpl(private val petApi: PetApi) : HomeRepository {
             }
         }
         .flowOn(Dispatchers.IO)
+
+
 }

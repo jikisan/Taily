@@ -1,8 +1,7 @@
 package org.jikisan.taily.model.pet
 
 
-import kotlinx.serialization.Serializable
-import org.jikisan.taily.data.model.pet.CompletionDTO
+import org.jikisan.taily.data.model.pet.response.CompletionDTO
 import org.jikisan.taily.domain.model.Weight
 
 data class MedicalRecord(

@@ -1,22 +1,32 @@
-package org.jikisan.taily.data
+package org.jikisan.taily.data.mapper
 
-import Identifiers
+import androidx.compose.ui.text.font.FontVariation.weight
 import org.jikisan.taily.data.model.WeightDTO
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
+import org.jikisan.taily.model.pet.Identifiers
 import org.jikisan.taily.model.pet.IdentifiersDTO
 import org.jikisan.taily.model.pet.MedicalRecord
-import org.jikisan.taily.model.pet.MedicalRecordDTO
+import org.jikisan.taily.model.pet.CreateMedicalRecordRequest
 import org.jikisan.taily.model.pet.Owner
 import org.jikisan.taily.model.pet.OwnerDTO
 import org.jikisan.taily.model.pet.Passport
 import org.jikisan.taily.model.pet.PassportDTO
 import org.jikisan.taily.model.pet.PetCare
+import org.jikisan.taily.model.pet.CreatePetCareRequest
+import org.jikisan.taily.model.pet.CreatePetRequest
+import org.jikisan.taily.model.pet.PetId
+import org.jikisan.taily.model.pet.CreatePetIdRequest
+import org.jikisan.taily.model.pet.Schedule
+import org.jikisan.taily.model.pet.CreateScheduleRequest
+import org.jikisan.taily.model.pet.Given
+import org.jikisan.taily.model.pet.GivenDTO
+import org.jikisan.taily.model.pet.Groomed
+import org.jikisan.taily.model.pet.GroomedDTO
+import org.jikisan.taily.model.pet.MedicalRecordDTO
 import org.jikisan.taily.model.pet.PetCareDTO
 import org.jikisan.taily.model.pet.PetDTO
-import org.jikisan.taily.model.pet.PetId
 import org.jikisan.taily.model.pet.PetIdDTO
-import org.jikisan.taily.model.pet.Schedule
 import org.jikisan.taily.model.pet.ScheduleDTO
 
 
@@ -54,7 +64,15 @@ fun MedicalRecordDTO.toDomain(): MedicalRecord {
         prescription = prescription,
         symptoms = symptoms,
         vet = vet,
-        weight = weight
+        weight = weight.toDomain()
+    )
+}
+
+fun GroomedDTO.toDomain(): Groomed {
+    return Groomed(
+        groomedDateTime = groomedDateTime,
+        isGroomed = isGroomed,
+        referencePhoto = referencePhoto
     )
 }
 
@@ -62,12 +80,12 @@ fun PetCareDTO.toDomain(): PetCare {
     return PetCare(
         careType = careType,
         clinic = clinic,
-        groomed = groomed,
+        groomed = groomed.toDomain(),
         groomer = groomer,
         groomingDateTime = groomingDateTime,
         id = id,
         notes = notes,
-        weight = weight
+        weight = weight.toDomain()
     )
 }
 
@@ -116,13 +134,19 @@ fun PassportDTO.toDomain(): Passport {
 
 fun ScheduleDTO.toDomain(): Schedule {
     return Schedule(
-        given = given,
+        given = given.toDomain(),
         hospital = hospital,
         id = id,
         notes = notes,
         schedDateTime = schedDateTime,
         vaccineType = vaccineType,
         vet = vet,
-        weight = weight
+        weight = weight.toDomain()
+    )
+}
+
+fun GivenDTO.toDomain(): Given {
+    return Given(
+        isGiven = isGiven
     )
 }

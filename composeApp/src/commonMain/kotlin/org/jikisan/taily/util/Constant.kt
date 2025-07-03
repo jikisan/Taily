@@ -1,7 +1,10 @@
 package org.jikisan.cmpecommerceapp.util
 
 object ApiRoutes {
+
+
     private const val BASE_URL = "https://site--taily--gqh7yj78q7bk.code.run"
+    const val TAG = "[DEBUG]"
 
     // PETS
     const val PETS = "$BASE_URL/api/pets"

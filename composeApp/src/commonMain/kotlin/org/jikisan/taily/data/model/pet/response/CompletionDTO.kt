@@ -1,4 +1,4 @@
-package org.jikisan.taily.data.model.pet
+package org.jikisan.taily.data.model.pet.response
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

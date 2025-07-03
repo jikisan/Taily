@@ -3,7 +3,7 @@ package org.jikisan.taily.model.pet
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jikisan.taily.model.Weight
+import org.jikisan.taily.data.model.WeightDTO
 
 @Serializable
 data class PetCareDTO(
@@ -12,7 +12,7 @@ data class PetCareDTO(
     @SerialName("clinic")
     val clinic: String,
     @SerialName("groomed")
-    val groomed: Groomed,
+    val groomed: GroomedDTO,
     @SerialName("groomer")
     val groomer: String,
     @SerialName("groomingDateTime")
@@ -22,5 +22,5 @@ data class PetCareDTO(
     @SerialName("notes")
     val notes: String,
     @SerialName("weight")
-    val weight: Weight
+    val weight: WeightDTO
 )

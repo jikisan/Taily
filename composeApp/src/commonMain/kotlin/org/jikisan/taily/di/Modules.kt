@@ -1,10 +1,12 @@
 package org.jikisan.cmpecommerceapp.di
 
-import org.jikisan.taily.viewmodel.PetApi
 import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.home.HomeRepositoryImpl
+import org.jikisan.taily.ui.screens.home.HomeViewModel
+import org.jikisan.taily.viewmodel.PetApiService
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -13,11 +15,11 @@ expect val platformModule: Module
 val sharedModule = module {
 
     single {}
-    single{ PetApi(get()) }
+    single{ PetApiService(get()) }
 
 
     singleOf(::HomeRepositoryImpl).bind<HomeRepository>()
-//    singleOf(::HomeRepository).bind<HomeRepository>()
+    viewModelOf(::HomeViewModel)
 
 //    singleOf(::HomeRepository).bind<HomeRepository>()
 //    viewModelOf(::HomeViewModel)
