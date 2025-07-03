@@ -1,22 +1,28 @@
 package org.jikisan.taily.ui.navigation
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.vidspark.androidapp.ui.theme.Gray
+import com.vidspark.androidapp.ui.theme.TailyTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -26,58 +32,121 @@ fun BottomNavBar(
     bottomNavItems: List<NavigationItem>,
     modifier: Modifier
 ) {
-    NavigationBar( modifier.fillMaxWidth() ) {
-        bottomNavItems.forEach { item ->
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(70.dp)
+                .shadow(
+                    elevation = 12.dp,
+                    shape = RoundedCornerShape(35.dp),
+                    spotColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                )
+                .clip(RoundedCornerShape(35.dp)),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 3.dp,
+        ) {
+            NavigationBar(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Transparent),
+                containerColor = Color.Transparent,
+                tonalElevation = 0.dp,
+            ) {
+                bottomNavItems.forEach { item ->
+                    val currentDestination =
+                        navHostController.currentBackStackEntryAsState().value?.destination?.route
+                    val isSelected = item.route == currentDestination
 
-            val currentDestination = navHostController.currentBackStackEntryAsState().value?.destination?.route
-            val isSelected = item.route == currentDestination
+                    // Animation states
+                    val scale by animateFloatAsState(
+                        targetValue = if (isSelected) 1.1f else 1f,
+                        animationSpec = spring(
+                            dampingRatio = 0.6f,
+                            stiffness = 300f
+                        ),
+                        label = "scale"
+                    )
 
-            NavigationBarItem(
-                icon = {
-                    item.icon?.let { icon ->
-                        Icon(
-                            painter = painterResource(icon),
-                            contentDescription = item.title
-                        )
-                    }
-                },
-                label = { Text(
-                    text = item.title,
-                    style = MaterialTheme.typography.labelSmall,
-//                    color = NavigationBarItemDefaults.colors(
-//                        selectedIconColor = MaterialTheme.colorScheme.primary,
-//                        unselectedIconColor = Gray
-//                    ),
-                    fontSize = 12.sp
-                ) },
-                selected = isSelected,
-                alwaysShowLabel = false,
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = Gray,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedTextColor = Gray
-                ),
-                onClick = {
-                    if (item.route != currentDestination) {
-                        navHostController.navigate(route = item.route) {
-                            // Pop up to the start destination of the graph to
-                            // avoid building up a large stack of destinations
-                            navHostController.graph.findStartDestination().route?.let {
-                                popUpTo(it) {
-                                    saveState = true
+                    val iconColor by animateColorAsState(
+                        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Gray,
+                        animationSpec = tween(durationMillis = 300),
+                        label = "iconColor"
+                    )
+
+                    val textColor by animateColorAsState(
+                        targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Gray,
+                        animationSpec = tween(durationMillis = 300),
+                        label = "textColor"
+                    )
+
+                    NavigationBarItem(
+                        icon = {
+                            Box(
+                                modifier = Modifier
+                                    .scale(scale)
+                                    .size(28.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // Background circle for selected item
+                                if (isSelected) {
+                                    Surface(
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(RoundedCornerShape(20.dp)),
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                                    ) {}
+                                }
+
+                                item.icon?.let { icon ->
+                                    Icon(
+                                        painter = painterResource(icon),
+                                        contentDescription = item.title,
+                                        tint = iconColor,
+                                        modifier = Modifier.size(24.dp)
+                                    )
                                 }
                             }
-                            // Avoid multiple copies of the same destination
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
+                        },
+                        label = {
+                            Text(
+                                text = item.title,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = if (isSelected) 13.sp else 12.sp,
+                                color = textColor
+                            )
+                        },
+                        selected = isSelected,
+                        alwaysShowLabel = true,
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = Color.Transparent,
+                            unselectedIconColor = Color.Transparent,
+                            selectedTextColor = Color.Transparent,
+                            unselectedTextColor = Color.Transparent,
+                            indicatorColor = Color.Transparent
+                        ),
+                        onClick = {
+                            if (item.route != currentDestination) {
+                                navHostController.navigate(route = item.route) {
+                                    navHostController.graph.findStartDestination().route?.let {
+                                        popUpTo(it) {
+                                            saveState = true
+                                        }
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
                         }
-                    }
+                    )
                 }
-            )
+            }
         }
-
     }
 }
 
@@ -91,7 +160,7 @@ fun BottomNavBarPreview() {
         NavigationItem.Settings
     )
 
-    MaterialTheme {
+    TailyTheme {
         BottomNavBar(
             navHostController = navController,
             bottomNavItems = navItems,

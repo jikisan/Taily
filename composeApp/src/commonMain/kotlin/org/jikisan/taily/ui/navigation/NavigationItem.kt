@@ -13,6 +13,6 @@ sealed class NavigationItem(
     val icon: DrawableResource? = null,
 ) {
     data object Home : NavigationItem("home", "Home", Res.drawable.home_icon)
-    data object Pet : NavigationItem("pet", "My Pet", Res.drawable.pets_24px)
+    data object Pet : NavigationItem("pet", "My Pets", Res.drawable.pets_24px)
     data object Settings : NavigationItem("settings", "Settings", Res.drawable.settings_icon)
 }
