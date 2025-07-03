@@ -122,7 +122,7 @@ fun BottomNavBar(
                             )
                         },
                         selected = isSelected,
-                        alwaysShowLabel = true,
+                        alwaysShowLabel = false,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = Color.Transparent,
                             unselectedIconColor = Color.Transparent,

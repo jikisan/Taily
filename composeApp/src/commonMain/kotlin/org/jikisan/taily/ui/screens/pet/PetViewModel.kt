@@ -1,6 +1,5 @@
-package org.jikisan.taily.ui.screens.home
+package org.jikisan.taily.ui.screens.pet
 
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
@@ -9,19 +8,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
-import org.jikisan.taily.domain.home.HomeRepository
-import org.jikisan.taily.model.pet.Passport
+import org.jikisan.taily.domain.pet.PetRepository
 import org.jikisan.taily.ui.uistates.HomeUIState
+import org.jikisan.taily.ui.uistates.PetUIState
 
-class HomeViewModel(
-    private val homeRepository: HomeRepository
-) : ViewModel() {
+class PetViewModel(
+    private val petRepository: PetRepository
+): ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUIState())
-    val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(PetUIState())
+    val uiState: StateFlow<PetUIState> = _uiState.asStateFlow()
 
     init {
         loadPets()
@@ -31,8 +29,7 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-
-            homeRepository.getPets()
+            petRepository.getPets()
                 .catch { throwable ->
                     Napier.v("$TAG Load All Pets Failed")
                     _uiState.value = _uiState.value.copy(
@@ -40,13 +37,10 @@ class HomeViewModel(
                         errorMessage = throwable.message ?: "Unknown error occurred"
                     )
                 }
-                .collect { pets ->
+                .collectLatest { pets ->
                     Napier.v("$TAG Load All Pets")
                     _uiState.value = _uiState.value.copy(
                         pets = pets,
-                        schedules = pets.flatMap { it.passport.schedules },
-                        petCares =  pets.flatMap { it.petCare },
-                        medRecords = pets.flatMap { it.medicalRecords },
                         isLoading = false,
                         errorMessage = null
                     )
@@ -58,21 +52,17 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
 
-            homeRepository.getPets()
+            petRepository.getPets()
                 .catch { throwable ->
-                    Napier.v("$TAG Refresh Load All Pets failed")
+                    Napier.v("$TAG Refresh Load All Pets")
                     _uiState.value = _uiState.value.copy(
                         isRefreshing = false,
                         errorMessage = throwable.message ?: "Unknown error occurred"
                     )
                 }
                 .collect { pets ->
-                    Napier.v("$TAG Refresh Load All Pets success")
                     _uiState.value = _uiState.value.copy(
                         pets = pets,
-                        schedules = pets.flatMap { it.passport.schedules },
-                        petCares =  pets.flatMap { it.petCare },
-                        medRecords = pets.flatMap { it.medicalRecords },
                         isRefreshing = false,
                         errorMessage = null
                     )
