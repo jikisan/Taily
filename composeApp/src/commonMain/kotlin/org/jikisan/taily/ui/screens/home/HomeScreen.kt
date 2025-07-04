@@ -54,6 +54,8 @@ import io.github.chouaibmo.rowkalendar.components.DateCellDefaults
 import io.github.chouaibmo.rowkalendar.extensions.now
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.ui.components.Header
@@ -191,10 +193,14 @@ fun HomeScreen(
                 uiState.reminders.isNotEmpty() -> {
 
                     val currentTime = kotlinx.datetime.Clock.System.now()
-                    val upcomingReminders = uiState.reminders.filter { reminderList ->
+                    val selectedReminders = uiState.reminders.filter { reminderList ->
                         try {
                             val reminderInstant = Instant.parse(reminderList.dateTime)
-                            reminderInstant > currentTime
+                            val reminderDate =
+                                reminderInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                            val isSelectedDate = reminderDate == selectedDate
+//                            val isUpcoming = reminderInstant > currentTime
+                            isSelectedDate
                         } catch (e: Exception) {
                             Napier.e("Error parsing reminder dateTime: ${reminderList.dateTime}", e)
                             false
@@ -203,9 +209,9 @@ fun HomeScreen(
 
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(uiState.reminders) { reminderList ->
+                        items(selectedReminders) { reminderList ->
 
                             println("[DATETIME] DateTime: ${reminderList.dateTime} \n Selected Date: $selectedDate")
 
