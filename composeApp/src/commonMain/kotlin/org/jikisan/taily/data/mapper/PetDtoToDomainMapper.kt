@@ -1,24 +1,18 @@
 package org.jikisan.taily.data.mapper
 
-import androidx.compose.ui.text.font.FontVariation.weight
 import org.jikisan.taily.data.model.WeightDTO
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
 import org.jikisan.taily.model.pet.IdentifiersDTO
 import org.jikisan.taily.model.pet.MedicalRecord
-import org.jikisan.taily.model.pet.CreateMedicalRecordRequest
 import org.jikisan.taily.model.pet.Owner
 import org.jikisan.taily.model.pet.OwnerDTO
 import org.jikisan.taily.model.pet.Passport
 import org.jikisan.taily.model.pet.PassportDTO
 import org.jikisan.taily.model.pet.PetCare
-import org.jikisan.taily.model.pet.CreatePetCareRequest
-import org.jikisan.taily.model.pet.CreatePetRequest
 import org.jikisan.taily.model.pet.PetId
-import org.jikisan.taily.model.pet.CreatePetIdRequest
 import org.jikisan.taily.model.pet.Schedule
-import org.jikisan.taily.model.pet.CreateScheduleRequest
 import org.jikisan.taily.model.pet.Given
 import org.jikisan.taily.model.pet.GivenDTO
 import org.jikisan.taily.model.pet.Groomed

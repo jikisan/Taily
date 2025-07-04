@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -48,8 +50,12 @@ import io.github.chouaibmo.rowkalendar.extensions.now
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import org.jetbrains.compose.resources.painterResource
+import org.jikisan.taily.domain.model.Reminder
+import org.jikisan.taily.domain.model.ReminderList
+import org.jikisan.taily.domain.model.ReminderType
 import org.jikisan.taily.ui.components.Header
 import org.jikisan.taily.util.DateUtils.formatDateForDisplayWithDayOfWeek
+import org.jikisan.taily.util.DateUtils.formatToTime
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.notifications_24px
@@ -103,7 +109,19 @@ fun HomeScreen(
             }
 
             var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+            selectedDate?.let { date ->
+                Text(
+                    text = formatDateForDisplayWithDayOfWeek(date),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth(),
+                    color = Color.LightGray,
+                    textAlign = TextAlign.Left
+                )
+            }
 
+            Header("Reminders", modifier = Modifier.padding(top = 0.dp))
+            
             RowKalendar(
                 modifier = Modifier.height(100.dp),
                 content = { date, isSelected, onClick ->
@@ -134,18 +152,7 @@ fun HomeScreen(
                 }
             )
 
-            selectedDate?.let { date ->
-                Text(
-                    text = formatDateForDisplayWithDayOfWeek(date),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = Color.LightGray,
-                    textAlign = TextAlign.Left
-                )
-            }
 
-            Header( "Reminders", modifier = Modifier.padding(top = 0.dp))
 
             when {
                 uiState.isLoading && uiState.pets.isEmpty() -> {
@@ -179,91 +186,63 @@ fun HomeScreen(
                     }
                 }
 
-//                else -> {
-//                    if (uiState.schedules.isNotEmpty()) {
-//
-//                        val schedules = uiState.schedules.sortedBy { it.schedDateTime }
-//
-//                        Column {
-//                            Text(
-//                                text = "Upcoming Schedules",
-//                                style = MaterialTheme.typography.bodyLarge.copy(
-//                                    fontWeight = FontWeight.Bold,
-//                                    color = Color.Black
-//                                )
-//                            )
-//
-//                            LazyColumn(
-//                                contentPadding = PaddingValues(vertical = 8.dp),
-//                                verticalArrangement = Arrangement.spacedBy(4.dp)
-//                            ) {
-//
-//                                items(schedules) { schedule ->
-//                                    ScheduleItemCard(schedule = schedule)
-//                                }
-//                            }
-//                        }
-//
-//
-//                    }
-//
-//                    if (uiState.petCares.isNotEmpty()) {
-//
-//                        val petCares = uiState.petCares.sortedBy { it.groomingDateTime }
-//
-//                        Column {
-//                            Text(
-//                                text = "Upcoming Pet Cares",
-//                                style = MaterialTheme.typography.bodyLarge.copy(
-//                                    fontWeight = FontWeight.Bold,
-//                                    color = Color.Black
-//                                )
-//                            )
-//
-//                            LazyColumn(
-//                                contentPadding = PaddingValues(vertical = 8.dp),
-//                                verticalArrangement = Arrangement.spacedBy(4.dp)
-//                            ) {
-//
-//                                items(petCares) { petCare ->
-//                                    PetCareItemCard(petCare = petCare)
-//                                }
-//                            }
-//                        }
-//
-//                    }
-//
-//                    if (uiState.medRecords.isNotEmpty()) {
-//
-//                        val medRecords = uiState.medRecords.sortedBy { it.medicalDateTime }
-//
-//                        Column {
-//                            Text(
-//                                text = "Upcoming Medical Records",
-//                                style = MaterialTheme.typography.bodyLarge.copy(
-//                                    fontWeight = FontWeight.Bold,
-//                                    color = Color.Black
-//                                )
-//                            )
-//
-//                            LazyColumn(
-//                                contentPadding = PaddingValues(vertical = 8.dp),
-//                                verticalArrangement = Arrangement.spacedBy(4.dp)
-//                            ) {
-//
-//                                items(medRecords) { medRecord ->
-//                                    MedicalRecordItemCard(medicalRecord = medRecord)
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
+                uiState.reminders.isNotEmpty() -> {
+
+                    val reminders = uiState.reminders.sortedBy { it.dateTime }
+                    LazyColumn(
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(reminders) { reminders ->
+                            ReminderItemCard(reminderList = reminders)
+                        }
+                    }
+                }
+
 
             }
         }
 
     }
 
+}
+
+@Composable
+fun ReminderItemCard(reminderList: ReminderList) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+
+
+            Row( horizontalArrangement = Arrangement.SpaceBetween) {
+                Column (Modifier
+                    .widthIn(min = 100.dp)
+                ) {
+
+                    formatToTime(reminderList.dateTime)?.let { time ->
+                        Text(
+                            text = time,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                        )
+                    }
+
+                }
+
+                Column {
+
+                    reminderList.reminders.forEach { reminder ->
+                        ReminderCard(reminder = reminder)
+                    }
+                }
+            }
+
+    }
 }
 
 

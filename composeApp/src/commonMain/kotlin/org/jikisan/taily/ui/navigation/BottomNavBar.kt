@@ -87,22 +87,14 @@ fun BottomNavBar(
 
                     NavigationBarItem(
                         icon = {
-                            Box(
+                            // Create a custom Row layout for horizontal arrangement
+                            Row(
                                 modifier = Modifier
                                     .scale(scale)
-                                    .size(28.dp),
-                                contentAlignment = Alignment.Center
+                                    .padding(horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                // Background circle for selected item
-//                                if (isSelected) {
-//                                    Surface(
-//                                        modifier = Modifier
-//                                            .size(40.dp)
-//                                            .clip(RoundedCornerShape(20.dp)),
-//                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-//                                    ) {}
-//                                }
-
                                 item.icon?.let { icon ->
                                     Icon(
                                         painter = painterResource(icon),
@@ -111,16 +103,20 @@ fun BottomNavBar(
                                         modifier = Modifier.size(24.dp)
                                     )
                                 }
+
+                                // Move the label inside the icon composable
+                                if (isSelected) {
+                                    Text(
+                                        text = item.title,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontSize = if (isSelected) 13.sp else 12.sp,
+                                        color = textColor
+                                    )
+                                }
+
                             }
                         },
-                        label = {
-                            Text(
-                                text = item.title,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = if (isSelected) 13.sp else 12.sp,
-                                color = textColor
-                            )
-                        },
+                        label = null, // Remove the label since we're handling it in the icon
                         selected = isSelected,
                         alwaysShowLabel = false,
                         colors = NavigationBarItemDefaults.colors(

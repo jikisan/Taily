@@ -1,5 +1,7 @@
 package org.jikisan.taily.ui.uistates
 
+import org.jikisan.taily.domain.model.Reminder
+import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.MedicalRecord
 import org.jikisan.taily.model.pet.Passport
@@ -8,9 +10,10 @@ import org.jikisan.taily.model.pet.Schedule
 
 data class HomeUIState(
     val pets: List<Pet> = emptyList(),
-    val schedules: List<Schedule> = emptyList(),
-    val petCares: List<PetCare> = emptyList(),
-    val medRecords: List<MedicalRecord> = emptyList(),
+//    val schedules: List<Schedule> = emptyList(),
+//    val petCares: List<PetCare> = emptyList(),
+//    val medRecords: List<MedicalRecord> = emptyList(),
+    val reminders: List<ReminderList> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val isRefreshing: Boolean = false
