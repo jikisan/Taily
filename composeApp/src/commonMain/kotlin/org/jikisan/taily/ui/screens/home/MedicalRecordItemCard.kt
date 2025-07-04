@@ -20,17 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import io.github.aakira.napier.Napier
 import org.jetbrains.compose.resources.painterResource
-import org.jikisan.taily.model.pet.Schedule
+import org.jikisan.taily.model.pet.MedicalRecord
+import org.jikisan.taily.model.pet.PetCare
 import org.jikisan.taily.util.DateUtils
 import taily.composeapp.generated.resources.Res
-import taily.composeapp.generated.resources.pill_24px
+import taily.composeapp.generated.resources.content_cut_24px
+import taily.composeapp.generated.resources.stethoscope_24px
 
 @Composable
-fun ScheduleItemCard(
-    schedule: Schedule,
+fun MedicalRecordItemCard(
+    medicalRecord: MedicalRecord,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -52,7 +52,7 @@ fun ScheduleItemCard(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(Res.drawable.pill_24px),
+                painter = painterResource(Res.drawable.stethoscope_24px),
                 contentDescription = "Pill icon",
                 tint = MaterialTheme.colorScheme.primary, // Or keep white
                 modifier = Modifier.size(24.dp)
@@ -65,14 +65,14 @@ fun ScheduleItemCard(
         // Text content
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = schedule.vaccineType,
+                text = medicalRecord.medicalType,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
             )
             Text(
-                text = schedule.hospital,
+                text = medicalRecord.clinic,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -83,7 +83,7 @@ fun ScheduleItemCard(
         // Date and Time
         Column(horizontalAlignment = Alignment.End) {
 
-            val utcDate = schedule.schedDateTime.trim()
+            val utcDate = medicalRecord.medicalDateTime.trim()
             val readableDate = DateUtils.formatToReadableDate(utcDate)
             val time = DateUtils.formatToTime(utcDate)
 

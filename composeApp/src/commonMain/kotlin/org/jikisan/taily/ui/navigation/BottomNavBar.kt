@@ -94,14 +94,14 @@ fun BottomNavBar(
                                 contentAlignment = Alignment.Center
                             ) {
                                 // Background circle for selected item
-                                if (isSelected) {
-                                    Surface(
-                                        modifier = Modifier
-                                            .size(40.dp)
-                                            .clip(RoundedCornerShape(20.dp)),
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                                    ) {}
-                                }
+//                                if (isSelected) {
+//                                    Surface(
+//                                        modifier = Modifier
+//                                            .size(40.dp)
+//                                            .clip(RoundedCornerShape(20.dp)),
+//                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+//                                    ) {}
+//                                }
 
                                 item.icon?.let { icon ->
                                     Icon(

@@ -74,6 +74,10 @@ kotlin {
 
             // Logger
             implementation("io.github.aakira:napier:2.7.1")
+
+            // Row calendar
+            implementation("io.github.chouaibmo:rowkalendar:0.0.3")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

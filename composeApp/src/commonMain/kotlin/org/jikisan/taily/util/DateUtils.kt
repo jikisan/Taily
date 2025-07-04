@@ -1,5 +1,6 @@
 package org.jikisan.taily.util
 
+import kotlinx.datetime.LocalDate
 import kotlin.math.abs
 
 object DateUtils {
@@ -199,6 +200,19 @@ object DateUtils {
     fun formatDateForDisplay(isoDateString: String): String {
         return formatToReadableDate(isoDateString) ?: isoDateString
     }
+
+    /**
+     * Formats date to display format used in UI (e.g., "May 15, 2020 - Wednesday")
+     */
+    fun formatDateForDisplayWithDayOfWeek(date: LocalDate): String {
+        val month = date.month.name.lowercase().replaceFirstChar { it.uppercase() } // June
+        val day = date.dayOfMonth                            // 1
+        val year = date.year                                  // 2001
+        val dayOfWeek = date.dayOfWeek.name.lowercase()
+            .replaceFirstChar { it.uppercase() }              // Wednesday
+        return "$month $day, $year - $dayOfWeek"
+    }
+
 }
 
 /**

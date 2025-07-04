@@ -9,11 +9,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Header(headerText: String) {
+fun Header(headerText: String, modifier: Modifier = Modifier.padding(16.dp)) {
     Text(
         text = headerText,
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Bold,
-        modifier = Modifier.padding(16.dp)
+        modifier = modifier
     )
 }
