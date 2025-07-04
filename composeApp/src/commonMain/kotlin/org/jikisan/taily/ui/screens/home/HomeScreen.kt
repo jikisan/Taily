@@ -1,13 +1,15 @@
 package org.jikisan.taily.ui.screens.home
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,24 +46,25 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import com.vidspark.androidapp.ui.theme.OffBlue
+import io.github.aakira.napier.Napier
 import io.github.chouaibmo.rowkalendar.RowKalendar
 import io.github.chouaibmo.rowkalendar.components.DateCell
 import io.github.chouaibmo.rowkalendar.components.DateCellDefaults
 import io.github.chouaibmo.rowkalendar.extensions.now
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format
 import org.jetbrains.compose.resources.painterResource
-import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderList
-import org.jikisan.taily.domain.model.ReminderType
 import org.jikisan.taily.ui.components.Header
 import org.jikisan.taily.util.DateUtils.formatDateForDisplayWithDayOfWeek
 import org.jikisan.taily.util.DateUtils.formatToTime
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.notifications_24px
+import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 @Composable
 fun HomeScreen(
     navHostController: NavHostController,
@@ -70,6 +74,7 @@ fun HomeScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
+    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
 
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
@@ -108,7 +113,6 @@ fun HomeScreen(
                 }
             }
 
-            var selectedDate by remember { mutableStateOf(LocalDate.now()) }
             selectedDate?.let { date ->
                 Text(
                     text = formatDateForDisplayWithDayOfWeek(date),
@@ -121,7 +125,7 @@ fun HomeScreen(
             }
 
             Header("Reminders", modifier = Modifier.padding(top = 0.dp))
-            
+
             RowKalendar(
                 modifier = Modifier.height(100.dp),
                 content = { date, isSelected, onClick ->
@@ -141,7 +145,7 @@ fun HomeScreen(
                         ),
                         colors = DateCellDefaults.colors(
                             selectedContainerColor = MaterialTheme.colorScheme.surface,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.onSurface,
                             pastContainerColor = Color.Transparent,
                             pastTextColor = Color.LightGray,
                             futureContainerColor = Color.Transparent,
@@ -151,8 +155,6 @@ fun HomeScreen(
 
                 }
             )
-
-
 
             when {
                 uiState.isLoading && uiState.pets.isEmpty() -> {
@@ -188,18 +190,30 @@ fun HomeScreen(
 
                 uiState.reminders.isNotEmpty() -> {
 
-                    val reminders = uiState.reminders.sortedBy { it.dateTime }
+                    val currentTime = kotlinx.datetime.Clock.System.now()
+                    val upcomingReminders = uiState.reminders.filter { reminderList ->
+                        try {
+                            val reminderInstant = Instant.parse(reminderList.dateTime)
+                            reminderInstant > currentTime
+                        } catch (e: Exception) {
+                            Napier.e("Error parsing reminder dateTime: ${reminderList.dateTime}", e)
+                            false
+                        }
+                    }
+
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        items(reminders) { reminders ->
-                            ReminderItemCard(reminderList = reminders)
+                        items(uiState.reminders) { reminderList ->
+
+                            println("[DATETIME] DateTime: ${reminderList.dateTime} \n Selected Date: $selectedDate")
+
+
+                            ReminderItemCard(reminderList = reminderList)
                         }
                     }
                 }
-
-
             }
         }
 
@@ -217,30 +231,66 @@ fun ReminderItemCard(reminderList: ReminderList) {
     ) {
 
 
-            Row( horizontalArrangement = Arrangement.SpaceBetween) {
-                Column (Modifier
-                    .widthIn(min = 100.dp)
-                ) {
+        Row(
+            modifier = Modifier.height(IntrinsicSize.Min), // 👈 Important
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                Modifier
+                    .widthIn(min = 50.dp),
+                horizontalAlignment = Alignment.End,
+            ) {
 
-                    formatToTime(reminderList.dateTime)?.let { time ->
+                formatToTime(reminderList.dateTime)?.let { time ->
+                    val timeSplit = time.split(" ")
+                    val time = timeSplit[0]
+                    val amPm = timeSplit[1]
+
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
                         Text(
                             text = time,
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Black
+                            ),
+                        )
+                        Text(
+                            text = amPm,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = Color.LightGray
                             )
                         )
                     }
 
+
                 }
 
-                Column {
+            }
 
-                    reminderList.reminders.forEach { reminder ->
-                        ReminderCard(reminder = reminder)
-                    }
+            Box(
+                Modifier.padding(horizontal = 16.dp).fillMaxHeight(),
+            ) {
+                Canvas(
+                    modifier = Modifier
+                        .width(4.dp)
+                        .fillMaxHeight()
+                ) {
+                    drawRoundRect(
+                        color = OffBlue,
+                        cornerRadius = CornerRadius(x = size.width / 2, y = size.width / 2)
+                    )
                 }
             }
+
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                reminderList.reminders.forEach { reminder ->
+                    ReminderCard(reminder = reminder)
+                }
+            }
+        }
 
     }
 }

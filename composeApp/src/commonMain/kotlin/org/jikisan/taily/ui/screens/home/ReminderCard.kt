@@ -20,6 +20,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.vidspark.androidapp.ui.theme.Blue
+import com.vidspark.androidapp.ui.theme.LightGreenBackground
+import com.vidspark.androidapp.ui.theme.LightOrangeBackground
+import com.vidspark.androidapp.ui.theme.OffBlue
+import com.vidspark.androidapp.ui.theme.SoftGreen
+import com.vidspark.androidapp.ui.theme.SoftOrange
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderType
@@ -35,41 +42,36 @@ fun ReminderCard(
     reminder: Reminder,
     modifier: Modifier = Modifier
 ) {
+
+    var icon: DrawableResource
+    var surface: Color
+    var primary: Color
+
+    when (reminder.reminderType) {
+        ReminderType.PASSPORT -> {
+            icon = Res.drawable.pill_24px
+            surface = OffBlue
+            primary = Blue
+        }
+        ReminderType.PETCARE -> {
+            icon =Res.drawable.content_cut_24px
+            surface = LightGreenBackground
+            primary = SoftGreen
+        }
+        ReminderType.MEDICAL -> {
+            icon = Res.drawable.stethoscope_24px
+            surface = LightOrangeBackground
+            primary = SoftOrange
+        }
+    }
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+            .background(color = surface, shape = RoundedCornerShape(12.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon with background
-        Box(
-            modifier = Modifier
-                .size(48.dp)
-                .border(
-                    width = 1.dp, // Thickness of colored corners
-                    color = MaterialTheme.colorScheme.primary, // Corner color
-                    shape = RoundedCornerShape(12.dp)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-
-            val icon = when (reminder.reminderType) {
-                ReminderType.PASSPORT -> Res.drawable.pill_24px
-                ReminderType.PETCARE -> Res.drawable.content_cut_24px
-                ReminderType.MEDICAL -> Res.drawable.stethoscope_24px
-            }
-
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = "Pill icon",
-                tint = MaterialTheme.colorScheme.primary, // Or keep white
-                modifier = Modifier.size(24.dp)
-            )
-        }
-
-
-        Spacer(modifier = Modifier.width(12.dp))
 
         // Text content
         Column(modifier = Modifier.weight(1f)) {
@@ -84,37 +86,29 @@ fun ReminderCard(
                 text = reminder.petName,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = primary
                 )
             )
         }
 
-        // Date and Time
-//        Column(horizontalAlignment = Alignment.End) {
-//
-//            val utcDate = schedule.schedDateTime.trim()
-//            val readableDate = DateUtils.formatToReadableDate(utcDate)
-//            val time = DateUtils.formatToTime(utcDate)
-//
-//            readableDate?.let {
-//                Text(
-//                    text = it,
-//                    style = MaterialTheme.typography.bodyMedium.copy(
-//                        color = Color.Gray
-//                    )
-//                )
-//            }
-//
-//            time?.let {
-//                Text(
-//                    text = it,
-//                    style = MaterialTheme.typography.bodyLarge.copy(
-//                        fontWeight = FontWeight.SemiBold,
-//                        color = Color(0xFF2C2C2C)
-//                    )
-//                )
-//            }
-//
-//        }
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .border(
+                    width = 1.dp, // Thickness of colored corners
+                    color = primary, // Corner color
+                    shape = RoundedCornerShape(12.dp)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(icon),
+                contentDescription = "Pill icon",
+                tint = primary, // Or keep white
+                modifier = Modifier.size(24.dp)
+            )
+        }
     }
 }

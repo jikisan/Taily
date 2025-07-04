@@ -1,4 +1,4 @@
-package org.jikisan.taily.ui.screens.home
+package org.jikisan.taily.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,10 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.model.pet.MedicalRecord
-import org.jikisan.taily.model.pet.PetCare
 import org.jikisan.taily.util.DateUtils
 import taily.composeapp.generated.resources.Res
-import taily.composeapp.generated.resources.content_cut_24px
 import taily.composeapp.generated.resources.stethoscope_24px
 
 @Composable

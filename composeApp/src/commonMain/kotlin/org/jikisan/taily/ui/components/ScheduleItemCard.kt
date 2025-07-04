@@ -1,4 +1,4 @@
-package org.jikisan.taily.ui.screens.home
+package org.jikisan.taily.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,16 +21,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
-import org.jikisan.taily.model.pet.PetCare
 import org.jikisan.taily.model.pet.Schedule
 import org.jikisan.taily.util.DateUtils
 import taily.composeapp.generated.resources.Res
-import taily.composeapp.generated.resources.content_cut_24px
 import taily.composeapp.generated.resources.pill_24px
 
 @Composable
-fun PetCareItemCard(
-    petCare: PetCare,
+fun ScheduleItemCard(
+    schedule: Schedule,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -52,7 +50,7 @@ fun PetCareItemCard(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(Res.drawable.content_cut_24px),
+                painter = painterResource(Res.drawable.pill_24px),
                 contentDescription = "Pill icon",
                 tint = MaterialTheme.colorScheme.primary, // Or keep white
                 modifier = Modifier.size(24.dp)
@@ -65,14 +63,14 @@ fun PetCareItemCard(
         // Text content
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = petCare.careType,
+                text = schedule.vaccineType,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
             )
             Text(
-                text = petCare.clinic,
+                text = schedule.hospital,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -83,7 +81,7 @@ fun PetCareItemCard(
         // Date and Time
         Column(horizontalAlignment = Alignment.End) {
 
-            val utcDate = petCare.groomingDateTime.trim()
+            val utcDate = schedule.schedDateTime.trim()
             val readableDate = DateUtils.formatToReadableDate(utcDate)
             val time = DateUtils.formatToTime(utcDate)
 
