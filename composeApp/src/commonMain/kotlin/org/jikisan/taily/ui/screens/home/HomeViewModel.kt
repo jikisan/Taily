@@ -11,6 +11,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.model.Reminder
@@ -187,5 +191,23 @@ class HomeViewModel(
         }
     }
 
+    fun filterReminders(selectedDate: LocalDate): List<ReminderList> {
 
+        return uiState.value.reminders.filter { reminderList ->
+            try {
+                val reminderInstant = Instant.parse(reminderList.dateTime)
+                val reminderDate =
+                    reminderInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val isSelectedDate = reminderDate == selectedDate
+
+                isSelectedDate
+
+            } catch (e: Exception) {
+                Napier.e("Error parsing reminder dateTime: ${reminderList.dateTime}", e)
+                false
+            }
+        }
+
+
+    }
 }

@@ -192,26 +192,13 @@ fun HomeScreen(
 
                 uiState.reminders.isNotEmpty() -> {
 
-                    val currentTime = kotlinx.datetime.Clock.System.now()
-                    val selectedReminders = uiState.reminders.filter { reminderList ->
-                        try {
-                            val reminderInstant = Instant.parse(reminderList.dateTime)
-                            val reminderDate =
-                                reminderInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
-                            val isSelectedDate = reminderDate == selectedDate
-//                            val isUpcoming = reminderInstant > currentTime
-                            isSelectedDate
-                        } catch (e: Exception) {
-                            Napier.e("Error parsing reminder dateTime: ${reminderList.dateTime}", e)
-                            false
-                        }
-                    }
+                    val reminders = viewModel.filterReminders(selectedDate)
 
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(selectedReminders) { reminderList ->
+                        items(reminders) { reminderList ->
 
                             println("[DATETIME] DateTime: ${reminderList.dateTime} \n Selected Date: $selectedDate")
 
