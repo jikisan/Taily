@@ -72,13 +72,15 @@ fun ScheduleItemCard(
         // Date and Time
         Column(horizontalAlignment = Alignment.End) {
 
-            val utcDate = schedule.schedDateTime
+            val utcDate = schedule.schedDateTime.trim()
+            val parsedDate = DateUtils.parseIsoDate(utcDate)
             val readableDate = DateUtils.formatToReadableDate(utcDate)
             val time = DateUtils.formatToTime(utcDate)
 
             Napier.d { "[DATA] utcDate: $utcDate" }
             Napier.d { "[DATA] readableDate: $readableDate" }
             Napier.d { "[DATA] time: $time" }
+
 
             readableDate?.let {
                 Text(

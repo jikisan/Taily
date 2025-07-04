@@ -26,12 +26,20 @@ object DateUtils {
             if (parts.size != 2) return null
 
             val datePart = parts[0] // "2024-01-01"
-            val timePart = parts[1] // "00:00:00"
+            val timePart = parts[1] // "00:00:00" or "00:00:00.000"
 
             val dateComponents = datePart.split("-")
             val timeComponents = timePart.split(":")
 
             if (dateComponents.size != 3 || timeComponents.size != 3) return null
+
+            // Handle milliseconds in seconds part
+            val secondsPart = timeComponents[2]
+            val seconds = if (secondsPart.contains(".")) {
+                secondsPart.split(".")[0].toInt()
+            } else {
+                secondsPart.toInt()
+            }
 
             DateComponents(
                 year = dateComponents[0].toInt(),
@@ -39,7 +47,7 @@ object DateUtils {
                 day = dateComponents[2].toInt(),
                 hour = timeComponents[0].toInt(),
                 minute = timeComponents[1].toInt(),
-                second = timeComponents[2].toInt()
+                second = seconds
             )
         } catch (e: Exception) {
             null

@@ -83,7 +83,7 @@ fun HomeScreen(
 
             uiState.schedules.isNotEmpty() -> {
 
-                val schedules = uiState.schedules
+                val schedules = uiState.schedules.sortedBy { it.schedDateTime }
 
                 PullToRefreshBox(
                     isRefreshing = uiState.isRefreshing,
