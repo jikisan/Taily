@@ -56,7 +56,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.ui.components.DateCell
 import org.jikisan.taily.ui.components.DateCellDefaults
+import org.jikisan.taily.ui.components.EmptyScreen
+import org.jikisan.taily.ui.components.ErrorScreen
 import org.jikisan.taily.ui.components.Header
+import org.jikisan.taily.ui.components.LoadingScreen
 import org.jikisan.taily.ui.components.RowCalendar
 import org.jikisan.taily.ui.components.now
 import org.jikisan.taily.util.DateUtils.formatDateForDisplayWithDayOfWeek
@@ -131,57 +134,11 @@ fun HomeScreen(
 
             when {
                 uiState.isLoading && uiState.reminders.isEmpty() -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 150.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-//                        CircularProgressIndicator()
-
-                        val composition by rememberLottieComposition {
-                            LottieCompositionSpec.JsonString(
-                                Res.readBytes("drawable/loading_paw.json").decodeToString()
-                            )
-                        }
-
-                        Image(
-                            painter = rememberLottiePainter(
-                                composition = composition,
-                                iterations = Compottie.IterateForever
-                            ),
-                            contentDescription = "Loading animation",
-                            modifier = Modifier.size(100.dp)
-                        )
-
-                    }
+                    LoadingScreen()
                 }
 
                 uiState.errorMessage != null && uiState.reminders.isEmpty() -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Image(
-                            painter = painterResource(Res.drawable.dog_page_eaten_sad),
-                            contentDescription = "Error Icon",
-                            modifier = Modifier.size(200.dp)
-                        )
-                        Text(
-                            text = "${uiState.errorMessage}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Button(onClick = { viewModel.refreshReminders() }) {
-                            Text("Retry")
-                        }
-                    }
+                    ErrorScreen(uiState.errorMessage, { viewModel.refreshReminders() })
                 }
 
                 uiState.reminders.isNotEmpty() -> {
@@ -221,27 +178,8 @@ fun HomeScreen(
                         }
                     )
 
-
-                    // Show "No Reminders" only if filtered reminders for selected date are empty
                     if (reminders.isEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(bottom = 150.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Image(
-                                painter = painterResource(Res.drawable.happy_pet),
-                                contentDescription = "Error Icon",
-                                modifier = Modifier.size(200.dp)
-                            )
-                            Text(
-                                text = "No Reminders",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.Gray
-                            )
-                        }
+                        EmptyScreen("No Reminders")
                     } else {
                         // Show reminders list only if there are reminders for selected date
                         LazyColumn(
@@ -259,24 +197,7 @@ fun HomeScreen(
                 }
 
                 else -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 150.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Image(
-                            painter = painterResource(Res.drawable.happy_pet),
-                            contentDescription = "Error Icon",
-                            modifier = Modifier.size(200.dp)
-                        )
-                        Text(
-                            text = "No Reminders",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
-                    }
+                    EmptyScreen("No Reminders")
                 }
             }
         }
@@ -284,6 +205,9 @@ fun HomeScreen(
     }
 
 }
+
+
+
 
 @Composable
 fun ReminderItemCard(reminderList: ReminderList, navHostController: NavHostController) {

@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.domain.pet.PetRepository
-import org.jikisan.taily.ui.uistates.HomeUIState
 import org.jikisan.taily.ui.uistates.PetUIState
 
 class PetViewModel(
@@ -48,7 +47,7 @@ class PetViewModel(
         }
     }
 
-    fun refresh() {
+    fun refreshPets() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
 

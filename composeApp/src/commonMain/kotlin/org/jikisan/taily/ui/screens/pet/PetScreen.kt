@@ -22,13 +22,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData.mockPets
+import org.jikisan.taily.ui.components.EmptyScreen
+import org.jikisan.taily.ui.components.ErrorScreen
 import org.jikisan.taily.ui.components.Header
+import org.jikisan.taily.ui.components.LoadingScreen
 import org.jikisan.taily.ui.screens.home.PetCard
 import org.jikisan.taily.ui.uistates.PetUIState
 import org.koin.compose.viewmodel.koinViewModel
@@ -45,7 +48,7 @@ fun PetScreen(
     PetScreenContent(
         uiState = uiState,
         onLoadPets = { viewModel.loadPets() },
-        onRefresh = { viewModel.refresh() },
+        onRefresh = { viewModel.refreshPets() },
         modifier = modifier.padding(top = topPadding)
     )
 }
@@ -58,66 +61,30 @@ private fun PetScreenContent(
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
+
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = onRefresh,
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Header
-        Header("My Pets")
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+        ) {
+            // Header
+            Header("My Pets")
 
-        // Content
-        when {
-            uiState.isLoading && uiState.pets.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+            // Content
+            when {
+                uiState.isLoading && uiState.pets.isEmpty() -> {
+                    LoadingScreen()
                 }
-            }
 
-            uiState.errorMessage != null && uiState.pets.isEmpty() -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "Error: ${uiState.errorMessage}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onLoadPets) {
-                        Text("Retry")
-                    }
+                uiState.errorMessage != null && uiState.pets.isEmpty() -> {
+                    ErrorScreen(uiState.errorMessage, onRefresh)
                 }
-            }
 
-            uiState.pets.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No pets found",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            }
-
-            else -> {
-                PullToRefreshBox(
-                    isRefreshing = uiState.isRefreshing,
-                    onRefresh = onRefresh,
-                    modifier = Modifier.fillMaxSize()
-                ) {
+                uiState.pets.isNotEmpty() -> {
                     LazyColumn(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -127,9 +94,15 @@ private fun PetScreenContent(
                         }
                     }
                 }
+
+                else -> {
+                    EmptyScreen("No pets found")
+
+                }
             }
         }
     }
+
 }
 
 // Preview composables
