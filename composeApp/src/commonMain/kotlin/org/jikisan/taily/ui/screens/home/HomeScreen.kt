@@ -47,18 +47,20 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.vidspark.androidapp.ui.theme.OffBlue
-import io.github.aakira.napier.Napier
-import io.github.chouaibmo.rowkalendar.RowKalendar
-import io.github.chouaibmo.rowkalendar.components.DateCell
-import io.github.chouaibmo.rowkalendar.components.DateCellDefaults
-import io.github.chouaibmo.rowkalendar.extensions.now
-import kotlinx.datetime.Instant
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.ReminderList
+import org.jikisan.taily.ui.components.DateCell
+import org.jikisan.taily.ui.components.DateCellDefaults
+import org.jikisan.taily.ui.components.EventDot
 import org.jikisan.taily.ui.components.Header
+import org.jikisan.taily.ui.components.RowCalendar
+import org.jikisan.taily.ui.components.now
 import org.jikisan.taily.util.DateUtils.formatDateForDisplayWithDayOfWeek
 import org.jikisan.taily.util.DateUtils.formatToTime
 import org.koin.compose.viewmodel.koinViewModel
@@ -76,7 +78,14 @@ fun HomeScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
+//    var selectedDate by remember {
+//        mutableStateOf<LocalDate>(
+//            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+//        )
+//    }
+
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
+
 
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
@@ -128,35 +137,8 @@ fun HomeScreen(
 
             Header("Reminders", modifier = Modifier.padding(top = 0.dp))
 
-            RowKalendar(
-                modifier = Modifier.height(100.dp),
-                content = { date, isSelected, onClick ->
-                    DateCell(
-                        date = date,
-                        isSelected = isSelected,
-                        onDateSelected = {
-                            selectedDate = date
-                            onClick(date)
-                        },
-                        modifier = Modifier.padding(2.dp),
-                        shape = RoundedCornerShape(25.dp),
-                        elevation = DateCellDefaults.DateCellElevation(
-                            selectedElevation = 4.dp,
-                            pastElevation = 0.dp,
-                            futureElevation = 0.dp
-                        ),
-                        colors = DateCellDefaults.colors(
-                            selectedContainerColor = MaterialTheme.colorScheme.surface,
-                            selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                            pastContainerColor = Color.Transparent,
-                            pastTextColor = Color.LightGray,
-                            futureContainerColor = Color.Transparent,
-                            futureTextColor = Color.LightGray
-                        ),
-                    )
 
-                }
-            )
+
 
             when {
                 uiState.isLoading && uiState.pets.isEmpty() -> {
@@ -193,6 +175,56 @@ fun HomeScreen(
                 uiState.reminders.isNotEmpty() -> {
 
                     val reminders = viewModel.filterReminders(selectedDate)
+
+//                    val sampleEvents = remember {
+//                        mapOf(
+//                            LocalDate.now() to listOf(
+//                                EventDot(Color.Red, 2),
+//                                EventDot(Color.Blue, 1)
+//                            ),
+//                            LocalDate.now().plus(1, DateTimeUnit.DAY) to listOf(
+//                                EventDot(Color.Green, 1)
+//                            ),
+//                            LocalDate.now().plus(3, DateTimeUnit.DAY) to listOf(
+//                                EventDot(Color.Yellow, 3)
+//                            )
+//                        )
+//                    }
+
+                    val sampleEvents = viewModel.mapEventDots(uiState.reminders)
+
+                    RowCalendar(
+                        modifier = Modifier.height(100.dp),
+                        selectedDate = selectedDate,
+                        onDateSelected = { date ->
+                            selectedDate = date
+                        },
+                        events = sampleEvents,
+                        content = { date, isSelected, events, onClick ->
+                            DateCell(
+                                date = date,
+                                isSelected = isSelected,
+                                events = events,
+                                onClick = onClick,
+                                modifier = Modifier.padding(2.dp),
+                                shape = RoundedCornerShape(25.dp),
+                                elevation = DateCellDefaults.elevation(
+                                    selectedElevation = 0.dp,
+                                    pastElevation = 0.dp,
+                                    futureElevation = 0.dp
+                                ),
+                                colors = DateCellDefaults.colors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.surface,
+                                    selectedTextColor = Color.Black,
+                                    pastContainerColor = Color.Transparent,
+                                    pastTextColor = Color.LightGray,
+                                    futureContainerColor = Color.Transparent,
+                                    futureTextColor = Color.LightGray
+                                ),
+                            )
+                        }
+                    )
+
 
                     LazyColumn(
                         contentPadding = PaddingValues(vertical = 8.dp),

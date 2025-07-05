@@ -1,8 +1,13 @@
 package org.jikisan.taily.ui.screens.home
 
 import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vidspark.androidapp.ui.theme.Blue
+import com.vidspark.androidapp.ui.theme.OffBlue
+import com.vidspark.androidapp.ui.theme.SoftGreen
+import com.vidspark.androidapp.ui.theme.SoftOrange
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +25,9 @@ import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.domain.model.ReminderType
+import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Passport
+import org.jikisan.taily.ui.components.EventDot
 import org.jikisan.taily.ui.uistates.HomeUIState
 
 class HomeViewModel(
@@ -50,58 +57,7 @@ class HomeViewModel(
                 .collect { pets ->
                     Napier.v("$TAG Load All Pets")
 
-                    val remindersList = pets.flatMap { pet ->
-                        // Collect all reminders for this pet
-                        val allReminders = mutableListOf<Pair<String, Reminder>>()
-
-                        // Add passport schedules
-                        pet.passport?.schedules?.forEach { schedule ->
-                            allReminders.add(
-                                schedule.schedDateTime to Reminder(
-                                    id = schedule.id,
-                                    type = schedule.vaccineType,
-                                    reminderType = ReminderType.PASSPORT,
-                                    petId = pet.id,
-                                    petName = pet.name
-                                )
-                            )
-                        }
-
-                        // Add pet care
-                        pet.petCare?.forEach { care ->
-                            allReminders.add(
-                                care.groomingDateTime to Reminder(
-                                    id = care.id,
-                                    type = care.careType,
-                                    reminderType = ReminderType.PETCARE,
-                                    petId = pet.id,
-                                    petName = pet.name
-                                )
-                            )
-                        }
-
-                        // Add medical records
-                        pet.medicalRecords?.forEach { medical ->
-                            allReminders.add(
-                                medical.medicalDateTime to Reminder(
-                                    id = medical.id,
-                                    type = medical.medicalType,
-                                    reminderType = ReminderType.MEDICAL,
-                                    petId = pet.id,
-                                    petName = pet.name
-                                )
-                            )
-                        }
-
-                        // Group by exact datetime and create ReminderList
-                        allReminders.groupBy { it.first }
-                            .map { (dateTime, reminders) ->
-                                ReminderList(
-                                    dateTime = dateTime,
-                                    reminders = reminders.map { it.second }
-                                )
-                            }
-                    }.sortedBy { it.dateTime } // Sort by datetime
+                    val remindersList = sortDateTime(pets) // Sort by datetime
 
                     _uiState.value = _uiState.value.copy(
                         pets = pets,
@@ -128,58 +84,7 @@ class HomeViewModel(
                 .collect { pets ->
                     Napier.v("$TAG Refresh Load All Pets success")
 
-                    val remindersList = pets.flatMap { pet ->
-                        // Collect all reminders for this pet
-                        val allReminders = mutableListOf<Pair<String, Reminder>>()
-
-                        // Add passport schedules
-                        pet.passport?.schedules?.forEach { schedule ->
-                            allReminders.add(
-                                schedule.schedDateTime to Reminder(
-                                    id = schedule.id,
-                                    type = schedule.vaccineType,
-                                    reminderType = ReminderType.PASSPORT,
-                                    petId = pet.id,
-                                    petName = pet.name
-                                )
-                            )
-                        }
-
-                        // Add pet care
-                        pet.petCare?.forEach { care ->
-                            allReminders.add(
-                                care.groomingDateTime to Reminder(
-                                    id = care.id,
-                                    type = care.careType,
-                                    reminderType = ReminderType.PETCARE,
-                                    petId = pet.id,
-                                    petName = pet.name
-                                )
-                            )
-                        }
-
-                        // Add medical records
-                        pet.medicalRecords?.forEach { medical ->
-                            allReminders.add(
-                                medical.medicalDateTime to Reminder(
-                                    id = medical.id,
-                                    type = medical.medicalType,
-                                    reminderType = ReminderType.MEDICAL,
-                                    petId = pet.id,
-                                    petName = pet.name
-                                )
-                            )
-                        }
-
-                        // Group by exact datetime and create ReminderList
-                        allReminders.groupBy { it.first }
-                            .map { (dateTime, reminders) ->
-                                ReminderList(
-                                    dateTime = dateTime,
-                                    reminders = reminders.map { it.second }
-                                )
-                            }
-                    }.sortedBy { it.dateTime } // Sort by datetime
+                    val remindersList = sortDateTime(pets) // Sort by datetime
 
                     _uiState.value = _uiState.value.copy(
                         pets = pets,
@@ -207,7 +112,93 @@ class HomeViewModel(
                 false
             }
         }
-
-
     }
+
+    fun mapEventDots(reminders: List<ReminderList>): Map<LocalDate, List<EventDot>> {
+        val eventMap = mutableMapOf<LocalDate, MutableSet<ReminderType>>()
+
+        reminders.forEach { reminderList ->
+            try {
+                val reminderInstant = Instant.parse(reminderList.dateTime)
+                val reminderDate =
+                    reminderInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+                // Get existing reminder types for this date or create new set
+                val existingTypes = eventMap.getOrPut(reminderDate) { mutableSetOf() }
+
+                // Add all reminder types from this reminder list
+                reminderList.reminders.forEach { reminder ->
+                    existingTypes.add(reminder.reminderType)
+                }
+            } catch (e: Exception) {
+                Napier.e("Error parsing reminder dateTime: ${reminderList.dateTime}", e)
+            }
+        }
+
+        // Convert to EventDots
+        return eventMap.mapValues { (_, reminderTypes) ->
+            reminderTypes.map { reminderType ->
+                val color = when (reminderType) {
+                    ReminderType.PASSPORT -> Blue
+                    ReminderType.PETCARE -> SoftGreen
+                    ReminderType.MEDICAL -> SoftOrange
+                }
+                EventDot(color = color, count = 1)
+            }
+        }
+    }
+
+    private fun sortDateTime(pets: List<Pet>): List<ReminderList> = pets.flatMap { pet ->
+        // Collect all reminders for this pet
+        val allReminders = mutableListOf<Pair<String, Reminder>>()
+
+        // Add passport schedules
+        pet.passport?.schedules?.forEach { schedule ->
+            allReminders.add(
+                schedule.schedDateTime to Reminder(
+                    id = schedule.id,
+                    type = schedule.vaccineType,
+                    reminderType = ReminderType.PASSPORT,
+                    petId = pet.id,
+                    petName = pet.name
+                )
+            )
+        }
+
+        // Add pet care
+        pet.petCare?.forEach { care ->
+            allReminders.add(
+                care.groomingDateTime to Reminder(
+                    id = care.id,
+                    type = care.careType,
+                    reminderType = ReminderType.PETCARE,
+                    petId = pet.id,
+                    petName = pet.name
+                )
+            )
+        }
+
+        // Add medical records
+        pet.medicalRecords?.forEach { medical ->
+            allReminders.add(
+                medical.medicalDateTime to Reminder(
+                    id = medical.id,
+                    type = medical.medicalType,
+                    reminderType = ReminderType.MEDICAL,
+                    petId = pet.id,
+                    petName = pet.name
+                )
+            )
+        }
+
+        // Group by exact datetime and create ReminderList
+        allReminders.groupBy { it.first }
+            .map { (dateTime, reminders) ->
+                ReminderList(
+                    dateTime = dateTime,
+                    reminders = reminders.map { it.second }
+                )
+            }
+    }.sortedBy { it.dateTime }
+
 }
