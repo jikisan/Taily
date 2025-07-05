@@ -1,6 +1,7 @@
 package org.jikisan.taily.ui.screens.home
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,18 +47,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.vidspark.androidapp.ui.theme.OffBlue
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
+import io.github.alexzhirkevich.compottie.Compottie
+import io.github.alexzhirkevich.compottie.LottieCompositionSpec
+import io.github.alexzhirkevich.compottie.rememberLottieComposition
+import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.ui.components.DateCell
 import org.jikisan.taily.ui.components.DateCellDefaults
-import org.jikisan.taily.ui.components.EventDot
 import org.jikisan.taily.ui.components.Header
 import org.jikisan.taily.ui.components.RowCalendar
 import org.jikisan.taily.ui.components.now
@@ -65,6 +65,8 @@ import org.jikisan.taily.util.DateUtils.formatDateForDisplayWithDayOfWeek
 import org.jikisan.taily.util.DateUtils.formatToTime
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
+import taily.composeapp.generated.resources.dog_page_eaten_sad
+import taily.composeapp.generated.resources.happy_pet
 import taily.composeapp.generated.resources.notifications_24px
 import kotlin.time.ExperimentalTime
 
@@ -78,14 +80,7 @@ fun HomeScreen(
 ) {
 
     val uiState by viewModel.uiState.collectAsState()
-//    var selectedDate by remember {
-//        mutableStateOf<LocalDate>(
-//            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-//        )
-//    }
-
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-
 
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
@@ -98,7 +93,6 @@ fun HomeScreen(
                 .padding(top = topPadding, start = 16.dp, end = 16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-
 
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
@@ -126,33 +120,46 @@ fun HomeScreen(
 
             selectedDate?.let { date ->
                 Text(
-                    text = formatDateForDisplayWithDayOfWeek(date),
+                    text = formatDateForDisplayWithDayOfWeek(LocalDate.now()),
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color.LightGray,
+                    color = Color.Gray,
                     textAlign = TextAlign.Left
                 )
             }
 
             Header("Reminders", modifier = Modifier.padding(top = 0.dp))
 
-
-
-
             when {
-                uiState.isLoading && uiState.pets.isEmpty() -> {
+                uiState.isLoading && uiState.reminders.isEmpty() -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(16.dp),
+                            .padding(bottom = 150.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator()
+//                        CircularProgressIndicator()
+
+                        val composition by rememberLottieComposition {
+                            LottieCompositionSpec.JsonString(
+                                Res.readBytes("drawable/loading_paw.json").decodeToString()
+                            )
+                        }
+
+                        Image(
+                            painter = rememberLottiePainter(
+                                composition = composition,
+                                iterations = Compottie.IterateForever
+                            ),
+                            contentDescription = "Loading animation",
+                            modifier = Modifier.size(100.dp)
+                        )
+
                     }
                 }
 
-                uiState.errorMessage != null && uiState.pets.isEmpty() -> {
+                uiState.errorMessage != null && uiState.reminders.isEmpty() -> {
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -160,12 +167,19 @@ fun HomeScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = "Error: ${uiState.errorMessage}",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
+                        Image(
+                            painter = painterResource(Res.drawable.dog_page_eaten_sad),
+                            contentDescription = "Error Icon",
+                            modifier = Modifier.size(200.dp)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "${uiState.errorMessage}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Button(onClick = { viewModel.refresh() }) {
                             Text("Retry")
                         }
@@ -175,22 +189,6 @@ fun HomeScreen(
                 uiState.reminders.isNotEmpty() -> {
 
                     val reminders = viewModel.filterReminders(selectedDate)
-
-//                    val sampleEvents = remember {
-//                        mapOf(
-//                            LocalDate.now() to listOf(
-//                                EventDot(Color.Red, 2),
-//                                EventDot(Color.Blue, 1)
-//                            ),
-//                            LocalDate.now().plus(1, DateTimeUnit.DAY) to listOf(
-//                                EventDot(Color.Green, 1)
-//                            ),
-//                            LocalDate.now().plus(3, DateTimeUnit.DAY) to listOf(
-//                                EventDot(Color.Yellow, 3)
-//                            )
-//                        )
-//                    }
-
                     val sampleEvents = viewModel.mapEventDots(uiState.reminders)
 
                     RowCalendar(
@@ -226,16 +224,38 @@ fun HomeScreen(
                     )
 
 
-                    LazyColumn(
-                        contentPadding = PaddingValues(vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(reminders) { reminderList ->
-
-                            println("[DATETIME] DateTime: ${reminderList.dateTime} \n Selected Date: $selectedDate")
-
-
-                            ReminderItemCard(reminderList = reminderList)
+                    // Show "No Reminders" only if filtered reminders for selected date are empty
+                    if (reminders.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(bottom = 150.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                painter = painterResource(Res.drawable.happy_pet),
+                                contentDescription = "Error Icon",
+                                modifier = Modifier.size(200.dp)
+                            )
+                            Text(
+                                text = "No Reminders",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Gray
+                            )
+                        }
+                    } else {
+                        // Show reminders list only if there are reminders for selected date
+                        LazyColumn(
+                            contentPadding = PaddingValues(vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(reminders) { reminderList ->
+                                ReminderItemCard(
+                                    reminderList = reminderList,
+                                    navHostController = navHostController
+                                )
+                            }
                         }
                     }
                 }
@@ -247,14 +267,13 @@ fun HomeScreen(
 }
 
 @Composable
-fun ReminderItemCard(reminderList: ReminderList) {
+fun ReminderItemCard(reminderList: ReminderList, navHostController: NavHostController) {
 
     Column(
         modifier = Modifier
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-
 
         Row(
             modifier = Modifier.height(IntrinsicSize.Min), // 👈 Important
@@ -310,9 +329,14 @@ fun ReminderItemCard(reminderList: ReminderList) {
                 }
             }
 
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 reminderList.reminders.forEach { reminder ->
-                    ReminderCard(reminder = reminder)
+                    ReminderCard(
+                        reminder = reminder,
+                        navHost = navHostController
+                    )
                 }
             }
         }

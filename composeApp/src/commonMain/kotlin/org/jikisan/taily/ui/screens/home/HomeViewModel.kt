@@ -62,6 +62,7 @@ class HomeViewModel(
                     _uiState.value = _uiState.value.copy(
                         pets = pets,
                         reminders = remindersList,
+                        isLoading = false,
                         isRefreshing = false,
                         errorMessage = null
                     )

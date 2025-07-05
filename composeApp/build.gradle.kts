@@ -76,8 +76,13 @@ kotlin {
             implementation("io.github.aakira:napier:2.7.1")
 
             // Row calendar
-//            implementation("io.github.chouaibmo:rowkalendar:0.0.3")
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+
+            // Lottie
+            implementation("io.github.alexzhirkevich:compottie:2.0.0-rc04")
+            implementation("io.github.alexzhirkevich:compottie-dot:2.0.0-rc04")
+            implementation("io.github.alexzhirkevich:compottie-network:2.0.0-rc04")
+
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

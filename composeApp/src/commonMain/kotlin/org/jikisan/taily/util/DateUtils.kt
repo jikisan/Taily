@@ -209,7 +209,8 @@ object DateUtils {
         val day = date.dayOfMonth                            // 1
         val year = date.year                                  // 2001
         val dayOfWeek = date.dayOfWeek.name.lowercase()
-            .replaceFirstChar { it.uppercase() }              // Wednesday
+            .replaceFirstChar { it.uppercase() }
+            .take(3)             // Wednesday
         return "$month $day, $year - $dayOfWeek"
     }
 

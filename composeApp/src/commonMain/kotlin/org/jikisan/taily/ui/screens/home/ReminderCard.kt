@@ -2,6 +2,7 @@ package org.jikisan.taily.ui.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,12 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.vidspark.androidapp.ui.theme.Blue
 import com.vidspark.androidapp.ui.theme.LightGreenBackground
 import com.vidspark.androidapp.ui.theme.LightOrangeBackground
 import com.vidspark.androidapp.ui.theme.OffBlue
 import com.vidspark.androidapp.ui.theme.SoftGreen
 import com.vidspark.androidapp.ui.theme.SoftOrange
+import io.github.aakira.napier.Napier
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.Reminder
@@ -40,7 +44,8 @@ import taily.composeapp.generated.resources.stethoscope_24px
 @Composable
 fun ReminderCard(
     reminder: Reminder,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navHost: NavHostController,
 ) {
 
     var icon: DrawableResource
@@ -53,11 +58,13 @@ fun ReminderCard(
             surface = OffBlue
             primary = Blue
         }
+
         ReminderType.PETCARE -> {
-            icon =Res.drawable.content_cut_24px
+            icon = Res.drawable.content_cut_24px
             surface = LightGreenBackground
             primary = SoftGreen
         }
+
         ReminderType.MEDICAL -> {
             icon = Res.drawable.stethoscope_24px
             surface = LightOrangeBackground
@@ -69,7 +76,8 @@ fun ReminderCard(
         modifier = modifier
             .fillMaxWidth()
             .background(color = surface, shape = RoundedCornerShape(12.dp))
-            .padding(12.dp),
+            .padding(12.dp)
+            .clickable(onClick = {  }),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
