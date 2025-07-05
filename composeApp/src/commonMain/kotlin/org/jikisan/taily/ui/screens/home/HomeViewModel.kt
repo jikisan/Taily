@@ -1,11 +1,8 @@
 package org.jikisan.taily.ui.screens.home
 
-import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vidspark.androidapp.ui.theme.Blue
-import com.vidspark.androidapp.ui.theme.OffBlue
 import com.vidspark.androidapp.ui.theme.SoftGreen
 import com.vidspark.androidapp.ui.theme.SoftOrange
 import io.github.aakira.napier.Napier
@@ -13,8 +10,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -26,7 +21,6 @@ import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.domain.model.ReminderType
 import org.jikisan.taily.domain.model.pet.Pet
-import org.jikisan.taily.model.pet.Passport
 import org.jikisan.taily.ui.components.EventDot
 import org.jikisan.taily.ui.uistates.HomeUIState
 
@@ -38,10 +32,10 @@ class HomeViewModel(
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
     init {
-        loadPets()
+        getReminders()
     }
 
-    fun loadPets() {
+    fun getReminders() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
@@ -70,7 +64,7 @@ class HomeViewModel(
         }
     }
 
-    fun refresh() {
+    fun refreshReminders() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
 
