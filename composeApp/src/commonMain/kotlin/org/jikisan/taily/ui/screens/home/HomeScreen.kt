@@ -259,6 +259,27 @@ fun HomeScreen(
                         }
                     }
                 }
+
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 150.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.happy_pet),
+                            contentDescription = "Error Icon",
+                            modifier = Modifier.size(200.dp)
+                        )
+                        Text(
+                            text = "No Reminders",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                    }
+                }
             }
         }
 

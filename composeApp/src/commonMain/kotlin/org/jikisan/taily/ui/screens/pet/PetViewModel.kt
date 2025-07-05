@@ -29,7 +29,7 @@ class PetViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            petRepository.getPets()
+            petRepository.getPetsByUserId()
                 .catch { throwable ->
                     Napier.v("$TAG Load All Pets Failed")
                     _uiState.value = _uiState.value.copy(
@@ -52,7 +52,7 @@ class PetViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
 
-            petRepository.getPets()
+            petRepository.getPetsByUserId()
                 .catch { throwable ->
                     Napier.v("$TAG Refresh Load All Pets")
                     _uiState.value = _uiState.value.copy(

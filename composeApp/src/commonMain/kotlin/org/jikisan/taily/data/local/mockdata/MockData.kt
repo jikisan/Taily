@@ -7,6 +7,8 @@ import org.jikisan.taily.model.pet.Owner
 import org.jikisan.taily.model.pet.Passport
 
 object MockData {
+
+    val MOCK_USERID = "6869105153aac51773a14698"
     val mockPets = listOf(
         Pet(
             id = "1",

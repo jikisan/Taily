@@ -46,16 +46,16 @@ class HomeViewModel(
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
 
-            homeRepository.getPets()
+            homeRepository.getPetsByUserId()
                 .catch { throwable ->
-                    Napier.v("$TAG Load All Pets Failed")
+                    Napier.v("$TAG Load All Pets By User ID Failed")
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = throwable.message ?: "Unknown error occurred"
+                        errorMessage = "Failed to load reminders"
                     )
                 }
                 .collect { pets ->
-                    Napier.v("$TAG Load All Pets")
+                    Napier.v("$TAG Load All Pets By User ID Success")
 
                     val remindersList = sortDateTime(pets) // Sort by datetime
 
@@ -74,7 +74,7 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isRefreshing = true)
 
-            homeRepository.getPets()
+            homeRepository.getPetsByUserId()
                 .catch { throwable ->
                     Napier.v("$TAG Refresh Load All Pets failed")
                     _uiState.value = _uiState.value.copy(

@@ -17,6 +17,7 @@ import io.ktor.http.contentType
 import io.ktor.util.network.UnresolvedAddressException
 import org.jikisan.cmpecommerceapp.util.ApiRoutes
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
+import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
 import org.jikisan.taily.data.model.pet.request.UpdatePetRequest
 import org.jikisan.taily.model.pet.CreateMedicalRecordRequest
 import org.jikisan.taily.model.pet.CreatePetCareRequest
@@ -44,6 +45,11 @@ class PetApiService(private val client: HttpClient) {
     suspend fun fetchAllPets(): Result<List<PetDTO>> = safeApiCall {
         Napier.v("$TAG Fetch All Pets")
         client.get(ApiRoutes.PETS).body<List<PetDTO>>()
+    }
+
+    suspend fun fetchPetByUserId(userId: String): Result<List<PetDTO>> = safeApiCall {
+        Napier.v("$TAG Fetch All Pets By User ID")
+        client.get(ApiRoutes.PET_BY_USERID.replace("{id}", userId)).body<List<PetDTO>>()
     }
 
     suspend fun fetchPetById(id: String): Result<PetDTO> = safeApiCall {

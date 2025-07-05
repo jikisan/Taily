@@ -7,9 +7,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GroomedDTO(
     @SerialName("groomedDateTime")
-    val groomedDateTime: String,
+    val groomedDateTime: String? = null,
     @SerialName("isGroomed")
     val isGroomed: Boolean,
     @SerialName("referencePhoto")
-    val referencePhoto: String
+    val referencePhoto: String? = null
 )

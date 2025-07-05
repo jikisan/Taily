@@ -10,6 +10,8 @@ object ApiRoutes {
     const val PETS = "$BASE_URL/api/pets"
     const val PET_BY_ID = "$PETS/{id}"
 
+    const val PET_BY_USERID = "$PETS/user/{id}"
+
     const val ADD_SCHEDULE = "$PETS/{id}/passport/schedules"
     const val UPDATE_SCHEDULE = "$PETS/{id}/passport/schedules/{scheduleId}"
     const val DELETE_SCHEDULE = "$PETS/{id}/passport/schedules/{scheduleId}"

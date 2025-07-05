@@ -6,9 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CompletionDTO(
     @SerialName("dateTime")
-    val dateTime: String,
+    val dateTime: String? = null,
     @SerialName("isComplete")
     val isComplete: Boolean,
     @SerialName("referencePhoto")
-    val referencePhoto: String
+    val referencePhoto: String? = null
 )
