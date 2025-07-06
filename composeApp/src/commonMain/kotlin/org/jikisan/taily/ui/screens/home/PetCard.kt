@@ -63,6 +63,14 @@ fun PetCard(pet: Pet) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.TopStart)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Black.copy(alpha = 0.4f),
+                                Color.Transparent
+                            )
+                        )
+                    )
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Row(
@@ -74,7 +82,7 @@ fun PetCard(pet: Pet) {
                         text = pet.name,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = Color.Black
+                        color = Color.White
                     )
 
                     GenderIcon(pet = pet, size = 24.dp)
