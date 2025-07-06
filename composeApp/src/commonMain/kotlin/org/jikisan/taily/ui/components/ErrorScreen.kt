@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.dog_page_eaten_sad
@@ -25,6 +26,7 @@ import taily.composeapp.generated.resources.dog_page_eaten_sad
 @Composable
 fun ErrorScreen(
     errorMessage: String?,
+    drawable: DrawableResource = Res.drawable.dog_page_eaten_sad,
     onClick: () -> Unit
 ) {
     Column(
@@ -35,7 +37,7 @@ fun ErrorScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(Res.drawable.dog_page_eaten_sad),
+            painter = painterResource(drawable),
             contentDescription = "Error Icon",
             modifier = Modifier.size(200.dp)
         )

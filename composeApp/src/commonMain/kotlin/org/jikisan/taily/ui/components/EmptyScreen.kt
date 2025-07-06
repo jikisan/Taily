@@ -13,12 +13,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.happy_pet
+import taily.composeapp.generated.resources.sad_cat
 
 @Composable
-fun EmptyScreen(message: String = "Empty") {
+fun EmptyScreen(
+    message: String = "Empty",
+    resource: DrawableResource = Res.drawable.sad_cat
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -27,7 +32,7 @@ fun EmptyScreen(message: String = "Empty") {
         verticalArrangement = Arrangement.Center
     ) {
         Image(
-            painter = painterResource(Res.drawable.happy_pet),
+            painter = painterResource(resource),
             contentDescription = "Error Icon",
             modifier = Modifier.size(200.dp)
         )

@@ -138,7 +138,11 @@ fun HomeScreen(
                 }
 
                 uiState.errorMessage != null && uiState.reminders.isEmpty() -> {
-                    ErrorScreen(uiState.errorMessage, { viewModel.refreshReminders() })
+                    ErrorScreen(
+                        errorMessage = uiState.errorMessage,
+                        drawable = Res.drawable.dog_page_eaten_sad,
+                        onClick = { viewModel.refreshReminders() }
+                    )
                 }
 
                 uiState.reminders.isNotEmpty() -> {
@@ -179,7 +183,7 @@ fun HomeScreen(
                     )
 
                     if (reminders.isEmpty()) {
-                        EmptyScreen("No Reminders")
+                        EmptyScreen("No Reminders", Res.drawable.happy_pet)
                     } else {
                         // Show reminders list only if there are reminders for selected date
                         LazyColumn(
@@ -197,7 +201,7 @@ fun HomeScreen(
                 }
 
                 else -> {
-                    EmptyScreen("No Reminders")
+                    EmptyScreen("No Reminders", Res.drawable.happy_pet)
                 }
             }
         }

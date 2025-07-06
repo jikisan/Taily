@@ -35,6 +35,9 @@ import org.jikisan.taily.ui.components.LoadingScreen
 import org.jikisan.taily.ui.screens.home.PetCard
 import org.jikisan.taily.ui.uistates.PetUIState
 import org.koin.compose.viewmodel.koinViewModel
+import taily.composeapp.generated.resources.Res
+import taily.composeapp.generated.resources.dog_page_eaten_sad
+import taily.composeapp.generated.resources.sad_cat
 
 @Composable
 fun PetScreen(
@@ -81,7 +84,10 @@ private fun PetScreenContent(
                 }
 
                 uiState.errorMessage != null && uiState.pets.isEmpty() -> {
-                    ErrorScreen(uiState.errorMessage, onRefresh)
+                    ErrorScreen(
+                        errorMessage = uiState.errorMessage,
+                        onClick = onRefresh
+                    )
                 }
 
                 uiState.pets.isNotEmpty() -> {
@@ -96,7 +102,7 @@ private fun PetScreenContent(
                 }
 
                 else -> {
-                    EmptyScreen("No pets found")
+                    EmptyScreen("No pets found", Res.drawable.sad_cat)
 
                 }
             }
