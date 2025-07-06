@@ -33,7 +33,7 @@ import io.github.aakira.napier.Napier
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.Reminder
-import org.jikisan.taily.domain.model.ReminderType
+import org.jikisan.taily.domain.model.enum.ReminderType
 import org.jikisan.taily.model.pet.Schedule
 import org.jikisan.taily.util.DateUtils
 import taily.composeapp.generated.resources.Res

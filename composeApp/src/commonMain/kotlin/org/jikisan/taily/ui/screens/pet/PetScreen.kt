@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.vidspark.androidapp.ui.theme.TailyTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData.mockPets
 import org.jikisan.taily.ui.components.EmptyScreen
@@ -91,9 +93,11 @@ private fun PetScreenContent(
                 }
 
                 uiState.pets.isNotEmpty() -> {
-                    LazyColumn(
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(uiState.pets) { pet ->
                             PetCard(pet = pet)
@@ -115,7 +119,7 @@ private fun PetScreenContent(
 @Preview
 @Composable
 private fun PetScreenWithPetsPreview() {
-    MaterialTheme {
+    TailyTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -138,7 +142,7 @@ private fun PetScreenWithPetsPreview() {
 @Preview
 @Composable
 private fun PetScreenLoadingPreview() {
-    MaterialTheme {
+    TailyTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
@@ -161,7 +165,7 @@ private fun PetScreenLoadingPreview() {
 @Preview
 @Composable
 private fun PetScreenErrorPreview() {
-    MaterialTheme {
+    TailyTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background

@@ -1,5 +1,7 @@
 package org.jikisan.taily.domain.model
 
+import org.jikisan.taily.domain.model.enum.ReminderType
+
 data class Reminder(
     val id: String,
     val type: String,
@@ -13,6 +15,3 @@ data class ReminderList(
     val reminders: List<Reminder>
 )
 
-enum class ReminderType {
-    PASSPORT, PETCARE, MEDICAL
-}

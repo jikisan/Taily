@@ -19,7 +19,7 @@ import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderList
-import org.jikisan.taily.domain.model.ReminderType
+import org.jikisan.taily.domain.model.enum.ReminderType
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.components.EventDot
 import org.jikisan.taily.ui.uistates.HomeUIState

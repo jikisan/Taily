@@ -45,3 +45,5 @@ val SoftGreen = Color(0xFFB3D06A)              // #B3D06A
 val LightOrangeBackground = Color(0xFFFCEFE9)  // #FCEFE9
 val SoftOrange = Color(0xFFFF996B)             // #FF996B
 
+val MaleColor = Color(0xFF6E92F2)
+val FemaleColor = Color(0xFFB00020)
