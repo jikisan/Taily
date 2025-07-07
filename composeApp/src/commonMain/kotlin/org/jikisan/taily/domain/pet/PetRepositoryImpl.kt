@@ -1,6 +1,8 @@
 package org.jikisan.taily.domain.pet
 
 import io.github.aakira.napier.Napier
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
@@ -13,6 +15,7 @@ import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
 import org.jikisan.taily.data.mapper.toDomain
 import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.model.pet.Pet
+import org.jikisan.taily.util.NetworkExceptionHandler.handleNetworkException
 import org.jikisan.taily.viewmodel.PetApiService
 import kotlin.time.Duration.Companion.seconds
 
@@ -20,52 +23,110 @@ class PetRepositoryImpl(private val petApi: PetApiService) : PetRepository {
 
 
     override suspend fun getPets(): Flow<List<Pet>> = flow {
-        val result = petApi.fetchAllPets()
-        if (result.isSuccess) {
-            val pets = result.getOrThrow().map { it.toDomain() }
-            Napier.v("$TAG Get All Pets")
-            emit(pets)
-        } else {
-            Napier.e("$TAG Error fetching pets: ${result.exceptionOrNull()?.message}")
-            Napier.e("$TAG Get All Pets Failed")
-            emit(emptyList()) // fallback for UI
+        try {
+            val result = petApi.fetchAllPets()
+            if (result.isSuccess) {
+                val pets = result.getOrThrow().map { it.toDomain() }
+                Napier.v("$TAG Get All Pets")
+                emit(pets)
+            } else {
+                val exception = result.exceptionOrNull()
+                handleNetworkException(exception)
+            }
+        } catch (e: Exception) {
+            handleNetworkException(e)
         }
     }
         .retry(retries = 2) { cause ->
             // Retry on generic exceptions (Kotlin Multiplatform compatible)
             Napier.v("$TAG Retry to Get All Pets")
             when (cause) {
-                is Exception -> {
+                is ConnectTimeoutException -> {
+                    Napier.w("$TAG Connection timeout, retrying...")
+                    delay(2.seconds)
+                    true
+                }
+
+                is SocketTimeoutException -> {
+                    Napier.w("$TAG Socket timeout, retrying...")
                     delay(1.seconds)
                     true
                 }
+
+                is Exception -> {
+                    // Check if the exception message indicates network issues (including iOS-specific messages)
+                    val message = cause.message?.lowercase() ?: ""
+                    if (
+                        message.contains("network") ||
+                        message.contains("connection") ||
+                        message.contains("timeout") ||
+                        message.contains("internet connection appears to be offline") ||
+                        message.contains("unable to resolve host") ||
+                        message.contains("no address associated with hostname")
+                    ) {
+                        Napier.w("$TAG Network-related error, retrying...")
+                        delay(1.seconds)
+                        true
+                    } else {
+                        false
+                    }
+                }
+
                 else -> false
             }
         }
         .flowOn(Dispatchers.IO)
 
     override suspend fun getPetsByUserId(): Flow<List<Pet>> = flow {
-
-        val result = petApi.fetchPetByUserId(MOCK_USERID)
-
-        if (result.isSuccess) {
-            val pets = result.getOrThrow().map { it.toDomain() }
-            Napier.v("$TAG Get All Pets")
-            emit(pets)
-        } else {
-            Napier.e("$TAG Error fetching pets: ${result.exceptionOrNull()?.message}")
-            Napier.e("$TAG Get All Pets Failed")
-            emit(emptyList()) // fallback for UI
+        try {
+            val result = petApi.fetchPetByUserId(MOCK_USERID)
+            if (result.isSuccess) {
+                val pets = result.getOrThrow().map { it.toDomain() }
+                Napier.v("$TAG Get All Pets By User ID")
+                emit(pets)
+            } else {
+                val exception = result.exceptionOrNull()
+                handleNetworkException(exception)
+            }
+        } catch (e: Exception) {
+            handleNetworkException(e)
         }
     }
         .retry(retries = 2) { cause ->
             // Retry on generic exceptions (Kotlin Multiplatform compatible)
             Napier.v("$TAG Retry to Get All Pets")
             when (cause) {
-                is Exception -> {
+                is ConnectTimeoutException -> {
+                    Napier.w("$TAG Connection timeout, retrying...")
+                    delay(2.seconds)
+                    true
+                }
+
+                is SocketTimeoutException -> {
+                    Napier.w("$TAG Socket timeout, retrying...")
                     delay(1.seconds)
                     true
                 }
+
+                is Exception -> {
+                    // Check if the exception message indicates network issues (including iOS-specific messages)
+                    val message = cause.message?.lowercase() ?: ""
+                    if (
+                        message.contains("network") ||
+                        message.contains("connection") ||
+                        message.contains("timeout") ||
+                        message.contains("internet connection appears to be offline") ||
+                        message.contains("unable to resolve host") ||
+                        message.contains("no address associated with hostname")
+                    ) {
+                        Napier.w("$TAG Network-related error, retrying...")
+                        delay(1.seconds)
+                        true
+                    } else {
+                        false
+                    }
+                }
+
                 else -> false
             }
         }

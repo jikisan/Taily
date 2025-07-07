@@ -33,7 +33,7 @@ class PetViewModel(
                     Napier.v("$TAG Load All Pets Failed")
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = throwable.message ?: "Unknown error occurred"
+                        errorMessage = throwable.message ?: "Unable to load Pets. Please try again."
                     )
                 }
                 .collectLatest { pets ->
@@ -56,7 +56,7 @@ class PetViewModel(
                     Napier.v("$TAG Refresh Load All Pets")
                     _uiState.value = _uiState.value.copy(
                         isRefreshing = false,
-                        errorMessage = throwable.message ?: "Unknown error occurred"
+                        errorMessage = throwable.message ?: "Unable to load Pets. Please try again."
                     )
                 }
                 .collect { pets ->

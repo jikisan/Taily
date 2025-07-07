@@ -45,7 +45,7 @@ class HomeViewModel(
                     Napier.v("$TAG Load All Pets By User ID Failed")
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = "Failed to load reminders"
+                        errorMessage = throwable.message ?: "Unable to load reminders. Please try again."
                     )
                 }
                 .collect { pets ->
@@ -73,7 +73,7 @@ class HomeViewModel(
                     Napier.v("$TAG Refresh Load All Pets failed")
                     _uiState.value = _uiState.value.copy(
                         isRefreshing = false,
-                        errorMessage = throwable.message ?: "Unknown error occurred"
+                        errorMessage = throwable.message ?: "Unable to load reminders. Please try again."
                     )
                 }
                 .collect { pets ->

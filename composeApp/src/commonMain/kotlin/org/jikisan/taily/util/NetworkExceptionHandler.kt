@@ -10,13 +10,15 @@ object NetworkExceptionHandler {
     fun handleNetworkException(exception: Throwable?) {
         when (exception) {
             is ConnectTimeoutException -> {
-                Napier.e("$TAG No internet connection. Please check your network.")
-                throw exception
+                val error = "No internet connection. Please check your network."
+                Napier.e(exception.message.toString())
+                throw Exception(error)
             }
 
             is SocketTimeoutException -> {
-                Napier.e("$TAG Request timed out. Please try again.")
-                throw exception
+                val error = "Request timed out. Please try again."
+                Napier.e(exception.message.toString())
+                throw Exception(error)
             }
 
             else -> {
@@ -27,27 +29,27 @@ object NetworkExceptionHandler {
                             message.contains("internet connection appears to be offline", true) ||
                             message.contains("network is unreachable", true) -> {
                         val error = "No internet. Check network."
-                        Napier.e("$TAG $error")
+                        Napier.e("$TAG $message")
                         throw Exception(error)
                     }
 
                     message.contains("network", true) ||
                             message.contains("connection", true) -> {
                         val error = "Network error. Check connection."
-                        Napier.e("$TAG $error")
-                        throw exception ?: Exception(error)
+                        Napier.e("$TAG $message")
+                        throw Exception(error)
                     }
 
                     message.contains("timeout", true) -> {
                         val error = "Request timed out. Try again."
-                        Napier.e("$TAG $error")
-                        throw exception ?: Exception(error)
+                        Napier.e("$TAG $message")
+                        throw Exception(error)
                     }
 
                     else -> {
-                        val error = "Error fetching pets"
-                        Napier.e("$TAG ${exception!!.message}")
-                        throw exception ?: Exception(error)
+                        val error = "An unexpected error occurred. Please try again later."
+                        Napier.e("$TAG $message")
+                        throw Exception(error)
                     }
                 }
 
