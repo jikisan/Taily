@@ -1,6 +1,7 @@
 package org.jikisan.taily.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +28,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
 import com.vidspark.androidapp.ui.theme.FemaleColor
 import com.vidspark.androidapp.ui.theme.MaleColor
@@ -37,18 +40,32 @@ import org.jikisan.taily.data.local.mockdata.MockData.mockPets
 import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.components.GenderIcon
+import org.jikisan.taily.ui.navigation.NavigationItem
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.female_24px
 import taily.composeapp.generated.resources.male_24px
 import taily.composeapp.generated.resources.pill_24px
 
 @Composable
-fun PetCard(pet: Pet) {
+fun PetCard(
+    pet: Pet,
+    navHost: NavHostController,
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = {
+                navHost.navigate(
+                    NavigationItem.PetDetails.route.replace(
+                        "{petId}",
+                        pet.id
+                    )
+                )
+            }),
         shape = RoundedCornerShape(5.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
+
         Box(modifier = Modifier.fillMaxWidth()) {
             AsyncImage(
                 model = pet.photoUrl,
@@ -71,7 +88,7 @@ fun PetCard(pet: Pet) {
                             )
                         )
                     )
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -85,7 +102,16 @@ fun PetCard(pet: Pet) {
                         color = Color.White
                     )
 
-                    GenderIcon(pet = pet, size = 24.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .clip(RoundedCornerShape(50.dp))
+                            .background(color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        GenderIcon(pet = pet, size = 24.dp)
+                    }
+
                 }
             }
         }
@@ -96,6 +122,9 @@ fun PetCard(pet: Pet) {
 @Composable
 private fun PetCardPreview() {
     TailyTheme {
-        PetCard(pet = mockPets.first())
+        PetCard(
+            pet = mockPets.first(),
+            navHost = rememberNavController()
+        )
     }
 }

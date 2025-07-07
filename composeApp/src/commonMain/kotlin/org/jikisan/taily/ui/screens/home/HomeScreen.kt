@@ -1,7 +1,6 @@
 package org.jikisan.taily.ui.screens.home
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,19 +44,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.vidspark.androidapp.ui.theme.OffBlue
-import io.github.alexzhirkevich.compottie.Compottie
-import io.github.alexzhirkevich.compottie.LottieCompositionSpec
-import io.github.alexzhirkevich.compottie.rememberLottieComposition
-import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.ui.components.DateCell
 import org.jikisan.taily.ui.components.DateCellDefaults
-import org.jikisan.taily.ui.components.EmptyScreen
-import org.jikisan.taily.ui.components.ErrorScreen
+import org.jikisan.taily.ui.common.EmptyScreen
+import org.jikisan.taily.ui.common.ErrorScreen
 import org.jikisan.taily.ui.components.Header
-import org.jikisan.taily.ui.components.LoadingScreen
+import org.jikisan.taily.ui.common.LoadingScreen
 import org.jikisan.taily.ui.components.RowCalendar
 import org.jikisan.taily.ui.components.now
 import org.jikisan.taily.util.DateUtils.formatDateForDisplayWithDayOfWeek

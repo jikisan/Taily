@@ -17,7 +17,7 @@ object MockData {
             breed = "Golden Retriever",
             dateOfBirth = "2020-05-15",
             gender = "Male",
-            photoUrl = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
             weight = Weight(unit = "kg", value = 25.5),
             ownerId = Owner(
                 id = "owner1",
@@ -49,7 +49,7 @@ object MockData {
             breed = "Persian",
             dateOfBirth = "2019-08-22",
             gender = "Female",
-            photoUrl = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
             weight = Weight(unit = "kg", value = 4.2),
             ownerId = Owner(
                 id = "owner2",
@@ -81,7 +81,7 @@ object MockData {
             breed = "German Shepherd",
             dateOfBirth = "2021-03-10",
             gender = "Male",
-            photoUrl = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
             weight = Weight(unit = "kg", value = 32.8),
             ownerId = Owner(
                 id = "owner3",
@@ -113,7 +113,7 @@ object MockData {
             breed = "Maine Coon",
             dateOfBirth = "2022-01-08",
             gender = "Female",
-            photoUrl = "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
             weight = Weight(unit = "kg", value = 6.1),
             ownerId = Owner(
                 id = "owner4",

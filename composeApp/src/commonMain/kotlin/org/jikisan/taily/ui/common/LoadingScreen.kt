@@ -1,4 +1,4 @@
-package org.jikisan.taily.ui.components
+package org.jikisan.taily.ui.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box

@@ -41,13 +41,18 @@ import taily.composeapp.generated.resources.compose_multiplatform
 fun App() {
     TailyTheme {
         val navHostController = rememberNavController()
-
+        val isTopLevelDestination =
+            navHostController.currentBackStackEntryAsState().value?.destination?.route in topLevelDestinations.map { it.route }
         Scaffold(
-            bottomBar = { BottomNavBar(
-                navHostController = navHostController,
-                bottomNavItems = topLevelDestinations,
-                modifier = Modifier.wrapContentHeight()
-            ) }
+            bottomBar = {
+                if (isTopLevelDestination) {
+                    BottomNavBar(
+                        navHostController = navHostController,
+                        bottomNavItems = topLevelDestinations,
+                        modifier = Modifier.wrapContentHeight()
+                    )
+                }
+            }
         ) { innerPadding ->
             AppNavigation(
                 navHostController = navHostController,
