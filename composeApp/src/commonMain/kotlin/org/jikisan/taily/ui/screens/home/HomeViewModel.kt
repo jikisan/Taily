@@ -28,6 +28,7 @@ class HomeViewModel(
     private val homeRepository: HomeRepository
 ) : ViewModel() {
 
+//    val SUPABASE_URL = Buid
     private val _uiState = MutableStateFlow(HomeUIState())
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 

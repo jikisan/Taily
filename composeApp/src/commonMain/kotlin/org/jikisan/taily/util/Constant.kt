@@ -4,7 +4,9 @@ object ApiRoutes {
 
 
     private const val BASE_URL = "https://site--taily--gqh7yj78q7bk.code.run"
+    const val SUPABASE_URL = "https://jzyvwbvngvlqqzmwzbvn.supabase.co"
     const val TAG = "[DEBUG]"
+
 
     // PETS
     const val PETS = "$BASE_URL/api/pets"

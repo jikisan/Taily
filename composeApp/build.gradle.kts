@@ -1,6 +1,8 @@
+import org.apache.tools.ant.property.LocalProperties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +10,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     kotlin("plugin.serialization") version "2.1.0"
+
 }
 
 kotlin {
@@ -84,11 +87,11 @@ kotlin {
             implementation("io.github.alexzhirkevich:compottie-network:2.0.0-rc04")
 
             // Supabase
-            implementation(platform("io.github.jan-tennert.supabase:bom:3.2.0"))
-            implementation("io.github.jan-tennert.supabase:postgrest-kt")
-            implementation("io.github.jan-tennert.supabase:auth-kt")
-            implementation("io.github.jan-tennert.supabase:realtime-kt")
-            implementation("io.github.jan-tennert.supabase:storage-kt:3.2.0")
+//            implementation(platform("io.github.jan-tennert.supabase:bom:3.2.0"))
+//            implementation("io.github.jan-tennert.supabase:postgrest-kt")
+//            implementation("io.github.jan-tennert.supabase:auth-kt")
+//            implementation("io.github.jan-tennert.supabase:realtime-kt")
+//            implementation("io.github.jan-tennert.supabase:storage-kt:3.2.0")
 
 
         }
@@ -108,6 +111,23 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+
+        val supabaseUrl = project.loadLocalProperty(
+            path = "local.properties",
+            propertyName = "SUPABASE_URL",
+        )
+        val supabaseAnonKey = project.loadLocalProperty(
+            path = "local.properties",
+            propertyName = "SUPABASE_ANON_KEY",
+        )
+
+        buildConfigField("String", "supabaseUrl", supabaseUrl)
+        buildConfigField("String", "supabaseAnonKey", supabaseAnonKey)
+    }
+
+
+    buildFeatures {
+        buildConfig = true
     }
     packaging {
         resources {
@@ -123,9 +143,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
 }
 
 dependencies {
     debugImplementation(compose.uiTooling)
 }
 
+fun Project.loadLocalProperty(
+    path: String,
+    propertyName: String,
+): String {
+    val localProperties = Properties()
+    val localPropertiesFile = project.rootProject.file(path)
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.inputStream())
+        return localProperties.getProperty(propertyName) ?: "\"NOT_FOUND\""
+    } else {
+        return "\"NOT_FOUND\""
+    }
+}
