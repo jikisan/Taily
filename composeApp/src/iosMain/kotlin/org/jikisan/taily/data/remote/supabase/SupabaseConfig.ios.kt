@@ -4,15 +4,6 @@ import platform.Foundation.NSBundle
 import platform.Foundation.NSDictionary
 import platform.Foundation.dictionaryWithContentsOfFile
 
-actual object SupabaseConfig {
-    actual val anonKey: String
-        get() = getStringResource(
-            filename = "Secrets",
-            fileType = "plist",
-            valueKey = "supabaseAnonKey"
-        ) ?: ""
-}
-
 internal fun getStringResource(
     filename: String,
     fileType: String,

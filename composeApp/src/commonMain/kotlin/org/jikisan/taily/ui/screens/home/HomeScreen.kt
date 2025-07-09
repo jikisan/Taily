@@ -164,8 +164,8 @@ fun HomeScreen(
                                     futureElevation = 0.dp
                                 ),
                                 colors = DateCellDefaults.colors(
-                                    selectedContainerColor = MaterialTheme.colorScheme.surface,
-                                    selectedTextColor = Color.Black,
+                                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                                    selectedTextColor = MaterialTheme.colorScheme.onPrimary,
                                     pastContainerColor = Color.Transparent,
                                     pastTextColor = Color.LightGray,
                                     futureContainerColor = Color.Transparent,

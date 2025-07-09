@@ -1,5 +1,11 @@
 package org.jikisan.cmpecommerceapp.di
 
+import io.github.jan.supabase.auth.Auth
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.storage.Storage
+import org.jikisan.cmpecommerceapp.util.Constant
+import org.jikisan.taily.data.remote.supabase.config.SupabaseConfig
+import org.jikisan.taily.data.remote.supabase.storage.StorageManager
 import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.home.HomeRepositoryImpl
 import org.jikisan.taily.domain.pet.PetRepository
@@ -17,20 +23,24 @@ expect val platformModule: Module
 
 val sharedModule = module {
 
-    single {}
-    single{ PetApiService(get()) }
+    factory {
+        createSupabaseClient(
+            supabaseUrl = Constant.SUPABASE_URL,
+            supabaseKey = SupabaseConfig.anonKey
+        ) {
+            install(Auth)
+            install(Storage)
+        }
+    }
+
+    single { StorageManager(get()) }
+
+    single { PetApiService(get()) }
 
     singleOf(::HomeRepositoryImpl).bind<HomeRepository>()
     singleOf(::PetRepositoryImpl).bind<PetRepository>()
     viewModelOf(::HomeViewModel)
     viewModelOf(::PetViewModel)
 
-//    singleOf(::HomeRepository).bind<HomeRepository>()
-//    viewModelOf(::HomeViewModel)
-//
-//    singleOf(::ProductDetailRepository).bind<ProductDetailRepository>()
-//    viewModelOf(::ProductDetailViewModel)
-//
-//    singleOf(::CartRepository).bind<CartRepository>()
-//    viewModelOf(::CartViewModel)
+
 }

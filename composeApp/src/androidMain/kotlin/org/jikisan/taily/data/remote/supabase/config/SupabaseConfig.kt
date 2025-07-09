@@ -1,4 +1,4 @@
-package org.jikisan.taily.data.remote.supabase
+package org.jikisan.taily.data.remote.supabase.config
 
 import org.jikisan.taily.BuildConfig
 

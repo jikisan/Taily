@@ -1,10 +1,17 @@
 package org.jikisan.cmpecommerceapp.util
 
+
+object Constant {
+    const val SUPABASE_URL = "https://jzyvwbvngvlqqzmwzbvn.supabase.co"
+    const val PET_PROFILE_PICTURE_BUCKET = "pet-profile-pictures"
+
+}
+
+
 object ApiRoutes {
 
 
     private const val BASE_URL = "https://site--taily--gqh7yj78q7bk.code.run"
-    const val SUPABASE_URL = "https://jzyvwbvngvlqqzmwzbvn.supabase.co"
     const val TAG = "[DEBUG]"
 
 
