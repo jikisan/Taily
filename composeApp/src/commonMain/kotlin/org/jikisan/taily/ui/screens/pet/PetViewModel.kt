@@ -10,8 +10,10 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
+import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.pet.PetRepository
 import org.jikisan.taily.ui.uistates.PetUIState
+
 
 class PetViewModel(
     private val petRepository: PetRepository
@@ -68,4 +70,6 @@ class PetViewModel(
                 }
         }
     }
+
+
 }

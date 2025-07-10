@@ -46,6 +46,7 @@ fun AppNavigation(
             composable(
                 route = NavigationItem.AddPet.route,
             ) { backStackEntry ->
+                val petId = backStackEntry.arguments?.getString("petId") ?: ""
                 AddPetScreen(navHost = navHostController, topPadding = topPadding)
             }
             composable(NavigationItem.Settings.route) {

@@ -25,3 +25,9 @@ data class PetUIState(
     val errorMessage: String? = null,
     val isRefreshing: Boolean = false
 )
+
+data class AddPetUIState(
+    val pet: Pet? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+)

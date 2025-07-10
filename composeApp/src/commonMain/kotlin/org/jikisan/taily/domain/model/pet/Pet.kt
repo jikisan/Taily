@@ -25,5 +25,4 @@ data class Pet(
     val petIds: List<PetId>,
     val createdAt: String,
     val updatedAt: String,
-    val v: Int
 )

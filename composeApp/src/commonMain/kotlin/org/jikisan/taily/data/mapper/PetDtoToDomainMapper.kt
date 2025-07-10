@@ -42,7 +42,6 @@ fun PetDTO.toDomain(): Pet {
         petIds = petIds.map { it.toDomain() },
         createdAt = createdAt,
         updatedAt = updatedAt,
-        v = v
     )
 }
 

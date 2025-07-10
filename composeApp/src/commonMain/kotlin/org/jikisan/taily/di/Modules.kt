@@ -10,6 +10,7 @@ import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.home.HomeRepositoryImpl
 import org.jikisan.taily.domain.pet.PetRepository
 import org.jikisan.taily.domain.pet.PetRepositoryImpl
+import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
 import org.jikisan.taily.ui.screens.home.HomeViewModel
 import org.jikisan.taily.ui.screens.pet.PetViewModel
 import org.jikisan.taily.viewmodel.PetApiService
@@ -41,6 +42,7 @@ val sharedModule = module {
     singleOf(::PetRepositoryImpl).bind<PetRepository>()
     viewModelOf(::HomeViewModel)
     viewModelOf(::PetViewModel)
+    viewModelOf(::AddPetViewModel)
 
 
 }

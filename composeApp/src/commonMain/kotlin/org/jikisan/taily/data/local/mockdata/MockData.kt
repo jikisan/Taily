@@ -40,7 +40,6 @@ object MockData {
             petIds = emptyList(),
             createdAt = "2024-01-01T00:00:00Z",
             updatedAt = "2024-01-01T00:00:00Z",
-            v = 1
         ),
         Pet(
             id = "2",
@@ -72,7 +71,6 @@ object MockData {
             petIds = emptyList(),
             createdAt = "2024-01-02T00:00:00Z",
             updatedAt = "2024-01-02T00:00:00Z",
-            v = 1
         ),
         Pet(
             id = "3",
@@ -104,7 +102,6 @@ object MockData {
             petIds = emptyList(),
             createdAt = "2024-01-03T00:00:00Z",
             updatedAt = "2024-01-03T00:00:00Z",
-            v = 1
         ),
         Pet(
             id = "4",
@@ -136,7 +133,6 @@ object MockData {
             petIds = emptyList(),
             createdAt = "2024-01-04T00:00:00Z",
             updatedAt = "2024-01-04T00:00:00Z",
-            v = 1
         )
     )
 

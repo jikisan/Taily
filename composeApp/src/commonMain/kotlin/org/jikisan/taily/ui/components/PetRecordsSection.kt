@@ -26,7 +26,7 @@ fun PetRecordsSection(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Passport Schedules Section
-        if (pet.passport.schedules.isNotEmpty()) {
+        if (pet.passport!!.schedules.isNotEmpty()) {
             item {
                 RecordSection(
                     title = "Vaccination Schedules",
