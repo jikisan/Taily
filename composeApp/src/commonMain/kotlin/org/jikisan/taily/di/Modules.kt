@@ -24,7 +24,7 @@ expect val platformModule: Module
 
 val sharedModule = module {
 
-    factory {
+    single {
         createSupabaseClient(
             supabaseUrl = Constant.SUPABASE_URL,
             supabaseKey = SupabaseConfig.anonKey

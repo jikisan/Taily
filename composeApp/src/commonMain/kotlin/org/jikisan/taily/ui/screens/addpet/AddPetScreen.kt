@@ -72,6 +72,7 @@ import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.pet.PetRepository
 import org.jikisan.taily.ui.components.ThemeOutlineTextField
+import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddNameContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetProfilePhotoContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.ChoosePetGenderContent
@@ -505,8 +506,7 @@ fun IdentificationPage(viewModel: AddPetViewModel) {
                 readOnly = true,
                 label = { Text("Microchip Location") },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
+                    .fillMaxWidth(),
                 leadingIcon = {
                     Icon(
                         painter = painterResource(Res.drawable.happy_pet),
@@ -548,8 +548,7 @@ fun IdentificationPage(viewModel: AddPetViewModel) {
                 readOnly = true,
                 label = { Text("Clip Location") },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
+                    .fillMaxWidth(),
                 leadingIcon = {
                     Icon(
                         painter = painterResource(Res.drawable.happy_pet),
@@ -723,10 +722,12 @@ fun AddPetScreenPreview() {
         }
         val pet = MockData.mockPets.first()
         Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+
+
             AddPetScreen(
                 navHost = rememberNavController(),
                 topPadding = 0.dp,
-                viewModel = AddPetViewModel(),
+                viewModel = koinViewModel<AddPetViewModel>()
             )
 
         }

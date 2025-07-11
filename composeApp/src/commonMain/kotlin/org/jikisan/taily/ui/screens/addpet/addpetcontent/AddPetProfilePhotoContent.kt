@@ -27,91 +27,68 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.Uri
 import coil3.compose.rememberAsyncImagePainter
 import com.vidspark.androidapp.ui.theme.TailyTheme
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
+import network.chaintech.cmpimagepickncrop.imagecompress.compressImage
+import network.chaintech.cmpimagepickncrop.imagecropper.ImageAspectRatio
+import network.chaintech.cmpimagepickncrop.imagecropper.rememberImageCropper
+import network.chaintech.cmpimagepickncrop.utils.ImageFileFormat
+import network.chaintech.cmpimagepickncrop.utils.ImagePickerDialogStyle
+import network.chaintech.cmpimagepickncrop.utils.toByteArray
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.add_photo_alternate_24px
 import taily.composeapp.generated.resources.home_icon
 import taily.composeapp.generated.resources.sefie_dog_2
 import taily.composeapp.generated.resources.selfie_dog
 import taily.composeapp.generated.resources.stethoscope_24px
+import kotlin.random.Random
 
 @Composable
 fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
+    val imageCropper = rememberImageCropper()
+    var selectedImage by remember { mutableStateOf<ImageBitmap?>(null) }
+    var openImagePicker by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    var imageByteArray by remember { mutableStateOf<ByteArray?>(null) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-
         Text(
-            text = "Let’s See That Face!",
+            text = "Let's See That Face!",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Medium
         )
         Spacer(modifier = Modifier.height(24.dp))
-
-//        Card(
-//            modifier = Modifier
-//                .align(Alignment.CenterHorizontally)
-//        ) {
-//            Box(
-//                modifier = Modifier
-//                    .height(250.dp)
-//                    .aspectRatio(3f / 4f),
-//                contentAlignment = Alignment.Center
-//            ) {
-//
-//                var photoUri = remember { mutableStateOf<Uri?>(null) }
-//
-//                pet?.let {
-//
-//                    if (it.photoUrl.isNotEmpty()) {
-//                        // Placeholder for actual image
-//                        Image(
-//                            painter = rememberAsyncImagePainter(photoUri),
-//                            contentDescription = "Pet photo",
-//                            modifier = Modifier
-//                                .height(250.dp)
-//                                .aspectRatio(3f / 4f)
-//                        )
-//                    } else {
-////                        Column(
-////                            horizontalAlignment = Alignment.CenterHorizontally
-////                        ) {
-////                            Icon(
-////                                painter = painterResource(Res.drawable.home_icon),
-////                                contentDescription = "Add photo",
-////                            )
-////                            Text(
-////                                text = "Add Photo",
-////                                style = MaterialTheme.typography.bodySmall,
-////                                textAlign = TextAlign.Center
-////                            )
-////                        }
-//                    }
-//                }
-//
-//            }
-//        }
 
         Box(
             modifier = Modifier
@@ -123,18 +100,15 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                     shape = RoundedCornerShape(5)
                 )
         ) {
-            var photoUri = remember { mutableStateOf<Uri?>(null) }
-
             pet?.let {
-
-                if (it.photoUrl.isNotEmpty()) {
-                    // Placeholder for actual image
+                selectedImage?.let { image ->
                     Image(
-                        painter = rememberAsyncImagePainter(photoUri),
+                        bitmap = image,
                         contentDescription = "Pet photo",
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Fit
                     )
-                } else {
+                } ?: run {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -159,39 +133,82 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            CMPImagePickNCropDialog(
+                imageCropper = imageCropper,
+                openImagePicker = openImagePicker,
+                defaultAspectRatio = ImageAspectRatio(16, 9),
+                imagePickerDialogStyle = ImagePickerDialogStyle(
+                    title = "Choose from option",
+                    txtCamera = "From Camera",
+                    txtGallery = "From Gallery",
+                    txtCameraColor = Color.DarkGray,
+                    txtGalleryColor = Color.DarkGray,
+                    cameraIconTint = Color.DarkGray,
+                    galleryIconTint = Color.DarkGray,
+                    backgroundColor = Color.White
+                ),
+                autoZoom = true,
+                imagePickerDialogHandler = { openImagePicker = it },
+                selectedImageCallback = {
+                    selectedImage = it
+                    // Convert ImageBitmap to ByteArray immediately
+                    imageByteArray = it.toByteArray(
+                        format = ImageFileFormat.JPEG,
+                        quality = 0.6f
+                    )
 
-            Button(
-                elevation = ButtonDefaults.buttonElevation(15.dp),
-                onClick = {}
-            ) {
-                Text("Pick a photo")
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(
-                    painter = painterResource(Res.drawable.add_photo_alternate_24px),
-                    contentDescription = "Pick Photo",
-                )
+                    imageByteArray.let { byteArray ->
+                        viewModel.updatePetPhotoByteArray(byteArray!!)
+                    }
+
+                },
+                selectedImageFileCallback = { sharedImage ->
+                    // You can still use the compressed file if needed,
+                    // but we'll rely on the ImageBitmap for now
+                    scope.launch {
+                        val compressedFilePath = compressImage(
+                            sharedImage = sharedImage,
+                            targetFileSize = 200 * 1024
+                        )
+
+                        println("Compressed File Path: $compressedFilePath")
+                    }
+                }
+            )
+
+            Column {
+                Button(
+                    modifier = Modifier.padding(16.dp),
+                    elevation = ButtonDefaults.buttonElevation(15.dp),
+                    onClick = { openImagePicker = true }
+                ) {
+                    Text("Pick a photo")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        painter = painterResource(Res.drawable.add_photo_alternate_24px),
+                        contentDescription = "Pick Photo",
+                    )
+                }
+
+                Button(
+                    modifier = Modifier.padding(16.dp),
+                    elevation = ButtonDefaults.buttonElevation(15.dp),
+                    enabled = imageByteArray != null,
+                    onClick = {
+                        scope.launch {
+                            viewModel.uploadPetProfilePhoto()
+                        }
+                    }
+                ) {
+                    Text("Upload photo to supabase")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        painter = painterResource(Res.drawable.add_photo_alternate_24px),
+                        contentDescription = "Upload photo to supabase",
+                    )
+                }
             }
-
-//            OutlinedButton(
-//                onClick = { /* Handle click */ },
-//                modifier = Modifier.padding(16.dp),
-//                shape = RoundedCornerShape(50.dp),
-//                border = BorderStroke(
-//                    width = 2.dp,
-//                    color = MaterialTheme.colorScheme.primary
-//                ),
-//            ) {
-//                Text("Pick a photo")
-//                Spacer(modifier = Modifier.width(8.dp))
-//                Icon(
-//                    painter = painterResource(Res.drawable.add_photo_alternate_24px),
-//                    contentDescription = "Pick Photo",
-//                    tint = MaterialTheme.colorScheme.primary
-//                )
-//            }
         }
-
     }
 }
 
@@ -206,7 +223,7 @@ fun AddPetProfilePhotoContentPreviewWithData() {
         ) {
 
             AddPetProfilePhotoContent(
-                viewModel = AddPetViewModel(),
+                viewModel = koinViewModel<AddPetViewModel>(),
                 pet = MockData.mockPets.first()
             )
         }
@@ -224,7 +241,7 @@ fun AddPetProfilePhotoContentPreviewWithNoData() {
         ) {
 
             AddPetProfilePhotoContent(
-                viewModel = AddPetViewModel(),
+                viewModel = koinViewModel<AddPetViewModel>(),
                 pet = MockData.mockPets[1]
             )
         }

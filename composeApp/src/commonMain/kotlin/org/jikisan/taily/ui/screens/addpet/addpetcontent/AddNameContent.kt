@@ -27,6 +27,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.components.ThemeOutlineTextField
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,7 +138,10 @@ fun AddNameContentPreview() {
                 .background(MaterialTheme.colorScheme.background)
         ) {
 
-            AddNameContent(viewModel = AddPetViewModel(), pet = null)
+            AddNameContent(
+                viewModel = koinViewModel<AddPetViewModel>(),
+                pet = null
+            )
         }
     }
 }

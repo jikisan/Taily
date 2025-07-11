@@ -17,28 +17,39 @@ data class UserFile(
     val createdAt: String
 )
 
-class StorageManager(val supabaseClient: SupabaseClient) {
+class StorageManager(private val supabaseClient: SupabaseClient) {
+
     private val storage = supabaseClient.storage
     private val bucket = storage.from(Constant.PET_PROFILE_PICTURE_BUCKET)
-
     suspend fun uploadFile(
         userId: String,
-        fileName: String,
         fileData: ByteArray,
-        contentType: String
     ): Result<String> {
         return try {
-            val filePath = "$userId/$fileName"
-            bucket.uploadAsFlow("test.png", byteArrayOf()).collect {
-                when(it) {
-                    is UploadStatus.Progress -> println("Progress: ${it.totalBytesSend.toFloat() / it.contentLength * 100}%")
-                    is UploadStatus.Success -> println("Success")
+            val filePath = "$userId/${userId}_profile_photo"
+            var uploadSuccess = false
+
+            bucket.uploadAsFlow(filePath, fileData){
+                upsert = true
+            }.collect { status ->
+                when(status) {
+                    is UploadStatus.Progress -> {
+                        println("Progress: ${status.totalBytesSend.toFloat() / status.contentLength * 100}%")
+                    }
+                    is UploadStatus.Success -> {
+                        println("Success")
+                        uploadSuccess = true
+                    }
                 }
             }
 
+            if (uploadSuccess) {
+                val publicUrl = bucket.publicUrl(filePath)
+                Result.success(publicUrl)
+            } else {
+                Result.failure(Exception("Upload did not complete successfully"))
+            }
 
-            val publicUrl = bucket.publicUrl(filePath)
-            Result.success(publicUrl)
         } catch (e: Exception) {
             Result.failure(e)
         }

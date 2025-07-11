@@ -38,6 +38,7 @@ import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
+import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.female_24px
 import taily.composeapp.generated.resources.male_24px
@@ -137,7 +138,10 @@ fun ChoosePetGenderContentPreview() {
                 .padding(16.dp)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            ChoosePetGenderContent(viewModel = AddPetViewModel(), pet = MockData.mockPets.first())
+            ChoosePetGenderContent(
+                viewModel = koinViewModel<AddPetViewModel>(),
+                pet = MockData.mockPets.first()
+            )
         }
     }
 }

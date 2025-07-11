@@ -28,6 +28,7 @@ data class PetUIState(
 
 data class AddPetUIState(
     val pet: Pet? = null,
+    val imageByteArray: ByteArray = byteArrayOf(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )

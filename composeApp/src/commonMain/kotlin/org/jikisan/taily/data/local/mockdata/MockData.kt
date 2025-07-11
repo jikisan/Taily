@@ -17,7 +17,7 @@ object MockData {
             breed = "Golden Retriever",
             dateOfBirth = "2020-05-15",
             gender = "Male",
-            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
+            photoUrl = "https://jzyvwbvngvlqqzmwzbvn.supabase.co/storage/v1/object/public/pet-profile-pictures/686361362996e4a75c328437/686361362996e4a75c328437_profile_photo",
             weight = Weight(unit = "kg", value = 25.5),
             ownerId = Owner(
                 id = "owner1",

@@ -1,9 +1,15 @@
 package org.jikisan.taily.ui.screens.addpet
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
+import org.jikisan.taily.data.local.mockdata.MockData
+import org.jikisan.taily.data.remote.supabase.storage.StorageManager
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
@@ -12,7 +18,7 @@ import org.jikisan.taily.model.pet.Passport
 import org.jikisan.taily.ui.uistates.AddPetUIState
 
 
-class AddPetViewModel: ViewModel() {
+class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddPetUIState())
     val uiState: StateFlow<AddPetUIState> = _uiState.asStateFlow()
@@ -45,6 +51,7 @@ class AddPetViewModel: ViewModel() {
         updatedAt = "",
     )
 
+
     init {
         // Initialize with a blank pet if needed
         _uiState.value = AddPetUIState(pet = blankPet())
@@ -53,6 +60,14 @@ class AddPetViewModel: ViewModel() {
     // Helper to update Pet state within uiState
     private fun updatePet(newPet: Pet) {
         _uiState.value = _uiState.value.copy(pet = newPet)
+    }
+
+    fun updatePetPhotoByteArray(newImageByteArray: ByteArray) {
+        val metadata = _uiState.value.imageByteArray
+        metadata.let {
+            _uiState.value = _uiState.value.copy(imageByteArray = newImageByteArray)
+        }
+
     }
 
     fun updateName(name: String) {
@@ -159,4 +174,34 @@ class AddPetViewModel: ViewModel() {
             updatePet(it.copy(identifiers = updatedIdentifiers))
         }
     }
+
+
+    fun uploadPetProfilePhoto() {
+        viewModelScope.launch {
+
+            val imageByteArray = _uiState.value.imageByteArray
+
+            imageByteArray.let { byteArray ->
+                val result = storageManager.uploadFile(
+                    userId = MockData.MOCK_USERID,
+                    fileData = byteArray,
+                )
+
+                when {
+                    result.isSuccess -> {
+                        updatePhotoUrl(result.toString())
+                    }
+
+                    result.isFailure -> {
+                        Napier.e("$TAG Upload Pet Profile Photo Failed, Error: ${result.exceptionOrNull()?.message}")
+                    }
+                }
+            }
+
+
+        }
+
+    }
+
+
 }

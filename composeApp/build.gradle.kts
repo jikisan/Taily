@@ -93,6 +93,9 @@ kotlin {
             implementation("io.github.jan-tennert.supabase:realtime-kt")
             implementation("io.github.jan-tennert.supabase:storage-kt:3.2.0")
 
+            // Image picker
+            implementation("network.chaintech:cmp-image-pick-n-crop:1.1.1")
+
 
         }
         iosMain.dependencies {
