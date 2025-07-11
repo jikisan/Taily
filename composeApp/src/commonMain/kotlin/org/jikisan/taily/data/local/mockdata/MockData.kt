@@ -48,7 +48,7 @@ object MockData {
             breed = "Persian",
             dateOfBirth = "2019-08-22",
             gender = "Female",
-            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
+            photoUrl = "",
             weight = Weight(unit = "kg", value = 4.2),
             ownerId = Owner(
                 id = "owner2",

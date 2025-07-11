@@ -1,15 +1,12 @@
 package org.jikisan.taily.ui.screens.addpet
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,9 +21,9 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -37,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.InputChip
@@ -51,7 +47,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,9 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -69,8 +62,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import coil3.Uri
-import coil3.compose.rememberAsyncImagePainter
 import com.vidspark.androidapp.ui.theme.TailyTheme
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -81,13 +72,14 @@ import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.pet.PetRepository
 import org.jikisan.taily.ui.components.ThemeOutlineTextField
+import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddNameContent
+import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetProfilePhotoContent
+import org.jikisan.taily.ui.screens.addpet.addpetcontent.ChoosePetGenderContent
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.arrow_back_ios_new_24px
 import taily.composeapp.generated.resources.happy_pet
-import taily.composeapp.generated.resources.home_icon
 import taily.composeapp.generated.resources.loading_paw
-import taily.composeapp.generated.resources.stethoscope_24px
 
 val PET_TYPES =
     listOf("Dog", "Cat", "Bird", "Fish", "Rabbit", "Hamster", "Guinea Pig", "Turtle", "Other")
@@ -205,9 +197,9 @@ fun AddPetScreen(
 
 
             when (page) {
-                0 -> BasicInfoPage(viewModel, uiState.pet)
-//                1 -> BreedPhysicalPage(viewModel)
-//                2 -> IdentificationPage(viewModel)
+                0 -> AddNameContent(viewModel, uiState.pet)
+                1 -> AddPetProfilePhotoContent(viewModel, uiState.pet)
+                2 -> ChoosePetGenderContent(viewModel, pet = uiState.pet)
             }
         }
 
@@ -220,6 +212,7 @@ fun AddPetScreen(
 
             Button(
                 modifier = Modifier.fillMaxWidth(),
+                elevation = ButtonDefaults.buttonElevation(15.dp),
                 onClick = {
                     coroutineScope.launch {
                         if (pagerState.currentPage < totalPages - 1) {
@@ -235,146 +228,6 @@ fun AddPetScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BasicInfoPage(viewModel: AddPetViewModel, pet: Pet?) {
-
-    var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-
-//        Card(
-//            modifier = Modifier
-//                .align(Alignment.CenterHorizontally)
-//        ) {
-//            Box(
-//                modifier = Modifier
-//                    .height(250.dp)
-//                    .aspectRatio(3f / 4f),
-//                contentAlignment = Alignment.Center
-//            ) {
-//
-//                var photoUri = remember { mutableStateOf<Uri?>(null) }
-//
-//                pet?.let {
-//
-//                    if (it.photoUrl.isNotEmpty()) {
-//                        // Placeholder for actual image
-//                        Image(
-//                            painter = rememberAsyncImagePainter(photoUri),
-//                            contentDescription = "Pet photo",
-//                            modifier = Modifier
-//                                .height(250.dp)
-//                                .aspectRatio(3f / 4f)
-//                        )
-//                    } else {
-//                        Column(
-//                            horizontalAlignment = Alignment.CenterHorizontally
-//                        ) {
-//                            Icon(
-//                                painter = painterResource(Res.drawable.home_icon),
-//                                contentDescription = "Add photo",
-//                            )
-//                            Text(
-//                                text = "Add Photo",
-//                                style = MaterialTheme.typography.bodySmall,
-//                                textAlign = TextAlign.Center
-//                            )
-//                        }
-//                    }
-//                }
-//
-//            }
-//        }
-//
-//        Spacer(modifier = Modifier.height(24.dp))
-
-        // Name field
-
-        Text(
-            text = "What's your pet's name?",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Medium
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        ThemeOutlineTextField(
-            value = pet?.name ?: "",
-            placeholder = "Type pet's name",
-            onValueChange = { petName: String -> viewModel.updateName(petName) },
-        )
-
-
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        // Gender selection
-//        Text(
-//            text = "Gender",
-//            style = MaterialTheme.typography.bodyMedium,
-//            fontWeight = FontWeight.Medium
-//        )
-//        Spacer(modifier = Modifier.height(8.dp))
-//
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.spacedBy(8.dp)
-//        ) {
-//            GENDER_OPTIONS.forEach { gender: String ->
-//                FilterChip(
-//                    onClick = { viewModel.updateGender(gender) },
-//                    label = { Text(gender) },
-//                    selected = pet?.gender == gender,
-//                    modifier = Modifier.weight(1f)
-//                )
-//            }
-//        }
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//        var dob by remember { mutableStateOf("") }
-//        // Weight field
-//
-//        // Date of birth
-//        ThemeOutlineTextField(
-//            value = dob,
-//            onValueChange = {
-//                dob = it
-//                viewModel.updateDateOfBirth(dob)
-//            },
-//            placeholder = "Date of Birth",
-//            readOnly = true,
-//            leadingIcon = {
-//                Icon(
-//                    painter = painterResource(Res.drawable.stethoscope_24px),
-//                    contentDescription = null
-//                )
-//            },
-//            trailingIcon = {
-//                Icon(
-//                    painter = painterResource(Res.drawable.stethoscope_24px),
-//                    contentDescription = null
-//                )
-//            }
-//        )
-//
-//        if (showDatePicker) {
-//            DatePickerDialog(
-//                onDateSelected = { date ->
-//                    viewModel.updateDateOfBirth(date)
-//                    showDatePicker = false
-//                },
-//                onDismiss = { showDatePicker = false }
-//            )
-//        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
