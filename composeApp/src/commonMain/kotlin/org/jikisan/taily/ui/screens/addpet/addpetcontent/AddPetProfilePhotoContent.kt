@@ -1,30 +1,23 @@
 package org.jikisan.taily.ui.screens.addpet.addpetcontent
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,19 +27,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil3.Uri
-import coil3.compose.rememberAsyncImagePainter
 import com.vidspark.androidapp.ui.theme.TailyTheme
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
 import network.chaintech.cmpimagepickncrop.imagecompress.compressImage
@@ -59,23 +45,22 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.pet.Pet
+import org.jikisan.taily.ui.screens.addpet.AddPetHeader
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.add_photo_alternate_24px
-import taily.composeapp.generated.resources.home_icon
-import taily.composeapp.generated.resources.sefie_dog_2
 import taily.composeapp.generated.resources.selfie_dog
-import taily.composeapp.generated.resources.stethoscope_24px
-import kotlin.random.Random
 
 @Composable
 fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
-    val imageCropper = rememberImageCropper()
+
     var selectedImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var openImagePicker by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     var imageByteArray by remember { mutableStateOf<ByteArray?>(null) }
+
+    val imageCropper = rememberImageCropper()
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -83,11 +68,9 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
             .padding(16.dp),
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "Let's See That Face!",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Medium
-        )
+
+        AddPetHeader("Let's see that face!")
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Box(
@@ -100,8 +83,55 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                     shape = RoundedCornerShape(5)
                 )
         ) {
+
+            CMPImagePickNCropDialog(
+                imageCropper = imageCropper,
+                openImagePicker = openImagePicker,
+                defaultAspectRatio = ImageAspectRatio(16, 9),
+                imagePickerDialogStyle = ImagePickerDialogStyle(
+                    title = "Choose from option",
+                    txtCamera = "From Camera",
+                    txtGallery = "From Gallery",
+                    txtCameraColor = Color.DarkGray,
+                    txtGalleryColor = Color.DarkGray,
+                    cameraIconTint = Color.DarkGray,
+                    galleryIconTint = Color.DarkGray,
+                    backgroundColor = Color.White
+                ),
+                autoZoom = true,
+                imagePickerDialogHandler = { openImagePicker = it },
+                selectedImageCallback = {
+                    selectedImage = it
+
+                    selectedImage?.let { image ->
+                        viewModel.updatePhotoImageBitmap(image)
+                    }
+
+                    imageByteArray = it.toByteArray(
+                        format = ImageFileFormat.JPEG,
+                        quality = 0.6f
+                    )
+
+                    imageByteArray.let { byteArray ->
+                        viewModel.updatePetPhotoByteArray(byteArray!!)
+                    }
+
+                },
+                selectedImageFileCallback = { sharedImage ->
+                    // You can still use the compressed file if needed,
+                    // but we'll rely on the ImageBitmap for now
+                    scope.launch {
+                        val compressedFilePath = compressImage(
+                            sharedImage = sharedImage,
+                            targetFileSize = 200 * 1024
+                        )
+
+                    }
+                }
+            )
+
             pet?.let {
-                selectedImage?.let { image ->
+                it.imageBitmap?.let { image ->
                     Image(
                         bitmap = image,
                         contentDescription = "Pet photo",
@@ -133,48 +163,6 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            CMPImagePickNCropDialog(
-                imageCropper = imageCropper,
-                openImagePicker = openImagePicker,
-                defaultAspectRatio = ImageAspectRatio(16, 9),
-                imagePickerDialogStyle = ImagePickerDialogStyle(
-                    title = "Choose from option",
-                    txtCamera = "From Camera",
-                    txtGallery = "From Gallery",
-                    txtCameraColor = Color.DarkGray,
-                    txtGalleryColor = Color.DarkGray,
-                    cameraIconTint = Color.DarkGray,
-                    galleryIconTint = Color.DarkGray,
-                    backgroundColor = Color.White
-                ),
-                autoZoom = true,
-                imagePickerDialogHandler = { openImagePicker = it },
-                selectedImageCallback = {
-                    selectedImage = it
-                    // Convert ImageBitmap to ByteArray immediately
-                    imageByteArray = it.toByteArray(
-                        format = ImageFileFormat.JPEG,
-                        quality = 0.6f
-                    )
-
-                    imageByteArray.let { byteArray ->
-                        viewModel.updatePetPhotoByteArray(byteArray!!)
-                    }
-
-                },
-                selectedImageFileCallback = { sharedImage ->
-                    // You can still use the compressed file if needed,
-                    // but we'll rely on the ImageBitmap for now
-                    scope.launch {
-                        val compressedFilePath = compressImage(
-                            sharedImage = sharedImage,
-                            targetFileSize = 200 * 1024
-                        )
-
-                        println("Compressed File Path: $compressedFilePath")
-                    }
-                }
-            )
 
             Column {
                 Button(
@@ -190,23 +178,23 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                     )
                 }
 
-                Button(
-                    modifier = Modifier.padding(16.dp),
-                    elevation = ButtonDefaults.buttonElevation(15.dp),
-                    enabled = imageByteArray != null,
-                    onClick = {
-                        scope.launch {
-                            viewModel.uploadPetProfilePhoto()
-                        }
-                    }
-                ) {
-                    Text("Upload photo to supabase")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(Res.drawable.add_photo_alternate_24px),
-                        contentDescription = "Upload photo to supabase",
-                    )
-                }
+//                Button(
+//                    modifier = Modifier.padding(16.dp),
+//                    elevation = ButtonDefaults.buttonElevation(15.dp),
+//                    enabled = imageByteArray != null,
+//                    onClick = {
+//                        scope.launch {
+//                            viewModel.uploadPetProfilePhoto()
+//                        }
+//                    }
+//                ) {
+//                    Text("Upload photo to supabase")
+//                    Spacer(modifier = Modifier.width(8.dp))
+//                    Icon(
+//                        painter = painterResource(Res.drawable.add_photo_alternate_24px),
+//                        contentDescription = "Upload photo to supabase",
+//                    )
+//                }
             }
         }
     }

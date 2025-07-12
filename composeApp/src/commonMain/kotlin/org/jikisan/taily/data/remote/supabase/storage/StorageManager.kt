@@ -1,10 +1,12 @@
 package org.jikisan.taily.data.remote.supabase.storage
 
+import io.github.aakira.napier.Napier
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.storage.UploadStatus
 import io.ktor.http.ContentType
 import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.storage.uploadAsFlow
+import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.cmpecommerceapp.util.Constant
 import org.jikisan.taily.data.remote.supabase.config.SupabaseConfig
 
@@ -34,10 +36,10 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
             }.collect { status ->
                 when(status) {
                     is UploadStatus.Progress -> {
-                        println("Progress: ${status.totalBytesSend.toFloat() / status.contentLength * 100}%")
+                        Napier.i("$TAG Upload progress: ${status.totalBytesSend.toFloat() / status.contentLength * 100}%")
                     }
                     is UploadStatus.Success -> {
-                        println("Success")
+                        Napier.i("$TAG Upload completed successfully")
                         uploadSuccess = true
                     }
                 }
@@ -47,11 +49,13 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
                 val publicUrl = bucket.publicUrl(filePath)
                 Result.success(publicUrl)
             } else {
+                Napier.e("$TAG Upload did not complete successfully")
                 Result.failure(Exception("Upload did not complete successfully"))
             }
 
         } catch (e: Exception) {
-            Result.failure(e)
+            Napier.e("$TAG Upload encountered an error")
+            Result.failure(Exception("Upload encountered an error"))
         }
     }
 

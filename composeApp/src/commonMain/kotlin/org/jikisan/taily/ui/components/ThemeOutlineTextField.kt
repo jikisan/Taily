@@ -42,10 +42,10 @@ fun ThemeOutlineTextField(
     cornerRadius: Dp = 10.dp,
     maxLength: Int = 20,
     errorMessage: String = "Maximum character limit reached",
+    isError: Boolean = false,
     showCharacterCounter: Boolean = true
 ) {
     val focusRequester = remember { FocusRequester() }
-    val isError = value.length >= maxLength
     val currentBorderColor = if (isError) MaterialTheme.colorScheme.error else borderColor
 
     Column(modifier = modifier) {

@@ -14,9 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +35,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.domain.model.pet.Pet
+import org.jikisan.taily.ui.screens.addpet.AddPetHeader
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
@@ -44,7 +43,7 @@ import taily.composeapp.generated.resources.female_24px
 import taily.composeapp.generated.resources.male_24px
 
 @Composable
-fun ChoosePetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
+fun AddPetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
 
     var isSelected = remember { mutableStateOf(false) }
     var selectedGender by remember { mutableStateOf(GenderType.Male) }
@@ -56,11 +55,10 @@ fun ChoosePetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
         verticalArrangement = Arrangement.Center
     ) {
 
-        Text(
-            text = "Choose ${pet!!.name}'s Gender!",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Medium
-        )
+        pet?.let {
+            AddPetHeader("Enter ${it.name}'s Gender!")
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Row(
@@ -68,7 +66,7 @@ fun ChoosePetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
 
-        ){
+            ) {
             GenderContainer(
                 Res.drawable.male_24px,
                 "Male",
@@ -94,7 +92,8 @@ fun GenderContainer(
     onClick: () -> Unit = {}
 ) {
     val borderColor = MaterialTheme.colorScheme.primary
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
+    val backgroundColor =
+        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
 
     Box(
         modifier = Modifier
@@ -138,7 +137,7 @@ fun ChoosePetGenderContentPreview() {
                 .padding(16.dp)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            ChoosePetGenderContent(
+            AddPetGenderContent(
                 viewModel = koinViewModel<AddPetViewModel>(),
                 pet = MockData.mockPets.first()
             )

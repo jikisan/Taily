@@ -1,7 +1,9 @@
 package org.jikisan.taily.ui.screens.addpet
 
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import coil3.BitmapImage
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -81,6 +83,13 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
         val pet = _uiState.value.pet
         pet?.let {
             updatePet(it.copy(photoUrl = url))
+        }
+    }
+
+    fun updatePhotoImageBitmap(image: ImageBitmap) {
+        val pet = _uiState.value.pet
+        pet?.let {
+            updatePet(it.copy(imageBitmap = image))
         }
     }
 

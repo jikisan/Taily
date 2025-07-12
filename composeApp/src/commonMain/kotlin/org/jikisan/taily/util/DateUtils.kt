@@ -1,6 +1,8 @@
 package org.jikisan.taily.util
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlin.math.abs
 
 object DateUtils {
@@ -214,6 +216,24 @@ object DateUtils {
         return "$month $day, $year - $dayOfWeek"
     }
 
+    /**
+     Helper function to format LocalDate to 12/31/2000 string
+**/
+    fun formatDateToString(date: LocalDate): String {
+        val month = date.monthNumber.toString().padStart(2, '0')
+        val day = date.dayOfMonth.toString().padStart(2, '0')
+        val year = date.year.toString()
+        return "$month/$day/$year"
+    }
+
+    /**
+     Helper function to convert 12/31/2000 string to LocalDate
+    **/
+    fun convertToISO_MPP(input: String): String {
+        val (month, day, year) = input.split("/")
+        val date = LocalDate(year.toInt(), month.toInt(), day.toInt())
+        return date.atStartOfDayIn(TimeZone.UTC).toString() // ISO 8601 UTC
+    }
 }
 
 /**
