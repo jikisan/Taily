@@ -58,7 +58,7 @@ fun AddPetSpeciesContent(viewModel: AddPetViewModel, pet: Pet?) {
         // Main species dropdown field
         Box {
             ThemeOutlineTextField(
-                value = pet?.petType ?: "",
+                value = if (showCustomField) "Other" else pet?.petType ?: "",
                 onValueChange = { /* Read-only field */ },
                 placeholder = "e.g. Dog",
                 readOnly = true,

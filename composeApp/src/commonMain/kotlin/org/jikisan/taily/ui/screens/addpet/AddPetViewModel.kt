@@ -17,6 +17,7 @@ import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
 import org.jikisan.taily.model.pet.Owner
 import org.jikisan.taily.model.pet.Passport
+import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
 import org.jikisan.taily.ui.uistates.AddPetUIState
 
 
@@ -34,7 +35,10 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
         dateOfBirth = "",
         gender = "",
         photoUrl = "",
-        weight = Weight("kg", 0.0),
+        weight = Weight(
+            value = 0.0,
+            unit = WEIGHT_UNITS[0]
+        ),
         ownerId = Owner(email = "", fullName = "", id = "", userId = ""),
         identifiers = Identifiers(
             allergies = emptyList(),
@@ -125,6 +129,8 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
         val pet = _uiState.value.pet
         pet?.let {
             updatePet(it.copy(weight = weight))
+            Napier.i("$TAG Pet Weight Updated: ${_uiState.value.pet?.weight}")
+            println("$TAG Pet Weight Updated: ${_uiState.value.pet?.weight}")
         }
     }
 
@@ -211,6 +217,8 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
         }
 
     }
+
+    fun updateIdentifiers(identifiers: org.jikisan.taily.model.pet.Identifiers) {}
 
 
 }

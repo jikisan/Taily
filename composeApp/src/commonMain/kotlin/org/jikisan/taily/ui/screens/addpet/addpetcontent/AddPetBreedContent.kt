@@ -55,7 +55,7 @@ fun AddPetBreedContent(viewModel: AddPetViewModel, pet: Pet?) {
         // Main breed dropdown field
         Box {
             ThemeOutlineTextField(
-                value = pet?.breed ?: "",
+                value = if (showCustomField) "Other" else pet?.breed ?: "",
                 onValueChange = { /* Read-only field */ },
                 placeholder = "Enter your pet's breed",
                 readOnly = true,
@@ -90,7 +90,7 @@ fun AddPetBreedContent(viewModel: AddPetViewModel, pet: Pet?) {
                                     onClick = {
                                         showBreedPicker = false
 
-                                        if (petType == "Other") {
+                                        if (it.equals("Other", ignoreCase = true) || petType.equals("Other", ignoreCase = true)) {
                                             showCustomField = true
                                             // Don't update viewModel yet, wait for custom input
                                         } else {

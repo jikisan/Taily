@@ -5,6 +5,7 @@ import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
 import org.jikisan.taily.model.pet.Owner
 import org.jikisan.taily.model.pet.Passport
+import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
 
 object MockData {
 
@@ -18,7 +19,7 @@ object MockData {
             dateOfBirth = "2020-05-15",
             gender = "Male",
             photoUrl = "https://jzyvwbvngvlqqzmwzbvn.supabase.co/storage/v1/object/public/pet-profile-pictures/686361362996e4a75c328437/686361362996e4a75c328437_profile_photo",
-            weight = Weight(unit = "kg", value = 25.5),
+            weight = Weight(unit = WEIGHT_UNITS[0], value = 25.5),
             ownerId = Owner(
                 id = "owner1",
                 userId = "user1",
@@ -49,7 +50,7 @@ object MockData {
             dateOfBirth = "2019-08-22",
             gender = "Female",
             photoUrl = "",
-            weight = Weight(unit = "kg", value = 4.2),
+            weight = Weight(unit = WEIGHT_UNITS[0], value = 4.2),
             ownerId = Owner(
                 id = "owner2",
                 userId = "user2",
@@ -80,7 +81,7 @@ object MockData {
             dateOfBirth = "2021-03-10",
             gender = "Male",
             photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
-            weight = Weight(unit = "kg", value = 32.8),
+            weight = Weight(unit = WEIGHT_UNITS[0], value = 32.8),
             ownerId = Owner(
                 id = "owner3",
                 userId = "user3",
@@ -111,7 +112,7 @@ object MockData {
             dateOfBirth = "2022-01-08",
             gender = "Female",
             photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
-            weight = Weight(unit = "kg", value = 6.1),
+            weight = Weight(unit = WEIGHT_UNITS[0], value = 6.1),
             ownerId = Owner(
                 id = "owner4",
                 userId = "user4",

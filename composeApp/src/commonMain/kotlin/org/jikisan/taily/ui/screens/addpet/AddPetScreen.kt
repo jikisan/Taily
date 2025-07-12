@@ -49,6 +49,7 @@ import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetBreedContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetDOBContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetProfilePhotoContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetGenderContent
+import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetIdentifiersContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetSpeciesContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetWeightContent
 import org.koin.compose.viewmodel.koinViewModel
@@ -141,7 +142,8 @@ fun AddPetScreen(
 
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            userScrollEnabled = false
         ) { page: Int ->
 
             when (page) {
@@ -152,6 +154,7 @@ fun AddPetScreen(
                 4 -> AddPetSpeciesContent(viewModel, pet = uiState.pet)
                 5 -> AddPetBreedContent(viewModel, pet = uiState.pet)
                 6 -> AddPetWeightContent(viewModel, pet = uiState.pet)
+                7 -> AddPetIdentifiersContent(viewModel, pet = uiState.pet)
             }
         }
 

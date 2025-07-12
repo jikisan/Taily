@@ -66,7 +66,12 @@ object PetConstants {
 
 
 
-    val WEIGHT_UNITS = listOf("kg", "lbs", "g", "oz")
+    val WEIGHT_UNITS = listOf("kg", "lbs")
+
+    val FRACTIONAL_PARTS_1_DECIMAL = listOf(
+        ".0", ".1", ".2", ".3", ".4", ".5", ".6", ".7", ".8", ".9"
+    )
+
 
     val SIZE_OPTIONS = listOf("Small", "Medium", "Large", "Extra Large")
 

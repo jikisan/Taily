@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
@@ -166,16 +167,16 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
 
             Column {
                 Button(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(16.dp).clip(RoundedCornerShape(5)),
                     elevation = ButtonDefaults.buttonElevation(15.dp),
-                    onClick = { openImagePicker = true }
+                    onClick = { openImagePicker = true },
                 ) {
-                    Text("Pick a photo")
-                    Spacer(modifier = Modifier.width(8.dp))
                     Icon(
                         painter = painterResource(Res.drawable.add_photo_alternate_24px),
                         contentDescription = "Pick Photo",
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Pick a photo")
                 }
 
 //                Button(

@@ -4,6 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 data class Weight(
-    val unit: String,
-    val value: Double
+    val value: Double,
+    val unit: String
 )
