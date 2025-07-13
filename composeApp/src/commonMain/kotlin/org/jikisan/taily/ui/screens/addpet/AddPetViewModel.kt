@@ -3,7 +3,6 @@ package org.jikisan.taily.ui.screens.addpet
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil3.BitmapImage
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,6 +12,7 @@ import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
 import org.jikisan.taily.domain.model.Weight
+import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
 import org.jikisan.taily.model.pet.Owner
@@ -39,7 +39,7 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
             value = 0.0,
             unit = WEIGHT_UNITS[0]
         ),
-        ownerId = Owner(email = "", fullName = "", id = "", userId = ""),
+        ownerId = Owner(email = "kylesan@gmail.com", fullName = "Kyle Santerna", id = MockData.MOCK_USERID, userId = MockData.MOCK_USERID),
         identifiers = Identifiers(
             allergies = emptyList(),
             clipLocation = "",
@@ -97,10 +97,10 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
         }
     }
 
-    fun updateGender(gender: String) {
+    fun updateGender(gender: GenderType) {
         val pet = _uiState.value.pet
         pet?.let {
-            updatePet(it.copy(gender = gender))
+            updatePet(it.copy(gender = gender.toString()))
         }
     }
 
@@ -190,6 +190,14 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
         }
     }
 
+    fun updateIdentifiers(identifiers: Identifiers) {
+        val pet = _uiState.value.pet
+        pet?.let {
+            updatePet(newPet = it.copy(identifiers = identifiers))
+            Napier.i("$TAG Pet Identifiers Updated: ${_uiState.value.pet?.identifiers}")
+            println("Pet Identifiers Updated: ${_uiState.value.pet?.identifiers.toString()}")
+        }
+    }
 
     fun uploadPetProfilePhoto() {
         viewModelScope.launch {
@@ -213,12 +221,14 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
                 }
             }
 
-
         }
 
     }
 
-    fun updateIdentifiers(identifiers: org.jikisan.taily.model.pet.Identifiers) {}
+    fun displayPet() {
+        println("Pet: ${_uiState.value.pet}")
+    }
+
 
 
 }

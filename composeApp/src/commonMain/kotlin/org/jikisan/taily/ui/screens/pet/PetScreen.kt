@@ -87,7 +87,7 @@ private fun PetScreenContent(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
+                verticalAlignment = Alignment.CenterVertically
             ) {
 
                 // Header
@@ -100,7 +100,7 @@ private fun PetScreenContent(
                     onClick = {
                         navHost.navigate(route = NavigationItem.AddPet.route)
                     },
-                    modifier = Modifier.align(Alignment.Bottom)
+                    modifier = Modifier.align(Alignment.CenterVertically)
 
                 ) {
                     Icon(

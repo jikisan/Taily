@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,8 +46,11 @@ import taily.composeapp.generated.resources.male_24px
 @Composable
 fun AddPetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
 
-    var isSelected = remember { mutableStateOf(false) }
     var selectedGender by remember { mutableStateOf(GenderType.Male) }
+
+    LaunchedEffect(selectedGender) {
+        viewModel.updateGender(selectedGender)
+    }
 
     Column(
         modifier = Modifier
@@ -82,6 +86,8 @@ fun AddPetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
         }
 
     }
+
+
 }
 
 @Composable

@@ -180,6 +180,8 @@ fun AddPetScreen(
                             }
 
                         } else {
+
+                            viewModel.displayPet()
                             // Submit
                         }
                     }
