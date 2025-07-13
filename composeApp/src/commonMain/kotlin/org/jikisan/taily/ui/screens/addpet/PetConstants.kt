@@ -1,17 +1,80 @@
 package org.jikisan.taily.ui.screens.addpet
 
 object PetConstants {
-    val PET_TYPES = listOf("Axolotl", "Bird", "Budgie", "Canary", "Cat", "Chinchilla", "Chicken", "Cockatiel", "Dog", "Duck", "Ferret", "Fish", "Frog", "Gecko", "Goat", "Guinea Pig", "Hamster", "Hedgehog", "Hermit Crab", "Iguana", "Koi", "Lizard", "Lovebird", "Mouse", "Parrot", "Pig", "Pony", "Rabbit", "Rat", "Snake", "Sugar Glider", "Tarantula", "Tortoise", "Turtle", "Other")
+    val PET_TYPES = listOf(
+        "Axolotl",
+        "Bird",
+        "Budgie",
+        "Canary",
+        "Cat",
+        "Chinchilla",
+        "Chicken",
+        "Cockatiel",
+        "Dog",
+        "Duck",
+        "Ferret",
+        "Fish",
+        "Frog",
+        "Gecko",
+        "Goat",
+        "Guinea Pig",
+        "Hamster",
+        "Hedgehog",
+        "Hermit Crab",
+        "Iguana",
+        "Koi",
+        "Lizard",
+        "Lovebird",
+        "Mouse",
+        "Parrot",
+        "Pig",
+        "Pony",
+        "Rabbit",
+        "Rat",
+        "Snake",
+        "Sugar Glider",
+        "Tarantula",
+        "Tortoise",
+        "Turtle",
+        "Other"
+    )
 
     val PET_BREEDS = mapOf(
         "Dog" to listOf(
-            "Beagle", "Bulldog", "Chihuahua", "Cocker Spaniel", "Dachshund", "Doberman", "Golden Retriever",
-            "French Bulldog", "German Shepherd", "Golden Retriever", "Labrador Retriever", "Maltese",
-            "Pomeranian", "Poodle", "Rottweiler", "Shih Tzu", "Siberian Husky", "Yorkshire Terrier", "Other"
+            "Beagle",
+            "Bulldog",
+            "Chihuahua",
+            "Cocker Spaniel",
+            "Dachshund",
+            "Doberman",
+            "Golden Retriever",
+            "French Bulldog",
+            "German Shepherd",
+            "Golden Retriever",
+            "Labrador Retriever",
+            "Maltese",
+            "Pomeranian",
+            "Poodle",
+            "Rottweiler",
+            "Shih Tzu",
+            "Siberian Husky",
+            "Yorkshire Terrier",
+            "Other"
         ),
         "Cat" to listOf(
-            "Abyssinian", "American Shorthair", "Bengal", "British Shorthair", "Burmese",
-            "Maine Coon", "Persian", "Ragdoll", "Russian Blue", "Scottish Fold", "Siamese", "Sphynx", "Other"
+            "Abyssinian",
+            "American Shorthair",
+            "Bengal",
+            "British Shorthair",
+            "Burmese",
+            "Maine Coon",
+            "Persian",
+            "Ragdoll",
+            "Russian Blue",
+            "Scottish Fold",
+            "Siamese",
+            "Sphynx",
+            "Other"
         ),
         "Bird" to listOf(
             "African Grey Parrot", "Budgie (Parakeet)", "Canary", "Cockatiel", "Cockatoo",
@@ -57,13 +120,15 @@ object PetConstants {
             "Chilean Rose", "Mexican Red Knee", "Pink Toe", "Goliath Birdeater", "Other"
         ),
         "Frog" to listOf(
-            "American Bullfrog", "Dart Frog", "Pacman Frog", "Tree Frog", "White's Tree Frog", "Other"
+            "American Bullfrog",
+            "Dart Frog",
+            "Pacman Frog",
+            "Tree Frog",
+            "White's Tree Frog",
+            "Other"
         )
         // Species without specific breeds will default to "Other"
     )
-
-
-
 
 
     val WEIGHT_UNITS = listOf("kg", "lbs")
@@ -72,13 +137,10 @@ object PetConstants {
         ".0", ".1", ".2", ".3", ".4", ".5", ".6", ".7", ".8", ".9"
     )
 
-
     val SIZE_OPTIONS = listOf("Small", "Medium", "Large", "Extra Large")
 
     val MICROCHIP_LOCATIONS =
         listOf("Neck", "Between shoulder blades", "Left shoulder", "Right shoulder", "Other")
 
-    val CLIP_LOCATIONS = listOf("Left ear", "Right ear", "Both ears", "Tail", "Other")
-
-    val GENDER_OPTIONS = listOf("Male", "Female")
+    val CLIP_LOCATIONS = listOf("None", "Left ear", "Right ear", "Both ears", "Tail", "Other")
 }

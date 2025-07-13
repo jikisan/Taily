@@ -26,6 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -77,6 +79,7 @@ fun AddPetScreen(
     val pagerState = rememberPagerState(pageCount = { totalPages })
     val coroutineScope = rememberCoroutineScope()
     val currentPageHeader = remember { mutableStateOf("") }
+    val showDialog = remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
 
@@ -181,14 +184,35 @@ fun AddPetScreen(
 
                         } else {
 
-                            viewModel.displayPet()
-                            // Submit
+                            showDialog.value = true
+                            // Show confirmation dialog first
                         }
                     }
                 }) {
                 Text(if (pagerState.currentPage + 1 == totalPages) "Submit" else "Next")
             }
         }
+    }
+
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showDialog.value = false },
+            title = { Text("Confirm Submission") },
+            text = { Text("Are you sure all pet info are correct?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    showDialog.value = false
+                    viewModel.uploadPetProfilePhoto()
+                }) {
+                    Text("Yes, Submit")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog.value = false }) {
+                    Text(text = "Cancel", color = Color.Gray)
+                }
+            }
+        )
     }
 }
 

@@ -22,6 +22,7 @@ import org.jikisan.taily.data.model.pet.request.UpdatePetRequest
 import org.jikisan.taily.model.pet.CreateMedicalRecordRequest
 import org.jikisan.taily.model.pet.CreatePetCareRequest
 import org.jikisan.taily.model.pet.CreatePetIdRequest
+import org.jikisan.taily.model.pet.CreatePetRequest
 import org.jikisan.taily.model.pet.CreateScheduleRequest
 import org.jikisan.taily.model.pet.PetDTO
 import org.jikisan.taily.model.pet.UpdateMedicalRecordRequest
@@ -56,7 +57,7 @@ class PetApiService(private val client: HttpClient) {
         client.get(ApiRoutes.PET_BY_ID.replace("{id}", id)).body<PetDTO>()
     }
 
-    suspend fun createPet(request: PetDTO): Result<PetDTO> = safeApiCall {
+    suspend fun createPet(request: CreatePetRequest): Result<PetDTO> = safeApiCall {
         client.post(ApiRoutes.PETS) {
             contentType(ContentType.Application.Json)
             setBody(request)

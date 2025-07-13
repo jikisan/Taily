@@ -6,6 +6,8 @@ import io.github.jan.supabase.storage.Storage
 import org.jikisan.cmpecommerceapp.util.Constant
 import org.jikisan.taily.data.remote.supabase.config.SupabaseConfig
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
+import org.jikisan.taily.domain.addpet.AddPetRepository
+import org.jikisan.taily.domain.addpet.AddPetRepositoryImpl
 import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.home.HomeRepositoryImpl
 import org.jikisan.taily.domain.pet.PetRepository
@@ -35,11 +37,12 @@ val sharedModule = module {
     }
 
     single { StorageManager(get()) }
-
     single { PetApiService(get()) }
 
     singleOf(::HomeRepositoryImpl).bind<HomeRepository>()
     singleOf(::PetRepositoryImpl).bind<PetRepository>()
+    singleOf(::AddPetRepositoryImpl).bind<AddPetRepository>()
+
     viewModelOf(::HomeViewModel)
     viewModelOf(::PetViewModel)
     viewModelOf(::AddPetViewModel)

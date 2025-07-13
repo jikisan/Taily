@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
+import org.jikisan.taily.domain.addpet.AddPetRepository
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.domain.model.pet.Pet
@@ -21,7 +22,7 @@ import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
 import org.jikisan.taily.ui.uistates.AddPetUIState
 
 
-class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() {
+class AddPetViewModel(private val storageManager: StorageManager, private val repository: AddPetRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddPetUIState())
     val uiState: StateFlow<AddPetUIState> = _uiState.asStateFlow()
@@ -212,11 +213,21 @@ class AddPetViewModel(private val storageManager: StorageManager) : ViewModel() 
 
                 when {
                     result.isSuccess -> {
-                        updatePhotoUrl(result.toString())
+
+                        result.onSuccess { url ->
+                            updatePhotoUrl(url)
+                            println("Pet Identifiers Updated: ${_uiState.value.pet.toString()}")
+
+                            _uiState.value.pet?.let { pet ->
+                                repository.createPet(pet)
+                            }
+                       }
+
                     }
 
                     result.isFailure -> {
                         Napier.e("$TAG Upload Pet Profile Photo Failed, Error: ${result.exceptionOrNull()?.message}")
+                        _uiState.value.copy(errorMessage = result.exceptionOrNull()?.message)
                     }
                 }
             }

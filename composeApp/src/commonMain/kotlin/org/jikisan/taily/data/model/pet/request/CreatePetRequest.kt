@@ -7,8 +7,6 @@ import org.jikisan.taily.data.model.WeightDTO
 
 @Serializable
 data class CreatePetRequest(
-    @SerialName("_id")
-    val id: String,
     @SerialName("name")
     val name: String,
     @SerialName("petType")

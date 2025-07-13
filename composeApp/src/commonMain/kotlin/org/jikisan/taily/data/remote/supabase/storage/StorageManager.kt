@@ -28,7 +28,7 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
         fileData: ByteArray,
     ): Result<String> {
         return try {
-            val filePath = "$userId/${userId}_profile_photo"
+            val filePath = "$userId/pet/${fileData}_profile_photo"
             var uploadSuccess = false
 
             bucket.uploadAsFlow(filePath, fileData){
@@ -54,7 +54,7 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
             }
 
         } catch (e: Exception) {
-            Napier.e("$TAG Upload encountered an error")
+            Napier.e("$TAG Upload encountered an error: ${e.message}")
             Result.failure(Exception("Upload encountered an error"))
         }
     }
