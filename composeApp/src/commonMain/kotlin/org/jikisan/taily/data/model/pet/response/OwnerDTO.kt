@@ -6,9 +6,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OwnerDTO(
-    @SerialName("email")
     val email: String,
-    @SerialName("fullName")
     val fullName: String,
     @SerialName("_id")
     val id: String,

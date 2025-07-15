@@ -1,23 +1,15 @@
 package org.jikisan.taily.model.pet
 
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class IdentifiersDTO(
-    @SerialName("allergies")
-    val allergies: List<String>,
-    @SerialName("clipLocation")
-    val clipLocation: String,
-    @SerialName("colorMarkings")
-    val colorMarkings: String,
-    @SerialName("isNeuteredOrSpayed")
-    val isNeuteredOrSpayed: Boolean,
-    @SerialName("microchipLocation")
-    val microchipLocation: String,
-    @SerialName("microchipNumber")
-    val microchipNumber: String,
-    @SerialName("size")
-    val size: String
+    val allergies: List<String> = emptyList(),
+    val clipLocation: String? = null,
+    val colorMarkings: String? = null,
+    val isNeuteredOrSpayed: Boolean? = null,
+    val microchipLocation: String? = null,
+    val microchipNumber: String? = null,
+    val size: String? = null
 )

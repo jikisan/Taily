@@ -96,6 +96,9 @@ kotlin {
             // Image picker
             implementation("network.chaintech:cmp-image-pick-n-crop:1.1.1")
 
+            //UUID
+            implementation("com.benasher44:uuid:0.8.2")
+
 
         }
         iosMain.dependencies {

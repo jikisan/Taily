@@ -27,7 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -80,8 +83,10 @@ fun AddPetScreen(
     val coroutineScope = rememberCoroutineScope()
     val currentPageHeader = remember { mutableStateOf("") }
     val showDialog = remember { mutableStateOf(false) }
+    val uploading = remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
+    val uploadSuccess by viewModel.uploadSuccess.collectAsState()
 
     Column(
         modifier = Modifier.fillMaxSize().padding(top = topPadding),
@@ -214,7 +219,24 @@ fun AddPetScreen(
             }
         )
     }
+
+    LaunchedEffect(uploadSuccess) {
+        if (uploadSuccess == true) {
+            navHost.popBackStack()
+            viewModel.uploadSuccess.value = null // reset for next time
+        }
+    }
+
+    if (uploading.value) {
+        Box(modifier = Modifier.fillMaxSize().background(Color.Gray.copy(alpha = 0.5f))) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
+
 }
+
 
 @Preview
 @Composable

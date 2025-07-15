@@ -1,5 +1,6 @@
 package org.jikisan.taily.data.remote.supabase.storage
 
+import com.benasher44.uuid.uuid4
 import io.github.aakira.napier.Napier
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.storage.UploadStatus
@@ -9,6 +10,8 @@ import io.github.jan.supabase.storage.uploadAsFlow
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.cmpecommerceapp.util.Constant
 import org.jikisan.taily.data.remote.supabase.config.SupabaseConfig
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 data class UserFile(
     val id: String,
@@ -23,15 +26,19 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
 
     private val storage = supabaseClient.storage
     private val bucket = storage.from(Constant.PET_PROFILE_PICTURE_BUCKET)
+    @OptIn(ExperimentalUuidApi::class)
     suspend fun uploadFile(
         userId: String,
         fileData: ByteArray,
     ): Result<String> {
         return try {
-            val filePath = "$userId/pet/${fileData}_profile_photo"
+
+            val fileName = "${uuid4()}.jpg"
+            val key = "$userId/pet/$fileName"
+
             var uploadSuccess = false
 
-            bucket.uploadAsFlow(filePath, fileData){
+            bucket.uploadAsFlow(key, fileData){
                 upsert = true
             }.collect { status ->
                 when(status) {
@@ -46,7 +53,7 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
             }
 
             if (uploadSuccess) {
-                val publicUrl = bucket.publicUrl(filePath)
+                val publicUrl = bucket.publicUrl(key)
                 Result.success(publicUrl)
             } else {
                 Napier.e("$TAG Upload did not complete successfully")
