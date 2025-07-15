@@ -46,7 +46,12 @@ import taily.composeapp.generated.resources.male_24px
 @Composable
 fun AddPetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
 
-    var selectedGender by remember { mutableStateOf(GenderType.Male) }
+    var selectedGender by remember {
+        mutableStateOf(
+            if (pet?.gender == GenderType.Female.name) GenderType.Female
+            else GenderType.Male
+        )
+    }
 
     LaunchedEffect(selectedGender) {
         viewModel.updateGender(selectedGender)

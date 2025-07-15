@@ -28,6 +28,7 @@ import org.jikisan.taily.ui.screens.addpet.AddPetHeader
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
 import org.jikisan.taily.util.DateUtils.convertToISO_MPP
 import org.jikisan.taily.util.DateUtils.formatDateToString
+import org.jikisan.taily.util.DateUtils.formatToMMDDYYYY
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.calendar_month_24px
 
@@ -51,7 +52,7 @@ fun AddPetDOBContent(viewModel: AddPetViewModel, pet: Pet?) {
         Spacer(modifier = Modifier.height(8.dp))
 
         ThemeOutlineTextField(
-            value = dob,
+            value = pet?.dateOfBirth?.let { formatToMMDDYYYY(it) } ?: dob,
             onValueChange = { /* Read-only field */ },
             placeholder = "Date of Birth",
             readOnly = true,

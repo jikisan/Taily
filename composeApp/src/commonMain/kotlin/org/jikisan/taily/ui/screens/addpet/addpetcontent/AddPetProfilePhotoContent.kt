@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,6 +47,7 @@ import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.screens.addpet.AddPetHeader
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
+import org.jikisan.taily.util.readFileAsBytes
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.add_photo_alternate_24px
@@ -59,6 +59,7 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
     var selectedImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var openImagePicker by remember { mutableStateOf(false) }
     var imageByteArray by remember { mutableStateOf<ByteArray?>(null) }
+    var invalidFormat by remember { mutableStateOf(false) }
 
     val imageCropper = rememberImageCropper()
     val scope = rememberCoroutineScope()
@@ -89,6 +90,7 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                 imageCropper = imageCropper,
                 openImagePicker = openImagePicker,
                 defaultAspectRatio = ImageAspectRatio(16, 9),
+                showCameraOption = false,
                 imagePickerDialogStyle = ImagePickerDialogStyle(
                     title = "Choose from option",
                     txtCamera = "From Camera",
@@ -99,37 +101,73 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                     galleryIconTint = Color.DarkGray,
                     backgroundColor = Color.White
                 ),
-                autoZoom = true,
+                autoZoom = false,
                 imagePickerDialogHandler = { openImagePicker = it },
-                selectedImageCallback = {
-                    selectedImage = it
+                selectedImageCallback = { imageBitmap ->
+//
+//                    // Check bitmap size before processing
+//                    val bitmapSizeInBytes = imageBitmap.width * imageBitmap.height * 4 // 4 bytes per pixel (ARGB)
+//                    val maxAllowedSize = 50 * 1024 * 1024 // 50MB limit (adjust as needed)
+//
+//                    if (bitmapSizeInBytes > maxAllowedSize) {
+//                        isImageTooLarge = true
+//                    } else {
+                        selectedImage = imageBitmap
 
-                    selectedImage?.let { image ->
-                        viewModel.updatePhotoImageBitmap(image)
-                    }
+                        selectedImage?.let { image ->
+                            viewModel.updatePhotoImageBitmap(image)
+                        }
+//
+                        imageByteArray = imageBitmap.toByteArray(
+                            format = ImageFileFormat.JPEG,
+                            quality = 0.6f
+                        )
 
-                    imageByteArray = it.toByteArray(
-                        format = ImageFileFormat.JPEG,
-                        quality = 0.6f
-                    )
+                         // For server upload
+                        imageByteArray.let { byteArray ->
+                            viewModel.updatePetPhotoByteArray(byteArray!!)
+                        }
+//                    }
+//
 
-                    imageByteArray.let { byteArray ->
-                        viewModel.updatePetPhotoByteArray(byteArray!!)
-                    }
 
                 },
                 selectedImageFileCallback = { sharedImage ->
-                    // You can still use the compressed file if needed,
-                    // but we'll rely on the ImageBitmap for now
                     scope.launch {
+
                         val compressedFilePath = compressImage(
                             sharedImage = sharedImage,
-                            targetFileSize = 200 * 1024
+                            targetFileSize = 200 * 1024,
+                            fileName = "pet_profile_photo"
                         )
 
+                        compressedFilePath?.let { path ->
+                            val compressedByteArray = readFileAsBytes(path)
+                            compressedByteArray?.let { byteArray ->
+                                // For server upload
+                                viewModel.updatePetPhotoByteArray(byteArray)
+
+                                // For UI display - convert compressed bytes to ImageBitmap
+//                                val compressedBitmap = sharedImage.toImageBitmap()
+//                                selectedImage = compressedBitmap
+//
+//                                selectedImage.let { image ->
+//                                    viewModel.updatePhotoImageBitmap(image!!)
+//                                }
+
+                            }
+                        }
+//                        } catch (e: Exception) {
+//                            viewModel.updateErrorMessage(e.message.toString())
+//                        }
+
+
                     }
+
                 }
             )
+
+
 
             pet?.let {
                 it.imageBitmap?.let { image ->
@@ -158,6 +196,23 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                     }
                 }
             }
+
+
+        }
+
+        // TODO: delete this
+        if (invalidFormat) {
+            Text(
+                text = "Invalid image format.",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        } else {
+            Text(
+                text = "JPG, PNG, JPEG only. Max 50MB.",
+                color = Color.Gray,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
 
         Box(
@@ -168,7 +223,6 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
             Column {
                 Button(
                     modifier = Modifier.padding(16.dp).clip(RoundedCornerShape(5)),
-                    elevation = ButtonDefaults.buttonElevation(15.dp),
                     onClick = { openImagePicker = true },
                 ) {
                     Icon(

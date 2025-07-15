@@ -10,6 +10,8 @@ import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
 object MockData {
 
     val MOCK_USERID = "686361362996e4a75c328437"
+    val MOCK_USER_NAME = "Kyle Santerna"
+    val MOCK_USER_EMAIL = "kylesan@gmail.com"
     val mockPets = listOf(
         Pet(
             id = "1",

@@ -113,18 +113,31 @@ object DateUtils {
     }
 
     /**
-     * Formats ISO date string to simple date format (e.g., "2024-01-01")
+     * Formats an ISO date string to "YYYY-MM-DD" format (e.g., "2024-01-01").
      */
-    fun formatToSimpleDate(isoDateString: String): String? {
-        val dateComponents = parseIsoDate(isoDateString) ?: return null
-        return try {
-            "${dateComponents.year}-${
-                dateComponents.month.toString().padStart(2, '0')
-            }-${dateComponents.day.toString().padStart(2, '0')}"
-        } catch (e: Exception) {
-            null
-        }
+    fun formatToYYYYMMDD(isoDateString: String): String? {
+        val date = parseIsoDate(isoDateString) ?: return null
+
+        val year = date.year
+        val month = date.month.toString().padStart(2, '0')
+        val day = date.day.toString().padStart(2, '0')
+
+        return "$year-$month-$day"
     }
+
+    /**
+     * Formats an ISO date string to "MM-DD-YYYY" format (e.g., "01-01-2024").
+     */
+    fun formatToMMDDYYYY(isoDateString: String): String? {
+        val date = parseIsoDate(isoDateString) ?: return null
+
+        val month = date.month.toString().padStart(2, '0')
+        val day = date.day.toString().padStart(2, '0')
+        val year = date.year
+
+        return "$month-$day-$year"
+    }
+
 
     /**
      * Formats ISO date string to time format (e.g., "10:30 AM")
@@ -217,8 +230,8 @@ object DateUtils {
     }
 
     /**
-     Helper function to format LocalDate to 12/31/2000 string
-**/
+    Helper function to format LocalDate to 12/31/2000 string
+     **/
     fun formatDateToString(date: LocalDate): String {
         val month = date.monthNumber.toString().padStart(2, '0')
         val day = date.dayOfMonth.toString().padStart(2, '0')
@@ -227,8 +240,8 @@ object DateUtils {
     }
 
     /**
-     Helper function to convert 12/31/2000 string to LocalDate
-    **/
+    Helper function to convert 12/31/2000 string to LocalDate
+     **/
     fun convertToISO_MPP(input: String): String {
         val (month, day, year) = input.split("/")
         val date = LocalDate(year.toInt(), month.toInt(), day.toInt())

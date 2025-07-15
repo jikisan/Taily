@@ -30,6 +30,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,8 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.dokar.sonner.Toaster
+import com.dokar.sonner.rememberToasterState
 import com.vidspark.androidapp.ui.theme.TailyTheme
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -48,6 +52,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.pet.PetRepository
+import org.jikisan.taily.ui.common.UploadingScreen
 import org.jikisan.taily.ui.screens.addpet.PetConstants.PET_BREEDS
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddNameContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetBreedContent
@@ -81,14 +86,30 @@ fun AddPetScreen(
     val totalPages = CURRENT_PAGE_HEADER.size
     val pagerState = rememberPagerState(pageCount = { totalPages })
     val coroutineScope = rememberCoroutineScope()
-    val currentPageHeader = remember { mutableStateOf("") }
     val showDialog = remember { mutableStateOf(false) }
     val uploading = remember { mutableStateOf(false) }
+    val toaster = rememberToasterState()
+
 
     val uiState by viewModel.uiState.collectAsState()
+    val pet = uiState.pet
+
     val uploadSuccess by viewModel.uploadSuccess.collectAsState()
 
-    Column(
+
+    LaunchedEffect(uploadSuccess) {
+        if (uploadSuccess == true) {
+            navHost.popBackStack()
+            viewModel.uploadSuccess.value = null // reset for next time
+        }
+    }
+
+    LaunchedEffect(uploading.value) {
+        showDialog.value = false
+        viewModel.uploadPetProfilePhoto()
+    }
+
+        Column(
         modifier = Modifier.fillMaxSize().padding(top = topPadding),
     ) {
         Text(
@@ -155,14 +176,14 @@ fun AddPetScreen(
         ) { page: Int ->
 
             when (page) {
-                0 -> AddNameContent(viewModel, uiState.pet)
-                1 -> AddPetProfilePhotoContent(viewModel, uiState.pet)
-                2 -> AddPetGenderContent(viewModel, pet = uiState.pet)
-                3 -> AddPetDOBContent(viewModel, pet = uiState.pet)
-                4 -> AddPetSpeciesContent(viewModel, pet = uiState.pet)
-                5 -> AddPetBreedContent(viewModel, pet = uiState.pet)
-                6 -> AddPetWeightContent(viewModel, pet = uiState.pet)
-                7 -> AddPetIdentifiersContent(viewModel, pet = uiState.pet)
+                0 -> AddNameContent(viewModel, pet)
+                1 -> AddPetProfilePhotoContent(viewModel, pet)
+                2 -> AddPetGenderContent(viewModel, pet = pet)
+                3 -> AddPetDOBContent(viewModel, pet = pet)
+                4 -> AddPetSpeciesContent(viewModel, pet = pet)
+                5 -> AddPetBreedContent(viewModel, pet = pet)
+                6 -> AddPetWeightContent(viewModel, pet = pet)
+                7 -> AddPetIdentifiersContent(viewModel, pet = pet)
             }
         }
 
@@ -176,6 +197,7 @@ fun AddPetScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 elevation = ButtonDefaults.buttonElevation(15.dp),
+                enabled = !uploading.value, // Disable when uploading is true
                 onClick = {
                     coroutineScope.launch {
                         if (pagerState.currentPage < totalPages - 1) {
@@ -188,13 +210,17 @@ fun AddPetScreen(
                             }
 
                         } else {
-
                             showDialog.value = true
-                            // Show confirmation dialog first
                         }
                     }
-                }) {
-                Text(if (pagerState.currentPage + 1 == totalPages) "Submit" else "Next")
+                }
+            ) {
+
+                if (uploading.value) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                } else {
+                    Text(if (pagerState.currentPage + 1 == totalPages) "Submit" else "Next")
+                }
             }
         }
     }
@@ -206,8 +232,7 @@ fun AddPetScreen(
             text = { Text("Are you sure all pet info are correct?") },
             confirmButton = {
                 TextButton(onClick = {
-                    showDialog.value = false
-                    viewModel.uploadPetProfilePhoto()
+                    uploading.value = true
                 }) {
                     Text("Yes, Submit")
                 }
@@ -218,21 +243,16 @@ fun AddPetScreen(
                 }
             }
         )
-    }
 
-    LaunchedEffect(uploadSuccess) {
-        if (uploadSuccess == true) {
-            navHost.popBackStack()
-            viewModel.uploadSuccess.value = null // reset for next time
-        }
     }
 
     if (uploading.value) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Gray.copy(alpha = 0.5f))) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
+        Dialog(
+            onDismissRequest = { uploading.value = false },
+            content = {
+                UploadingScreen()
+            }
+        )
     }
 
 }

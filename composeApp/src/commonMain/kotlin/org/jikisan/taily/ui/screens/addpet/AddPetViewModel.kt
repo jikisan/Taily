@@ -2,6 +2,9 @@ package org.jikisan.taily.ui.screens.addpet
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
@@ -11,6 +14,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.local.mockdata.MockData
+import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
+import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USER_EMAIL
+import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USER_NAME
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
 import org.jikisan.taily.domain.addpet.AddPetRepository
 import org.jikisan.taily.domain.model.Weight
@@ -44,7 +50,7 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
             value = 0.0,
             unit = WEIGHT_UNITS[0]
         ),
-        ownerId = Owner(email = "kylesan@gmail.com", fullName = "Kyle Santerna", id = MockData.MOCK_USERID, userId = MockData.MOCK_USERID),
+        ownerId = Owner(email = MOCK_USER_EMAIL, fullName = MOCK_USER_NAME, id = MOCK_USERID, userId = MOCK_USERID),
         identifiers = Identifiers(
             allergies = emptyList(),
             clipLocation = "",
@@ -71,6 +77,7 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
     // Helper to update Pet state within uiState
     private fun updatePet(newPet: Pet) {
         _uiState.value = _uiState.value.copy(pet = newPet)
+        Napier.i("$TAG Pet Updated: ${_uiState.value.pet}")
     }
 
     fun updatePetPhotoByteArray(newImageByteArray: ByteArray) {
@@ -84,7 +91,7 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
     fun updateName(name: String) {
         val pet = _uiState.value.pet
         pet?.let {
-            updatePet(it.copy(name = name))
+            updatePet(it.copy(name = name.capitalize(LocaleList.current)))
         }
     }
 
@@ -134,8 +141,6 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
         val pet = _uiState.value.pet
         pet?.let {
             updatePet(it.copy(weight = weight))
-            Napier.i("$TAG Pet Weight Updated: ${_uiState.value.pet?.weight}")
-            println("$TAG Pet Weight Updated: ${_uiState.value.pet?.weight}")
         }
     }
 
@@ -199,8 +204,6 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
         val pet = _uiState.value.pet
         pet?.let {
             updatePet(newPet = it.copy(identifiers = identifiers))
-            Napier.i("$TAG Pet Identifiers Updated: ${_uiState.value.pet?.identifiers}")
-            println("Pet Identifiers Updated: ${_uiState.value.pet?.identifiers.toString()}")
         }
     }
 
@@ -239,6 +242,11 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
 
     fun displayPet() {
         println("Pet: ${_uiState.value.pet}")
+    }
+
+    fun updateErrorMessage(message: String) {
+        _uiState.value = _uiState.value.copy(errorMessage = message)
+        Napier.e("$TAG Update Error Message: $message")
     }
 
 
