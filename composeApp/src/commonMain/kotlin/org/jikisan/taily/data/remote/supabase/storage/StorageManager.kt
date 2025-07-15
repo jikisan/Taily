@@ -1,17 +1,13 @@
 package org.jikisan.taily.data.remote.supabase.storage
 
-import com.benasher44.uuid.uuid4
 import io.github.aakira.napier.Napier
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.storage.UploadStatus
-import io.ktor.http.ContentType
 import io.github.jan.supabase.storage.storage
 import io.github.jan.supabase.storage.uploadAsFlow
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.cmpecommerceapp.util.Constant
-import org.jikisan.taily.data.remote.supabase.config.SupabaseConfig
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 data class UserFile(
     val id: String,
@@ -30,10 +26,10 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
     suspend fun uploadFile(
         userId: String,
         fileData: ByteArray,
+        fileName: String?,
     ): Result<String> {
         return try {
 
-            val fileName = "${uuid4()}.jpg"
             val key = "$userId/pet/$fileName"
 
             var uploadSuccess = false

@@ -32,6 +32,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.benasher44.uuid.uuid4
 import com.vidspark.androidapp.ui.theme.TailyTheme
 import kotlinx.coroutines.launch
 import network.chaintech.cmpimagepickncrop.CMPImagePickNCropDialog
@@ -44,6 +45,7 @@ import network.chaintech.cmpimagepickncrop.utils.toByteArray
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData
+import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.screens.addpet.AddPetHeader
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
@@ -125,6 +127,8 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
 
                          // For server upload
                         imageByteArray.let { byteArray ->
+                            val fileName = "${uuid4()}.jpg"
+                            viewModel.updatePhoto(Photo(url = "", name = fileName))
                             viewModel.updatePetPhotoByteArray(byteArray!!)
                         }
 //                    }

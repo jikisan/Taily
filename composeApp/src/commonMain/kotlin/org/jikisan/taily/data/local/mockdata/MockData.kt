@@ -1,5 +1,6 @@
 package org.jikisan.taily.data.local.mockdata
 
+import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
@@ -20,7 +21,7 @@ object MockData {
             breed = "Golden Retriever",
             dateOfBirth = "2020-05-15",
             gender = "Male",
-            photoUrl = "https://jzyvwbvngvlqqzmwzbvn.supabase.co/storage/v1/object/public/pet-profile-pictures/686361362996e4a75c328437/686361362996e4a75c328437_profile_photo",
+            photo = Photo(name = "pet_photo", url = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg"),
             weight = Weight(unit = WEIGHT_UNITS[0], value = 25.5),
             ownerId = Owner(
                 id = "owner1",
@@ -51,7 +52,7 @@ object MockData {
             breed = "Persian",
             dateOfBirth = "2019-08-22",
             gender = "Female",
-            photoUrl = "",
+            photo = Photo( name = "pet_photo", url = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg"),
             weight = Weight(unit = WEIGHT_UNITS[0], value = 4.2),
             ownerId = Owner(
                 id = "owner2",
@@ -82,7 +83,7 @@ object MockData {
             breed = "German Shepherd",
             dateOfBirth = "2021-03-10",
             gender = "Male",
-            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
+            photo = Photo( name = "pet_photo", url = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg"),
             weight = Weight(unit = WEIGHT_UNITS[0], value = 32.8),
             ownerId = Owner(
                 id = "owner3",
@@ -113,7 +114,7 @@ object MockData {
             breed = "Maine Coon",
             dateOfBirth = "2022-01-08",
             gender = "Female",
-            photoUrl = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg",
+            photo = Photo( name = "pet_photo", url = "https://cdn.pixabay.com/photo/2018/03/31/06/31/dog-3277416_960_720.jpg"),
             weight = Weight(unit = WEIGHT_UNITS[0], value = 6.1),
             ownerId = Owner(
                 id = "owner4",

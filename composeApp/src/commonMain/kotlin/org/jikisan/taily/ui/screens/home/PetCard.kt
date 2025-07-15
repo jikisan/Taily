@@ -68,7 +68,7 @@ fun PetCard(
 
         Box(modifier = Modifier.fillMaxWidth()) {
             AsyncImage(
-                model = pet.photoUrl,
+                model = pet.photo.url,
                 contentDescription = pet.name,
                 modifier = Modifier
                     .fillMaxWidth()

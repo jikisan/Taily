@@ -1,9 +1,7 @@
 package org.jikisan.taily.ui.screens.addpet
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,12 +11,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
-import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
 import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USER_EMAIL
 import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USER_NAME
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
 import org.jikisan.taily.domain.addpet.AddPetRepository
+import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.domain.model.pet.Pet
@@ -29,7 +27,10 @@ import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
 import org.jikisan.taily.ui.uistates.AddPetUIState
 
 
-class AddPetViewModel(private val storageManager: StorageManager, private val repository: AddPetRepository) : ViewModel() {
+class AddPetViewModel(
+    private val storageManager: StorageManager,
+    private val repository: AddPetRepository
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddPetUIState())
     val uiState: StateFlow<AddPetUIState> = _uiState.asStateFlow()
@@ -45,12 +46,20 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
         breed = "",
         dateOfBirth = "",
         gender = "",
-        photoUrl = "",
+        photo = Photo(
+            name = "",
+            url = ""
+        ),
         weight = Weight(
             value = 0.0,
             unit = WEIGHT_UNITS[0]
         ),
-        ownerId = Owner(email = MOCK_USER_EMAIL, fullName = MOCK_USER_NAME, id = MOCK_USERID, userId = MOCK_USERID),
+        ownerId = Owner(
+            email = MOCK_USER_EMAIL,
+            fullName = MOCK_USER_NAME,
+            id = MOCK_USERID,
+            userId = MOCK_USERID
+        ),
         identifiers = Identifiers(
             allergies = emptyList(),
             clipLocation = "",
@@ -95,10 +104,10 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
         }
     }
 
-    fun updatePhotoUrl(url: String) {
+    fun updatePhoto(photo: Photo) {
         val pet = _uiState.value.pet
         pet?.let {
-            updatePet(it.copy(photoUrl = url))
+            updatePet(newPet = it.copy(photo = photo))
         }
     }
 
@@ -207,29 +216,53 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
         }
     }
 
-    fun uploadPetProfilePhoto() {
+    fun submitPet() {
         viewModelScope.launch {
             try {
                 // Set loading state externally in composable, if needed
                 val imageByteArray = _uiState.value.imageByteArray
+                val pet = _uiState.value.pet
 
-                val result = storageManager.uploadFile(
-                    userId = MockData.MOCK_USERID,
+
+                if (pet == null || imageByteArray == null) {
+                    val error = "Pet information or image bytes are missing."
+                    Napier.e("$TAG $error")
+                    _uiState.value = _uiState.value.copy(errorMessage = error)
+                    uploadSuccess.value = false
+                    return@launch
+                }
+
+                val fileName = pet.photo.name
+
+
+                val uploadResult = storageManager.uploadFile(
+                    userId = MOCK_USERID,
                     fileData = imageByteArray,
+                    fileName = fileName
                 )
 
-                if (result.isSuccess) {
-                    result.onSuccess { url ->
-                        updatePhotoUrl(url)
-                        println("Pet Identifiers Updated: ${_uiState.value.pet.toString()}")
-                        _uiState.value.pet?.let { pet ->
-                            repository.createPet(pet)
+                if (uploadResult.isSuccess) {
+                    uploadResult.onSuccess { photoUrl ->
+                        // 2. Update the pet's photo with the returned URL
+                        val updatedPet = pet.copy(photo = pet.photo.copy(name = fileName, url = photoUrl))
+
+                        // 3. Call repository to create the Pet
+                        try {
+                            repository.createPet(updatedPet)
+                            // 4. Update the UI state and notify success
+                            _uiState.value = _uiState.value.copy(pet = updatedPet)
+                            uploadSuccess.value = true
+                        } catch (e: Exception) {
+                            val errMsg = "Failed to save Pet data: ${e.message}"
+                            Napier.e("$TAG $errMsg")
+                            _uiState.value = _uiState.value.copy(errorMessage = errMsg)
+                            uploadSuccess.value = false
                         }
-                        uploadSuccess.value = true
                     }
                 } else {
-                    Napier.e("$TAG Upload Pet Profile Photo Failed, Error: ${result.exceptionOrNull()?.message}")
-                    _uiState.value = _uiState.value.copy(errorMessage = result.exceptionOrNull()?.message)
+                    Napier.e("$TAG Upload Pet Profile Photo Failed, Error: ${uploadResult.exceptionOrNull()?.message}")
+                    _uiState.value =
+                        _uiState.value.copy(errorMessage = uploadResult.exceptionOrNull()?.message)
                     uploadSuccess.value = false
                 }
             } catch (e: Exception) {
@@ -248,7 +281,6 @@ class AddPetViewModel(private val storageManager: StorageManager, private val re
         _uiState.value = _uiState.value.copy(errorMessage = message)
         Napier.e("$TAG Update Error Message: $message")
     }
-
 
 
 }

@@ -30,8 +30,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -42,8 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.dokar.sonner.Toaster
-import com.dokar.sonner.rememberToasterState
+//import com.dokar.sonner.ToastType
+//import com.dokar.sonner.Toaster
+//import com.dokar.sonner.rememberToasterState
 import com.vidspark.androidapp.ui.theme.TailyTheme
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -52,6 +51,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.pet.PetRepository
+import org.jikisan.taily.domain.validator.validate
 import org.jikisan.taily.ui.common.UploadingScreen
 import org.jikisan.taily.ui.screens.addpet.PetConstants.PET_BREEDS
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddNameContent
@@ -88,12 +88,12 @@ fun AddPetScreen(
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(false) }
     val uploading = remember { mutableStateOf(false) }
-    val toaster = rememberToasterState()
-
+//    val toaster = rememberToasterState()
+//    Toaster(state = toaster, alignment = Alignment.TopCenter, richColors = true, showCloseButton = true)
 
     val uiState by viewModel.uiState.collectAsState()
     val pet = uiState.pet
-
+    val validation = pet!!.validate(pagerState.currentPage)
     val uploadSuccess by viewModel.uploadSuccess.collectAsState()
 
 
@@ -104,12 +104,8 @@ fun AddPetScreen(
         }
     }
 
-    LaunchedEffect(uploading.value) {
-        showDialog.value = false
-        viewModel.uploadPetProfilePhoto()
-    }
 
-        Column(
+    Column(
         modifier = Modifier.fillMaxSize().padding(top = topPadding),
     ) {
         Text(
@@ -200,18 +196,29 @@ fun AddPetScreen(
                 enabled = !uploading.value, // Disable when uploading is true
                 onClick = {
                     coroutineScope.launch {
-                        if (pagerState.currentPage < totalPages - 1) {
 
-                            val hasBreeds = PET_BREEDS.containsKey(uiState.pet?.petType)
-                            if (!hasBreeds && pagerState.currentPage == 4) {
-                                pagerState.scrollToPage(pagerState.currentPage + 2)
+                        if (validation.isValid) {
+                            if (pagerState.currentPage < totalPages - 1) {
+
+                                val hasBreeds = PET_BREEDS.containsKey(uiState.pet?.petType)
+                                if (!hasBreeds && pagerState.currentPage == 4) {
+                                    pagerState.scrollToPage(pagerState.currentPage + 2)
+                                } else {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                }
+
                             } else {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                showDialog.value = true
                             }
-
                         } else {
-                            showDialog.value = true
+//                            toaster.show(
+//                                message = validation.error!!,
+//                                type = ToastType.Error
+//                            )
+
                         }
+
+
                     }
                 }
             ) {
@@ -232,7 +239,11 @@ fun AddPetScreen(
             text = { Text("Are you sure all pet info are correct?") },
             confirmButton = {
                 TextButton(onClick = {
+
                     uploading.value = true
+                    showDialog.value = false
+                    viewModel.submitPet()
+
                 }) {
                     Text("Yes, Submit")
                 }

@@ -2,6 +2,25 @@ package org.jikisan.taily.domain.validator
 
 import org.jikisan.taily.domain.model.pet.Pet
 
+fun Pet.validate(currentPage: Int): PetValidationResult {
+    return PetValidationResult(
+        nameError = if (name.isBlank() && currentPage == 0) "Name cannot be empty" else null,
+        photoUrlError = when {
+            photo.name.isBlank() && currentPage == 1 -> "Please add a photo"
+            else -> null
+        },
+        genderError = if (gender.isBlank() && currentPage == 2) "Gender is required" else null,
+        dateOfBirthError = if (dateOfBirth.isBlank() && currentPage == 3) "Date of birth is required" else null,
+        petTypeError = if (petType.isBlank() && currentPage == 4) "Pet Species is required" else null,
+        breedError = if (breed.isBlank() && currentPage == 5) "Pet Breed is required" else null,
+        weightError = when {
+            weight.value <= 0 && currentPage == 6 -> "Weight must be greater than 0"
+            weight.unit.isBlank() && currentPage == 6 -> "Weight unit is required"
+            else -> null
+        }
+    )
+}
+
 data class PetValidationResult(
     val nameError: String? = null,
     val petTypeError: String? = null,

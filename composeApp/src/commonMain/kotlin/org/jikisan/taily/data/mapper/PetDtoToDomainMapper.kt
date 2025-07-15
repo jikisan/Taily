@@ -1,6 +1,8 @@
 package org.jikisan.taily.data.mapper
 
 import org.jikisan.taily.data.model.WeightDTO
+import org.jikisan.taily.data.model.pet.response.PhotoDTO
+import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
@@ -32,7 +34,7 @@ fun PetDTO.toDomain(): Pet {
         breed = breed,
         dateOfBirth = dateOfBirth,
         gender = gender,
-        photoUrl = photoUrl,
+        photo = photo.toDomain(),
         weight = weight.toDomain(),
         ownerId = ownerId.toDomain(),
         identifiers = identifiers.toDomain(),
@@ -42,6 +44,13 @@ fun PetDTO.toDomain(): Pet {
         petIds = petIds.map { it.toDomain() },
         createdAt = createdAt,
         updatedAt = updatedAt,
+    )
+}
+
+fun PhotoDTO.toDomain(): Photo {
+    return Photo(
+        name = name,
+        url = url
     )
 }
 

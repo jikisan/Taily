@@ -1,6 +1,7 @@
 package org.jikisan.taily.domain.model.pet
 
 import androidx.compose.ui.graphics.ImageBitmap
+import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.model.pet.MedicalRecord
 import org.jikisan.taily.model.pet.Owner
 import org.jikisan.taily.model.pet.Passport
@@ -16,7 +17,7 @@ data class Pet(
     val breed: String,
     val dateOfBirth: String,
     val gender: String,
-    val photoUrl: String,
+    val photo: Photo,
     val imageBitmap: ImageBitmap? = null,
     val weight: Weight,
     val ownerId: Owner,

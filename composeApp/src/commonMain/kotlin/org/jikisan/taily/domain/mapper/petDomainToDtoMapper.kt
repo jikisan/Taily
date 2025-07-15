@@ -1,6 +1,8 @@
 package org.jikisan.taily.domain.mapper
 
 import org.jikisan.taily.data.model.WeightDTO
+import org.jikisan.taily.data.model.pet.response.PhotoDTO
+import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
@@ -17,12 +19,17 @@ fun Pet.toCreateRequest(): CreatePetRequest {
         breed = breed,
         dateOfBirth = dateOfBirth, // Format as ISO string if needed
         gender = gender,
-        photoUrl = photoUrl,
+        photo = photo.toDto(),
         weight = weight.toDto(),
         ownerId = ownerId.toDto(),
         identifiers = identifiers.toDto()
     )
 }
+
+fun Photo.toDto() = PhotoDTO(
+    name = name,
+    url = url
+)
 
 fun Weight.toDto() = WeightDTO(
     unit = unit,
