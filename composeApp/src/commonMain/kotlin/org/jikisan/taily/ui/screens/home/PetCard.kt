@@ -54,6 +54,7 @@ fun PetCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .height(230.dp)
             .clickable(onClick = {
                 navHost.navigate(
                     NavigationItem.PetDetails.route.replace(
@@ -70,9 +71,7 @@ fun PetCard(
             AsyncImage(
                 model = pet.photo.url,
                 contentDescription = pet.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
+                modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
 

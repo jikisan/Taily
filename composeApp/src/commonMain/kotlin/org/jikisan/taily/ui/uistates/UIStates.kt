@@ -10,9 +10,6 @@ import org.jikisan.taily.model.pet.Schedule
 
 data class HomeUIState(
     val pets: List<Pet> = emptyList(),
-//    val schedules: List<Schedule> = emptyList(),
-//    val petCares: List<PetCare> = emptyList(),
-//    val medRecords: List<MedicalRecord> = emptyList(),
     val reminders: List<ReminderList> = emptyList(),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
@@ -32,5 +29,11 @@ data class AddPetUIState(
     val isLoading: Boolean = false,
     val isSubmitting: Boolean = false,
     val isSubmittingSuccess: Boolean = false,
+    val errorMessage: String? = null,
+)
+
+data class PetDetailUIState(
+    val pet: Pet? = null,
+    val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )

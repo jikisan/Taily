@@ -11,11 +11,11 @@ import kotlinx.coroutines.flow.retry
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.mapper.toDomain
 import org.jikisan.taily.domain.model.pet.Pet
-import org.jikisan.taily.model.pet.PetDTO
 import org.jikisan.taily.viewmodel.PetApiService
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException
 import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
+import org.jikisan.taily.domain.validator.isNetworkError
 import org.jikisan.taily.util.NetworkExceptionHandler.handleNetworkException
 import kotlin.time.Duration.Companion.seconds
 
@@ -56,14 +56,7 @@ class HomeRepositoryImpl(private val petApi: PetApiService) : HomeRepository {
                 is Exception -> {
                     // Check if the exception message indicates network issues (including iOS-specific messages)
                     val message = cause.message?.lowercase() ?: ""
-                    if (
-                        message.contains("network") ||
-                        message.contains("connection") ||
-                        message.contains("timeout") ||
-                        message.contains("internet connection appears to be offline") ||
-                        message.contains("unable to resolve host") ||
-                        message.contains("no address associated with hostname")
-                    ) {
+                    if (isNetworkError(message) ) {
                         Napier.w("$TAG Network-related error, retrying...")
                         delay(1.seconds)
                         true

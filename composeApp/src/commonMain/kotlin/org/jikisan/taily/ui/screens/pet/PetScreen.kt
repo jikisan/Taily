@@ -1,6 +1,8 @@
 package org.jikisan.taily.ui.screens.pet
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,11 +13,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,8 +31,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -86,69 +96,118 @@ private fun PetScreenContent(
         onRefresh = onRefresh,
         modifier = Modifier.fillMaxSize()
     ) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-        ) {
+        Box {
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+
+            Column(
+                modifier = modifier
+                    .fillMaxSize()
             ) {
 
-                // Header
-                Header(
-                    headerText = "My Pets",
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
-
-                IconButton(
-                    onClick = {
-                        navHost.navigate(route = NavigationItem.AddPet.route)
-                    },
-                    modifier = Modifier.align(Alignment.CenterVertically)
-
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 32.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        painter = painterResource(Res.drawable.add_2_24px),
-                        contentDescription = "Add pet",
-                        tint = Color.Blue,
-                        modifier = Modifier.size(16.dp),
+
+                    // Header
+                    Header(
+                        headerText = "My Pets",
+                        modifier = Modifier,
                     )
-                }
-            }
 
-            // Content
-            when {
-                uiState.isLoading && uiState.pets.isEmpty() -> {
-                    LoadingScreen()
+//                IconButton(
+//                    onClick = {
+//                        navHost.navigate(route = NavigationItem.AddPet.route)
+//                    },
+//                    modifier = Modifier.align(Alignment.CenterVertically)
+//
+//                ) {
+//                    Icon(
+//                        painter = painterResource(Res.drawable.add_2_24px),
+//                        contentDescription = "Add pet",
+//                        tint = Color.Blue,
+//                        modifier = Modifier.size(16.dp),
+//                    )
+//                }
+
+//                    Row(
+//                        modifier = Modifier.align(Alignment.CenterVertically).clickable(
+//                            onClick = {
+//                                navHost.navigate(route = NavigationItem.AddPet.route)
+//                            }),
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(Res.drawable.add_2_24px),
+//                            contentDescription = "Add pet",
+//                            tint = Color.Blue,
+//                            modifier = Modifier.size(16.dp),
+//                        )
+//                        Text(
+//                            text = "Add",
+//                            color = Color.Blue,
+//                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+//                            fontWeight = FontWeight.Bold,
+//                            textAlign = TextAlign.End
+//                        )
+//                    }
+
                 }
 
-                uiState.errorMessage != null && uiState.pets.isEmpty() -> {
-                    ErrorScreen(
-                        errorMessage = uiState.errorMessage,
-                        onClick = onRefresh
-                    )
-                }
+                // Content
+                when {
+                    uiState.isLoading && uiState.pets.isEmpty() -> {
+                        LoadingScreen()
+                    }
 
-                uiState.pets.isNotEmpty() -> {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(2),
-                        contentPadding = PaddingValues(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(uiState.pets) { pet ->
-                            PetCard(pet = pet, navHost = navHost)
+                    uiState.errorMessage != null && uiState.pets.isEmpty() -> {
+                        ErrorScreen(
+                            errorMessage = uiState.errorMessage,
+                            onClick = onRefresh
+                        )
+                    }
+
+                    uiState.pets.isNotEmpty() -> {
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                end = 16.dp,
+                                bottom = 16.dp
+                            ),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(uiState.pets) { pet ->
+                                PetCard(pet = pet, navHost = navHost)
+                            }
                         }
+                    }
+
+                    else -> {
+                        EmptyScreen("No pets found", Res.drawable.sad_cat)
+
                     }
                 }
 
-                else -> {
-                    EmptyScreen("No pets found", Res.drawable.sad_cat)
 
-                }
+            }
+
+            FloatingActionButton(
+                onClick = { navHost.navigate(route = NavigationItem.AddPet.route) },
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.align(Alignment.BottomEnd)
+                    .padding(bottom = 80.dp, end = 16.dp),
+                elevation = FloatingActionButtonDefaults.elevation(50.dp)
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.add_2_24px),
+                    contentDescription = "Add pet",
+                    tint = MaterialTheme.colorScheme.surface,
+                )
             }
         }
     }
