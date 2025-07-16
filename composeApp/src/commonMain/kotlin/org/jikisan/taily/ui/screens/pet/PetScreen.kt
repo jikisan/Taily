@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,10 +16,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.vidspark.androidapp.ui.theme.TailyTheme
 import org.jetbrains.compose.resources.painterResource
@@ -36,8 +35,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData.mockPets
 import org.jikisan.taily.ui.common.EmptyScreen
 import org.jikisan.taily.ui.common.ErrorScreen
-import org.jikisan.taily.ui.components.Header
 import org.jikisan.taily.ui.common.LoadingScreen
+import org.jikisan.taily.ui.components.Header
 import org.jikisan.taily.ui.navigation.NavigationItem
 import org.jikisan.taily.ui.screens.home.PetCard
 import org.jikisan.taily.ui.uistates.PetUIState
@@ -54,7 +53,15 @@ fun PetScreen(
     viewModel: PetViewModel = koinViewModel<PetViewModel>()
 ) {
 
+    val navBackStackEntry = navHostController.currentBackStackEntryAsState().value
+
+    LaunchedEffect(navBackStackEntry) {
+        viewModel.loadPets()
+    }
+
     val uiState by viewModel.uiState.collectAsState()
+
+
     PetScreenContent(
         uiState = uiState,
         onLoadPets = { viewModel.loadPets() },

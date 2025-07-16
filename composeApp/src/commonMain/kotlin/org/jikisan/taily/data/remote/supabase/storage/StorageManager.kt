@@ -39,7 +39,7 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
             }.collect { status ->
                 when(status) {
                     is UploadStatus.Progress -> {
-                        Napier.i("$TAG Upload progress: ${status.totalBytesSend.toFloat() / status.contentLength * 100}%")
+                        Napier.d("$TAG Upload progress: ${status.totalBytesSend.toFloat() / status.contentLength * 100}%")
                     }
                     is UploadStatus.Success -> {
                         Napier.i("$TAG Upload completed successfully")

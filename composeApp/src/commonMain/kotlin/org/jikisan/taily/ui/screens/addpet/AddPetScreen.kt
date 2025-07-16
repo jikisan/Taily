@@ -13,23 +13,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -40,10 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-//import com.dokar.sonner.ToastType
-//import com.dokar.sonner.Toaster
-//import com.dokar.sonner.rememberToasterState
 import com.vidspark.androidapp.ui.theme.TailyTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
@@ -53,13 +51,17 @@ import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.pet.PetRepository
 import org.jikisan.taily.domain.validator.validate
 import org.jikisan.taily.ui.common.UploadingScreen
+import org.jikisan.taily.ui.components.AnimatedGradientSnackbarHost
+import org.jikisan.taily.ui.components.GradientSnackbar
+import org.jikisan.taily.ui.components.SnackbarDuration
+import org.jikisan.taily.ui.components.SnackbarType
 import org.jikisan.taily.ui.screens.addpet.PetConstants.PET_BREEDS
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddNameContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetBreedContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetDOBContent
-import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetProfilePhotoContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetGenderContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetIdentifiersContent
+import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetProfilePhotoContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetSpeciesContent
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AddPetWeightContent
 import org.koin.compose.viewmodel.koinViewModel
@@ -86,23 +88,13 @@ fun AddPetScreen(
     val totalPages = CURRENT_PAGE_HEADER.size
     val pagerState = rememberPagerState(pageCount = { totalPages })
     val coroutineScope = rememberCoroutineScope()
-    val showDialog = remember { mutableStateOf(false) }
-    val uploading = remember { mutableStateOf(false) }
-//    val toaster = rememberToasterState()
-//    Toaster(state = toaster, alignment = Alignment.TopCenter, richColors = true, showCloseButton = true)
+    val showSubmitDialog = remember { mutableStateOf(false) }
+    val showLeaveDialog = remember { mutableStateOf(false) }
 
     val uiState by viewModel.uiState.collectAsState()
     val pet = uiState.pet
     val validation = pet!!.validate(pagerState.currentPage)
-    val uploadSuccess by viewModel.uploadSuccess.collectAsState()
 
-
-    LaunchedEffect(uploadSuccess) {
-        if (uploadSuccess == true) {
-            navHost.popBackStack()
-            viewModel.uploadSuccess.value = null // reset for next time
-        }
-    }
 
 
     Column(
@@ -121,11 +113,10 @@ fun AddPetScreen(
         IconButton(
             onClick = {
                 if (pagerState.currentPage <= 0) {
-                    navHost.popBackStack()
+                    showLeaveDialog.value = true
 
 
                 } else {
-
                     coroutineScope.launch {
 
                         val hasBreeds = PET_BREEDS.containsKey(uiState.pet?.petType)
@@ -193,7 +184,7 @@ fun AddPetScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 elevation = ButtonDefaults.buttonElevation(15.dp),
-                enabled = !uploading.value, // Disable when uploading is true
+                enabled = !uiState.isSubmitting, // Disable when uploading is true
                 onClick = {
                     coroutineScope.launch {
 
@@ -208,14 +199,10 @@ fun AddPetScreen(
                                 }
 
                             } else {
-                                showDialog.value = true
+                                showSubmitDialog.value = true
                             }
                         } else {
-//                            toaster.show(
-//                                message = validation.error!!,
-//                                type = ToastType.Error
-//                            )
-
+                            viewModel.updateErrorMessage(validation.error!!)
                         }
 
 
@@ -223,7 +210,7 @@ fun AddPetScreen(
                 }
             ) {
 
-                if (uploading.value) {
+                if (uiState.isSubmitting || uiState.isSubmittingSuccess) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
                     Text(if (pagerState.currentPage + 1 == totalPages) "Submit" else "Next")
@@ -232,16 +219,16 @@ fun AddPetScreen(
         }
     }
 
-    if (showDialog.value) {
+    if (showSubmitDialog.value) {
         AlertDialog(
-            onDismissRequest = { showDialog.value = false },
+            onDismissRequest = { showSubmitDialog.value = false },
             title = { Text("Confirm Submission") },
             text = { Text("Are you sure all pet info are correct?") },
             confirmButton = {
                 TextButton(onClick = {
 
-                    uploading.value = true
-                    showDialog.value = false
+                    viewModel.updateIsSubmitting(true)
+                    showSubmitDialog.value = false
                     viewModel.submitPet()
 
                 }) {
@@ -249,7 +236,7 @@ fun AddPetScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDialog.value = false }) {
+                TextButton(onClick = { showSubmitDialog.value = false }) {
                     Text(text = "Cancel", color = Color.Gray)
                 }
             }
@@ -257,12 +244,51 @@ fun AddPetScreen(
 
     }
 
-    if (uploading.value) {
+    if (showLeaveDialog.value) {
+        AlertDialog(
+            onDismissRequest = { showLeaveDialog.value = false },
+            title = { Text("Discard New Pet?") },
+            text = { Text("You are currently adding a new pet. If you leave now, any unsaved changes will be lost. Are you sure you want to discard and leave?") },
+            dismissButton = {
+                TextButton(onClick = {
+                    navHost.popBackStack()
+                }) {
+                    Text("Discard & Leave", color = Color.Gray)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLeaveDialog.value = false }) {
+                    Text(text = "Continue Editing")
+                }
+            },
+
+
+            )
+    }
+
+    if (uiState.isSubmitting) {
         Dialog(
-            onDismissRequest = { uploading.value = false },
-            content = {
-                UploadingScreen()
-            }
+            onDismissRequest = { viewModel.updateIsSubmitting(false) },
+            content = { UploadingScreen() }
+        )
+    }
+
+    if (uiState.errorMessage != null) {
+        AnimatedGradientSnackbarHost(
+            message = uiState.errorMessage!!,
+            type = SnackbarType.ERROR,
+            onDismiss = { viewModel.updateErrorMessage(null) },
+            duration = SnackbarDuration.LONG
+        )
+    }
+
+    if (uiState.isSubmittingSuccess) {
+        AnimatedGradientSnackbarHost(
+            message = "Your pet has been added successfully!",
+            type = SnackbarType.SUCCESS,
+            onDismiss = {
+                navHost.popBackStack()
+            },
         )
     }
 
