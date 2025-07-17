@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
@@ -17,11 +18,11 @@ import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import taily.composeapp.generated.resources.Res
 
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(bottomPadding: Dp = 150.dp) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom = 150.dp),
+            .padding(bottom = bottomPadding),
         contentAlignment = Alignment.Center
     ) {
 
