@@ -1,5 +1,7 @@
 package org.jikisan.taily.ui.screens.petdetails
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Create
@@ -27,6 +31,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -73,6 +78,13 @@ import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.arrow_back_ios_new_24px
 import taily.composeapp.generated.resources.sad_cat
 
+data class PetInfoItem(
+    val label: String,
+    val value: String,
+    val icon: ImageVector,
+    val valueColor: Color = Color.Unspecified,
+    val isImportant: Boolean = false
+)
 @Composable
 fun PetDetailsScreen(
     petId: String,
@@ -82,6 +94,7 @@ fun PetDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         viewModel.loadPetDetails(petId)
@@ -108,7 +121,8 @@ fun PetDetailsScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = topPadding),
+                    .padding(top = topPadding)
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.Top
             ) {
 
@@ -147,16 +161,16 @@ fun PetDetailsScreen(
                                 ),
                         )
 
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = "",
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .clickable(
-                                    onClick = { showDeleteDialog = true }
-                                ),
-                        )
+//                        Icon(
+//                            imageVector = Icons.Default.Delete,
+//                            contentDescription = "",
+//                            tint = MaterialTheme.colorScheme.error,
+//                            modifier = Modifier
+//                                .padding(8.dp)
+//                                .clickable(
+//                                    onClick = { showDeleteDialog = true }
+//                                ),
+//                        )
                     }
 
 
@@ -223,11 +237,14 @@ fun PetDetailsScreen(
                     }
 
                     // Identifiers
-                    // Usage in your composable:
                      PetIdentifiersSection(
                          pet = pet,
                          modifier = Modifier.padding(top = 32.dp)
                      )
+
+                    // Delete Button
+                    DeletePetButton(onClick = { showDeleteDialog = true })
+
 
                 }
 
@@ -271,6 +288,8 @@ fun PetDetailsScreen(
 
 }
 
+
+
 @Composable
 fun PetIdentifiersSection(
     pet: Pet,
@@ -278,136 +297,128 @@ fun PetIdentifiersSection(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .fillMaxSize()
+            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Section Header
-        Text(
-            text = "Identifiers",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .fillMaxWidth()
-                .semantics { heading() }
-        )
+//        Text(
+//            text = "Identifiers",
+//            style = MaterialTheme.typography.headlineSmall,
+//            fontWeight = FontWeight.Bold,
+//            color = MaterialTheme.colorScheme.onSurface,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .semantics { heading() }
+//        )
 
         // Identifiers Card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // Microchip Information Group
-                pet.identifiers.microchipNumber?.let { microchipNumber ->
-                    PetInfoSection(
-                        title = "Microchip Information",
-                        items = buildList {
+            // Microchip Information Group
+            pet.identifiers.microchipNumber?.let { microchipNumber ->
+                PetInfoSection(
+                    title = "Microchip Information",
+                    items = buildList {
+                        add(
+                            PetInfoItem(
+                                label = "Microchip Number",
+                                value = microchipNumber.ifBlank { "-" },
+                                icon = Icons.Filled.Info
+                            )
+                        )
+                        pet.identifiers.microchipLocation?.let { location ->
                             add(
                                 PetInfoItem(
-                                    label = "Microchip Number",
-                                    value = microchipNumber.ifBlank { "-" },
-                                    icon = Icons.Filled.Info
+                                    label = "Microchip Location",
+                                    value = location.ifBlank { "-" },
+                                    icon = Icons.Filled.Place
                                 )
                             )
-                            pet.identifiers.microchipLocation?.let { location ->
-                                add(
-                                    PetInfoItem(
-                                        label = "Microchip Location",
-                                        value = location.ifBlank { "-" },
-                                        icon = Icons.Filled.Place
-                                    )
-                                )
-                            }
                         }
-                    )
-
-                    if (pet.identifiers.clipLocation != null ||
-                        pet.identifiers.size != null ||
-                        pet.identifiers.colorMarkings != null) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 4.dp),
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
-                        )
                     }
-                }
+                )
 
-                // Physical Identifiers Group
-                val physicalItems = buildList {
-                    pet.identifiers.clipLocation?.let {
-                        add(
-                            PetInfoItem(
-                                label = "Clip Location",
-                                value = it.ifBlank { "None" },
-                                icon = Icons.Filled.Create
-                            )
-                        )
-                    }
-                    pet.identifiers.size?.let {
-                        add(
-                            PetInfoItem(
-                                label = "Size",
-                                value = it.ifBlank { "None" },
-                                icon = Icons.Filled.Build
-                            )
-                        )
-                    }
-                    pet.identifiers.colorMarkings?.let {
-                        add(
-                            PetInfoItem(
-                                label = "Color Markings",
-                                value = it.ifBlank { "-" },
-                                icon = Icons.Filled.Star
-                            )
-                        )
-                    }
-                }
-
-                if (physicalItems.isNotEmpty()) {
-                    PetInfoSection(
-                        title = "Physical Identifiers",
-                        items = physicalItems
-                    )
-
+                if (pet.identifiers.clipLocation != null ||
+                    pet.identifiers.size != null ||
+                    pet.identifiers.colorMarkings != null) {
                     HorizontalDivider(
                         modifier = Modifier.padding(vertical = 4.dp),
                         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
                     )
                 }
+            }
 
-                // Health Information Group
-                PetInfoSection(
-                    title = "Health Information",
-                    items = listOf(
+            // Physical Identifiers Group
+            val physicalItems = buildList {
+                pet.identifiers.clipLocation?.let {
+                    add(
                         PetInfoItem(
-                            label = "Neutered/Spayed",
-                            value = if (pet.identifiers.isNeuteredOrSpayed == true) "Yes" else "No",
-                            icon = Icons.Filled.Favorite,
-                            valueColor = if (pet.identifiers.isNeuteredOrSpayed == true)
-                                MaterialTheme.colorScheme.primary else
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        PetInfoItem(
-                            label = "Allergies",
-                            value = if (pet.identifiers.allergies.isEmpty()) "-" else
-                                pet.identifiers.allergies.joinToString(", "),
-                            icon = Icons.Default.Warning,
-                            valueColor = if (pet.identifiers.allergies.isNotEmpty())
-                                MaterialTheme.colorScheme.error else
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                            label = "Clip Location",
+                            value = it.ifBlank { "None" },
+                            icon = Icons.Filled.Create
                         )
                     )
+                }
+                pet.identifiers.size?.let {
+                    add(
+                        PetInfoItem(
+                            label = "Size",
+                            value = it.ifBlank { "None" },
+                            icon = Icons.Filled.Build
+                        )
+                    )
+                }
+                pet.identifiers.colorMarkings?.let {
+                    add(
+                        PetInfoItem(
+                            label = "Color Markings",
+                            value = it.ifBlank { "-" },
+                            icon = Icons.Filled.Star
+                        )
+                    )
+                }
+            }
+
+            if (physicalItems.isNotEmpty()) {
+                PetInfoSection(
+                    title = "Physical Identifiers",
+                    items = physicalItems
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
                 )
             }
+
+            // Health Information Group
+            PetInfoSection(
+                title = "Health Information",
+                items = listOf(
+                    PetInfoItem(
+                        label = "Neutered/Spayed",
+                        value = if (pet.identifiers.isNeuteredOrSpayed == true) "Yes" else "No",
+                        icon = Icons.Filled.Favorite,
+                        valueColor = if (pet.identifiers.isNeuteredOrSpayed == true)
+                            MaterialTheme.colorScheme.primary else
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    PetInfoItem(
+                        label = "Allergies",
+                        value = if (pet.identifiers.allergies.isEmpty()) "-" else
+                            pet.identifiers.allergies.joinToString(", "),
+                        icon = Icons.Default.Warning,
+                        valueColor = if (pet.identifiers.allergies.isNotEmpty())
+                            MaterialTheme.colorScheme.error else
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+            )
         }
     }
 }
@@ -426,7 +437,7 @@ private fun PetInfoSection(
             text = title,
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.semantics { heading() }
         )
 
@@ -454,7 +465,7 @@ private fun ModernPetInfoRow(
             imageVector = item.icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(24.dp)
         )
 
         Column(
@@ -463,9 +474,9 @@ private fun ModernPetInfoRow(
         ) {
             Text(
                 text = item.label,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color.Gray
             )
 
             Text(
@@ -478,13 +489,34 @@ private fun ModernPetInfoRow(
     }
 }
 
-data class PetInfoItem(
-    val label: String,
-    val value: String,
-    val icon: ImageVector,
-    val valueColor: Color = Color.Unspecified,
-    val isImportant: Boolean = false
-)
+
+
+@Composable
+private fun DeletePetButton(onClick: () -> Unit) {
+
+    OutlinedButton(
+        onClick = { onClick() }, // Fixed: call onClick properly
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 24.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = MaterialTheme.colorScheme.error
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.error) // ✅ Override default border
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Delete,
+            contentDescription = "Delete Pet Icon",
+            tint = MaterialTheme.colorScheme.error
+        )
+        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+        Text(
+            text = "Delete Pet",
+            color = MaterialTheme.colorScheme.error
+        )
+    }
+
+}
 
 @Composable
 fun PetInfoRow(
