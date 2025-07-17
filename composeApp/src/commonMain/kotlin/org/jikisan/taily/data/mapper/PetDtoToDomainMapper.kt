@@ -1,9 +1,11 @@
 package org.jikisan.taily.data.mapper
 
 import org.jikisan.taily.data.model.WeightDTO
+import org.jikisan.taily.data.model.pet.response.DeletePetDTO
 import org.jikisan.taily.data.model.pet.response.PhotoDTO
 import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.domain.model.Weight
+import org.jikisan.taily.domain.model.pet.DeletePet
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
 import org.jikisan.taily.model.pet.IdentifiersDTO
@@ -150,5 +152,12 @@ fun ScheduleDTO.toDomain(): Schedule {
 fun GivenDTO.toDomain(): Given {
     return Given(
         isGiven = isGiven
+    )
+}
+
+fun DeletePetDTO.toDomain(): DeletePet {
+    return DeletePet(
+        message = message,
+        pet = pet.toDomain()
     )
 }

@@ -19,6 +19,7 @@ import org.jikisan.cmpecommerceapp.util.ApiRoutes
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
 import org.jikisan.taily.data.model.pet.request.UpdatePetRequest
+import org.jikisan.taily.data.model.pet.response.DeletePetDTO
 import org.jikisan.taily.model.pet.CreateMedicalRecordRequest
 import org.jikisan.taily.model.pet.CreatePetCareRequest
 import org.jikisan.taily.model.pet.CreatePetIdRequest
@@ -71,8 +72,9 @@ class PetApiService(private val client: HttpClient) {
         }.body<PetDTO>()
     }
 
-    suspend fun deletePet(id: String): Result<Unit> = safeApiCall {
-        client.delete(ApiRoutes.PET_BY_ID.replace("{id}", id))
+    suspend fun deletePet(id: String): Result<DeletePetDTO> = safeApiCall {
+        Napier.i("$TAG API Service Delete Pet")
+        client.delete(ApiRoutes.PET_BY_ID.replace("{id}", id)).body<DeletePetDTO>()
     }
 
     // SCHEDULES

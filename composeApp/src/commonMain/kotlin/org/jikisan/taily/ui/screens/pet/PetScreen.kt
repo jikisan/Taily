@@ -98,7 +98,6 @@ private fun PetScreenContent(
     ) {
         Box {
 
-
             Column(
                 modifier = modifier
                     .fillMaxSize()
@@ -106,7 +105,7 @@ private fun PetScreenContent(
 
                 Row(
                     modifier = Modifier.fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 32.dp),
+                        .padding(start = 16.dp, end = 16.dp, top = 32.dp, bottom = 16.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -132,27 +131,27 @@ private fun PetScreenContent(
 //                    )
 //                }
 
-//                    Row(
-//                        modifier = Modifier.align(Alignment.CenterVertically).clickable(
-//                            onClick = {
-//                                navHost.navigate(route = NavigationItem.AddPet.route)
-//                            }),
-//                        verticalAlignment = Alignment.CenterVertically
-//                    ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterVertically).clickable(
+                            onClick = {
+                                navHost.navigate(route = NavigationItem.AddPet.route)
+                            }),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 //                        Icon(
 //                            painter = painterResource(Res.drawable.add_2_24px),
 //                            contentDescription = "Add pet",
-//                            tint = Color.Blue,
+//                            tint = MaterialTheme.colorScheme.primary,
 //                            modifier = Modifier.size(16.dp),
 //                        )
-//                        Text(
-//                            text = "Add",
-//                            color = Color.Blue,
-//                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
-//                            fontWeight = FontWeight.Bold,
-//                            textAlign = TextAlign.End
-//                        )
-//                    }
+                        Text(
+                            text = "Add",
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.End
+                        )
+                    }
 
                 }
 
@@ -195,20 +194,20 @@ private fun PetScreenContent(
 
             }
 
-            FloatingActionButton(
-                onClick = { navHost.navigate(route = NavigationItem.AddPet.route) },
-                shape = CircleShape,
-                containerColor = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.BottomEnd)
-                    .padding(bottom = 80.dp, end = 16.dp),
-                elevation = FloatingActionButtonDefaults.elevation(50.dp)
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.add_2_24px),
-                    contentDescription = "Add pet",
-                    tint = MaterialTheme.colorScheme.surface,
-                )
-            }
+//            FloatingActionButton(
+//                onClick = { navHost.navigate(route = NavigationItem.AddPet.route) },
+//                shape = CircleShape,
+//                containerColor = MaterialTheme.colorScheme.primary,
+//                modifier = Modifier.align(Alignment.BottomEnd)
+//                    .padding(bottom = 80.dp, end = 16.dp),
+//                elevation = FloatingActionButtonDefaults.elevation(50.dp)
+//            ) {
+//                Icon(
+//                    painter = painterResource(Res.drawable.add_2_24px),
+//                    contentDescription = "Add pet",
+//                    tint = MaterialTheme.colorScheme.surface,
+//                )
+//            }
         }
     }
 

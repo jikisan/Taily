@@ -1,8 +1,15 @@
 package org.jikisan.taily.util
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.minus
+import kotlinx.datetime.periodUntil
+import kotlinx.datetime.toLocalDateTime
 import kotlin.math.abs
 
 object DateUtils {
@@ -17,40 +24,23 @@ object DateUtils {
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     )
 
+
+    /*ISO PARAMETERS*/
+
     /**
      * Parses ISO 8601 date string (e.g., "2024-01-01T00:00:00Z") to DateComponents
      */
-    fun parseIsoDate(isoDateString: String): DateComponents? {
+    private fun parseIsoDate(isoDateString: String): DateComponents? {
         return try {
-            // Remove 'Z' and split by 'T'
-            val cleanDate = isoDateString.replace("Z", "")
-            val parts = cleanDate.split("T")
-
-            if (parts.size != 2) return null
-
-            val datePart = parts[0] // "2024-01-01"
-            val timePart = parts[1] // "00:00:00" or "00:00:00.000"
-
-            val dateComponents = datePart.split("-")
-            val timeComponents = timePart.split(":")
-
-            if (dateComponents.size != 3 || timeComponents.size != 3) return null
-
-            // Handle milliseconds in seconds part
-            val secondsPart = timeComponents[2]
-            val seconds = if (secondsPart.contains(".")) {
-                secondsPart.split(".")[0].toInt()
-            } else {
-                secondsPart.toInt()
-            }
-
+            val instant = Instant.parse(isoDateString)
+            val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
             DateComponents(
-                year = dateComponents[0].toInt(),
-                month = dateComponents[1].toInt(),
-                day = dateComponents[2].toInt(),
-                hour = timeComponents[0].toInt(),
-                minute = timeComponents[1].toInt(),
-                second = seconds
+                year = dateTime.year,
+                month = dateTime.monthNumber,
+                day = dateTime.dayOfMonth,
+                hour = dateTime.hour,
+                minute = dateTime.minute,
+                second = dateTime.second
             )
         } catch (e: Exception) {
             null
@@ -164,6 +154,12 @@ object DateUtils {
         return "$date at $time"
     }
 
+
+
+
+
+    /*GENERIC DATE UTILS*/
+
     /**
      * Calculates age from birth date ISO string (simplified calculation)
      */
@@ -247,6 +243,135 @@ object DateUtils {
         val date = LocalDate(year.toInt(), month.toInt(), day.toInt())
         return date.atStartOfDayIn(TimeZone.UTC).toString() // ISO 8601 UTC
     }
+
+    /**
+     * Calculates the age or time difference from the current date and time.
+     * Formats the output like "3 yrs, 2 mo.", "3 yrs", "1 yr", or other appropriate formats.
+     */
+    fun getAgeOrTimeDifference(isoDateString: String): String? {
+        val pastDateComponents = parseIsoDate(isoDateString) ?: return null
+        val pastDateTime = try {
+            LocalDateTime(
+                pastDateComponents.year,
+                pastDateComponents.month,
+                pastDateComponents.day,
+                pastDateComponents.hour,
+                pastDateComponents.minute,
+                pastDateComponents.second
+            )
+        } catch (e: Exception) {
+            return null // Invalid date components
+        }
+
+        val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+        // Check if the date is in the future
+        if (pastDateTime > currentDateTime) {
+            return "Future date"
+        }
+
+        // Convert to dates for easier calculation
+        val pastDate = pastDateTime.date
+        val currentDate = currentDateTime.date
+
+        // Calculate the difference using Period
+        val period = pastDate.periodUntil(currentDate)
+
+        return formatAgeDifference(period.years, period.months, period.days)
+    }
+
+    private fun formatAgeDifference(years: Int, months: Int, days: Int): String {
+        if (years < 0) return "Future date" // Or handle as an error
+
+        val parts = mutableListOf<String>()
+        if (years > 0) {
+            parts.add("$years yr${if (years > 1) "s" else ""}")
+        }
+        if (months > 0) {
+            parts.add("$months mo${if (months > 1) "s" else ""}")
+        }
+
+        return when {
+            parts.isNotEmpty() -> parts.joinToString(", ")
+            days > 0 -> "$days day${if (days > 1) "s" else ""}"
+            else -> "Today" // Or less than a day
+        }
+    }
+
+    fun getAgeOrTimeDifferencePrecise(isoDateString: String): String? {
+        return try {
+            // Parse the full ISO string with timezone info
+            val instant = Instant.parse(isoDateString)
+            val pastDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+            val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+
+            // Check if the date is in the future
+            if (pastDateTime > currentDateTime) {
+                return "Future date"
+            }
+
+            // For precise age calculation, use the date part and calculate manually
+            val pastDate = pastDateTime.date
+            val currentDate = currentDateTime.date
+
+            var years = currentDate.year - pastDate.year
+            var months = currentDate.monthNumber - pastDate.monthNumber
+            var days = currentDate.dayOfMonth - pastDate.dayOfMonth
+
+            // Adjust for negative days
+            if (days < 0) {
+                months--
+                // Get days in the previous month
+                val previousMonth = currentDate.minus(1, DateTimeUnit.MONTH)
+                val daysInPreviousMonth = getDaysInMonth(previousMonth.year, previousMonth.monthNumber)
+                days += daysInPreviousMonth
+            }
+
+            // Adjust for negative months
+            if (months < 0) {
+                years--
+                months += 12
+            }
+
+            // If we haven't reached the exact birthday yet this year, subtract a year
+            if (years > 0) {
+                val birthdayThisYear = LocalDate(currentDate.year, pastDate.month, pastDate.dayOfMonth)
+                if (currentDate < birthdayThisYear) {
+                    years--
+                    months = currentDate.monthNumber - pastDate.monthNumber + 12
+                    if (currentDate.dayOfMonth < pastDate.dayOfMonth) {
+                        months--
+                        val prevMonth = currentDate.minus(1, DateTimeUnit.MONTH)
+                        days = currentDate.dayOfMonth + getDaysInMonth(prevMonth.year, prevMonth.monthNumber) - pastDate.dayOfMonth
+                    } else {
+                        days = currentDate.dayOfMonth - pastDate.dayOfMonth
+                    }
+                }
+            }
+
+            return formatAgeDifference(years, months, days)
+        } catch (e: Exception) {
+            // Fallback to the manual parsing method
+            getAgeOrTimeDifference(isoDateString)
+        }
+
+    }
+
+    fun getDaysInMonth(year: Int, month: Int): Int {
+        return when (month) {
+            1, 3, 5, 7, 8, 10, 12 -> 31
+            4, 6, 9, 11 -> 30
+            2 -> if (isLeapYear(year)) 29 else 28
+            else -> throw IllegalArgumentException("Invalid month: $month")
+        }
+    }
+
+
+    // Helper function to check leap year
+    private fun isLeapYear(year: Int): Boolean {
+        return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
+    }
+
 }
 
 /**

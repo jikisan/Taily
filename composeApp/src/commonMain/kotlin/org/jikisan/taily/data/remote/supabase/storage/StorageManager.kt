@@ -83,13 +83,16 @@ class StorageManager(private val supabaseClient: SupabaseClient) {
 
     suspend fun deleteFile(userId: String, fileName: String): Result<Unit> {
         return try {
-            val filePath = "$userId/$fileName"
+            val filePath = "$userId/pet/$fileName"
             bucket.delete(filePath)
+            Napier.i("$TAG STORAGE MANAGER Delete pet")
             Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Napier.e("$TAG Error deleting pet photo: ${e.message}")
+            Result.failure(Exception("Error deleting pet photo"))
         }
     }
+
 
     suspend fun downloadFile(userId: String, fileName: String): Result<ByteArray> {
         return try {

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.retry
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.mapper.toDomain
+import org.jikisan.taily.domain.model.pet.DeletePet
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.validator.isNetworkError
 import org.jikisan.taily.viewmodel.PetApiService
@@ -69,5 +70,25 @@ class PetDetailsRepositoryImpl(private val service: PetApiService) : PetDetailsR
             }
         }
         .flowOn(Dispatchers.IO)
+
+    override suspend fun deletePet(petId: String): Flow<DeletePet> = flow {
+
+        try {
+            val result = service.deletePet(petId)
+            if (result.isSuccess) {
+                val deletedPetResult = result.getOrThrow().toDomain()
+                Napier.i("$TAG REPO delete pet")
+                emit(deletedPetResult)
+            } else {
+                val exception = result.exceptionOrNull()
+                Napier.e("$TAG REPO Error deleting pet: ${exception?.message}")
+                throw Exception("$TAG Error deleting pet")
+            }
+        } catch (e: Exception) {
+            Napier.e("$TAG REPO Error deleting pet: ${e.message}")
+            Exception("$TAG Error deleting pet")
+            throw e
+        }
+    }
 
 }

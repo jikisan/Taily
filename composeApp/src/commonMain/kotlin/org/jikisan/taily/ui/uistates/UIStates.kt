@@ -35,5 +35,8 @@ data class AddPetUIState(
 data class PetDetailUIState(
     val pet: Pet? = null,
     val isLoading: Boolean = false,
+    val isDeleting: Boolean = false,
+    val isDeletingSuccess: Boolean = false,
     val errorMessage: String? = null,
+    val deleteSuccessMessage: String? = null
 )
