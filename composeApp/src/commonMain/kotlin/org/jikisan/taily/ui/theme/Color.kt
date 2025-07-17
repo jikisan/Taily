@@ -32,3 +32,18 @@ val White = Color(0xFFFFFFFF)
 val Black = Color(0xFF000000)
 val Gray = Color(0xFF909090)
 val Golden = Color(0xFFFFCA28)
+
+val OffBlue = Color(0xFFF5F6FC)     // #F5F6FC
+val Blue = Color(0xFF6E92F2)         // #000000
+val Red = Color(0xFFB00020)          // #B00020
+
+// Green Theme
+val LightGreenBackground = Color(0xFFE6F1D9)   // #E6F1D9
+val SoftGreen = Color(0xFFB3D06A)              // #B3D06A
+
+// Orange Theme
+val LightOrangeBackground = Color(0xFFFCEFE9)  // #FCEFE9
+val SoftOrange = Color(0xFFFF996B)             // #FF996B
+
+val MaleColor = Color(0xFF6E92F2)
+val FemaleColor = Color(0xFFB00020)

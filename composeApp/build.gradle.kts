@@ -1,6 +1,8 @@
+import org.apache.tools.ant.property.LocalProperties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -8,6 +10,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     kotlin("plugin.serialization") version "2.1.0"
+
 }
 
 kotlin {
@@ -71,6 +74,35 @@ kotlin {
             implementation("io.insert-koin:koin-core:4.1.0")
             implementation("io.insert-koin:koin-compose-viewmodel:4.0.0")
             implementation("io.insert-koin:koin-compose:4.1.0")
+
+            // Logger
+            implementation("io.github.aakira:napier:2.7.1")
+
+            // Row calendar
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.5.0")
+
+            // Lottie
+            implementation("io.github.alexzhirkevich:compottie:2.0.0-rc04")
+            implementation("io.github.alexzhirkevich:compottie-dot:2.0.0-rc04")
+            implementation("io.github.alexzhirkevich:compottie-network:2.0.0-rc04")
+
+            // Supabase
+            implementation(platform("io.github.jan-tennert.supabase:bom:3.2.0"))
+            implementation("io.github.jan-tennert.supabase:postgrest-kt")
+            implementation("io.github.jan-tennert.supabase:auth-kt")
+            implementation("io.github.jan-tennert.supabase:realtime-kt")
+            implementation("io.github.jan-tennert.supabase:storage-kt:3.2.0")
+
+            // Image picker
+            implementation("network.chaintech:cmp-image-pick-n-crop:1.1.1")
+
+            //UUID
+            implementation("com.benasher44:uuid:0.8.2")
+
+            //Toast
+
+
+
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
@@ -88,6 +120,23 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+
+        val supabaseUrl = project.loadLocalProperty(
+            path = "local.properties",
+            propertyName = "SUPABASE_URL",
+        )
+        val supabaseAnonKey = project.loadLocalProperty(
+            path = "local.properties",
+            propertyName = "SUPABASE_ANON_KEY",
+        )
+
+        buildConfigField("String", "supabaseUrl", supabaseUrl)
+        buildConfigField("String", "supabaseAnonKey", supabaseAnonKey)
+    }
+
+
+    buildFeatures {
+        buildConfig = true
     }
     packaging {
         resources {
@@ -103,9 +152,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
 }
 
 dependencies {
     debugImplementation(compose.uiTooling)
 }
 
+fun Project.loadLocalProperty(
+    path: String,
+    propertyName: String,
+): String {
+    val localProperties = Properties()
+    val localPropertiesFile = project.rootProject.file(path)
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.inputStream())
+        return localProperties.getProperty(propertyName) ?: "\"NOT_FOUND\""
+    } else {
+        return "\"NOT_FOUND\""
+    }
+}
