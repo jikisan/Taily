@@ -27,12 +27,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,12 +62,17 @@ import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.ui.common.EmptyScreen
 import org.jikisan.taily.ui.common.ErrorScreen
 import org.jikisan.taily.ui.common.LoadingScreen
 import org.jikisan.taily.ui.components.ThemeOutlineTextField
+import org.jikisan.taily.ui.screens.addpet.PetConstants.FRACTIONAL_PARTS_1_DECIMAL
+import org.jikisan.taily.ui.screens.addpet.PetConstants.PET_BREEDS
 import org.jikisan.taily.ui.screens.addpet.PetConstants.PET_TYPES
+import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
+import org.jikisan.taily.ui.screens.addpet.addpetcontent.CarouselPicker
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.CustomDatePickerDialog
 import org.jikisan.taily.util.DateUtils.convertToISO_MPP
 import org.jikisan.taily.util.DateUtils.formatDateForDisplay
@@ -78,6 +86,7 @@ import taily.composeapp.generated.resources.calendar_month_24px
 import taily.composeapp.generated.resources.female_24px
 import taily.composeapp.generated.resources.male_24px
 import taily.composeapp.generated.resources.sad_cat
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,11 +100,8 @@ fun EditPetScreen(
     val scrollState = rememberScrollState()
 
     var isLimitReached by remember { mutableStateOf(false) }
-    var showSpeciesPicker by remember { mutableStateOf(false) }
-    var showCustomSpeciesField by remember { mutableStateOf(false) }
-    var selectedSpecies by remember { mutableStateOf("") }
-    var customSpecies by remember { mutableStateOf("") }
 
+    var selectedGender by remember { mutableStateOf(GenderType.Female ) }
 
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
@@ -103,9 +109,72 @@ fun EditPetScreen(
     var dateError by remember { mutableStateOf<String?>(null) }
     var isDateError by remember { mutableStateOf(false) }
 
+    var showSpeciesPicker by remember { mutableStateOf(false) }
+    var showCustomSpeciesField by remember { mutableStateOf(false) }
+    var selectedSpecies by remember { mutableStateOf("") }
+    var customSpecies by remember { mutableStateOf("") }
+
+    var showBreedPicker by remember { mutableStateOf(false) }
+    var showCustomBreedField by remember { mutableStateOf(false) }
+    var selectedBreed by remember { mutableStateOf("") }
+    var customBreed by remember { mutableStateOf("") }
+
+    val sheetState = rememberModalBottomSheetState()
+    val weightRange = remember { (0..200).map { it.toString() } }
+    val apiWeight = uiState.pet?.weight?.value ?: 0.0
+    val apiUnit = uiState.pet?.weight?.unit ?: WEIGHT_UNITS.first()
+    val initialWhole = apiWeight.toInt()
+    val initialFraction = ((apiWeight - initialWhole) * 10).roundToInt() / 10.0
+    val closestFraction = FRACTIONAL_PARTS_1_DECIMAL.minByOrNull {
+        kotlin.math.abs(it.toFloat() - initialFraction)
+    } ?: FRACTIONAL_PARTS_1_DECIMAL.first()
+    var showWeightPicker by remember { mutableStateOf(false) }
+    val selectedWeight = remember { mutableStateOf(initialWhole) }
+    val selectedFraction = remember { mutableStateOf(closestFraction) }
+    val selectedUnit = remember { mutableStateOf(apiUnit) }
+    val finalWeight = remember { derivedStateOf { selectedWeight.value + selectedFraction.value.toDouble() } }
+    val weight = remember { derivedStateOf { "${finalWeight.value} ${selectedUnit.value}" } }
+
+
+
+
 
     LaunchedEffect(Unit) {
         viewModel.loadPetDetails(petId)
+    }
+
+    LaunchedEffect(
+        finalWeight.value,
+        selectedWeight.value,
+        selectedFraction.value,
+        selectedUnit.value,
+    ) {
+        viewModel.updateWeight(
+            Weight(
+                unit = selectedUnit.value,
+                value = finalWeight.value
+            )
+        )
+    }
+
+    LaunchedEffect(uiState.pet?.weight) {
+        uiState.pet?.weight?.let { weight ->
+            val whole = weight.value.toInt()
+            val fraction = ((weight.value - whole) * 10).roundToInt() / 10.0
+            val closestFraction = FRACTIONAL_PARTS_1_DECIMAL.minByOrNull {
+                kotlin.math.abs(it.toDouble() - fraction)
+            } ?: FRACTIONAL_PARTS_1_DECIMAL.first()
+
+            selectedWeight.value = whole
+            selectedFraction.value = closestFraction
+            selectedUnit.value = weight.unit
+        }
+    }
+
+    LaunchedEffect(uiState.pet?.gender) {
+        uiState.pet?.gender?.let { gender ->
+            selectedGender = if (gender == GenderType.Female.name) GenderType.Female else GenderType.Male
+        }
     }
 
     when {
@@ -129,7 +198,7 @@ fun EditPetScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = topPadding)
+                    .padding(top = topPadding, bottom = 16.dp)
                     .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.Top
             ) {
@@ -178,7 +247,6 @@ fun EditPetScreen(
 
 
                 }
-
 
                 // Profile picture
                 uiState.pet?.let { pet ->
@@ -246,12 +314,7 @@ fun EditPetScreen(
                         Column(
                             modifier = Modifier.padding(horizontal = 16.dp),
                         ) {
-                            var selectedGender by remember {
-                                mutableStateOf(
-                                    if (pet?.gender == GenderType.Female.name) GenderType.Female
-                                    else GenderType.Male
-                                )
-                            }
+
                             Text(
                                 text = "Pet Gender",
                                 style = MaterialTheme.typography.bodyMedium
@@ -282,7 +345,6 @@ fun EditPetScreen(
                                 )
                             }
                         }
-
 
                         // PET DOB
                         Column {
@@ -333,7 +395,11 @@ fun EditPetScreen(
                                                         dateError = null
                                                         dob = formatDateToString(selectedDate)
                                                         isDateError = false
-                                                        viewModel.updateDateOfBirth(convertToISO_MPP(dob))
+                                                        viewModel.updateDateOfBirth(
+                                                            convertToISO_MPP(
+                                                                dob
+                                                            )
+                                                        )
                                                     }
                                                 }
                                             }
@@ -345,8 +411,6 @@ fun EditPetScreen(
                             }
                         }
 
-
-
                         // PET SPECIES
                         Column {
                             selectedSpecies = pet.petType
@@ -357,7 +421,9 @@ fun EditPetScreen(
                                 placeholder = "e.g. Dog",
                                 readOnly = true,
                                 trailingIcon = {
-                                    IconButton(onClick = { showSpeciesPicker = !showSpeciesPicker }) {
+                                    IconButton(onClick = {
+                                        showSpeciesPicker = !showSpeciesPicker
+                                    }) {
                                         Icon(
                                             painter = painterResource(Res.drawable.arrow_drop_down_24px),
                                             contentDescription = "Select species",
@@ -371,7 +437,10 @@ fun EditPetScreen(
                                         modifier = Modifier.width(200.dp),
                                         shape = RoundedCornerShape(10),
                                         containerColor = MaterialTheme.colorScheme.surface,
-                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+                                        border = BorderStroke(
+                                            1.dp,
+                                            MaterialTheme.colorScheme.primary
+                                        ),
                                     ) {
                                         PET_TYPES.forEach { petType ->
                                             DropdownMenuItem(
@@ -426,8 +495,169 @@ fun EditPetScreen(
                             }
                         }
 
-
                         // PET BREED
+                        Column {
+                            val hasBreeds = PET_BREEDS.containsKey(uiState.pet?.petType)
+
+                            if (hasBreeds) {
+
+                                selectedBreed = pet.breed
+                                InputTextField(
+                                    value = if (showCustomBreedField) "Other" else selectedBreed,
+                                    label = "Pet Breed",
+                                    onValueChange = { },
+                                    placeholder = "Enter ${pet?.name ?: "pet"}'s breed",
+                                    readOnly = true,
+                                    trailingIcon = {
+                                        IconButton(onClick = {
+                                            showBreedPicker = !showBreedPicker
+                                        }) {
+                                            Icon(
+                                                painter = painterResource(Res.drawable.arrow_drop_down_24px),
+                                                contentDescription = "Select breed",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+
+                                        DropdownMenu(
+                                            expanded = showBreedPicker,
+                                            onDismissRequest = { showBreedPicker = false },
+                                            modifier = Modifier.width(200.dp),
+                                            shape = RoundedCornerShape(10),
+                                            containerColor = MaterialTheme.colorScheme.surface,
+                                            border = BorderStroke(
+                                                1.dp,
+                                                MaterialTheme.colorScheme.primary
+                                            ),
+                                        ) {
+                                            pet?.petType?.let { petType ->
+                                                PET_BREEDS[petType]?.forEach {
+                                                    DropdownMenuItem(
+                                                        text = {
+                                                            Text(
+                                                                text = it,
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                textAlign = TextAlign.Center,
+                                                                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                                                            )
+                                                        },
+                                                        onClick = {
+                                                            showBreedPicker = false
+
+                                                            if (it.equals(
+                                                                    "Other",
+                                                                    ignoreCase = true
+                                                                ) || petType.equals(
+                                                                    "Other",
+                                                                    ignoreCase = true
+                                                                )
+                                                            ) {
+                                                                showCustomBreedField = true
+                                                                // Don't update viewModel yet, wait for custom input
+                                                            } else {
+                                                                showCustomBreedField = false
+                                                                customBreed = ""
+                                                                viewModel.updateBreed(it)
+                                                            }
+                                                        },
+                                                        modifier = Modifier.fillMaxWidth(),
+
+                                                        )
+                                                }
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    showCharacterCounter = false,
+                                )
+
+                                if (showCustomBreedField) {
+
+                                    Spacer(modifier = Modifier.height(16.dp))
+
+                                    ThemeOutlineTextField(
+                                        value = customBreed,
+                                        onValueChange = { newValue ->
+                                            customBreed = newValue
+                                            viewModel.updatePetType(newValue)
+                                        },
+                                        placeholder = "Enter ${pet?.name ?: "pet"}'s breed",
+                                        readOnly = false,
+                                        showCharacterCounter = false,
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(horizontal = 16.dp)
+                                    )
+
+                                }
+                            } else {
+                                viewModel.updateBreed("")
+                            }
+
+                        }
+
+                        uiState.pet?.weight
+
+                        //PET WEIGHT
+                        Column {
+                            InputTextField(
+                                value = weight.value,
+                                label = "Pet Weight",
+                                onValueChange = {}, // Read-only
+                                readOnly = true,
+                                trailingIcon = {
+                                    IconButton(onClick = { showWeightPicker = true }) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.arrow_drop_down_24px),
+                                            contentDescription = "Select weight",
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                showCharacterCounter = false,
+                            )
+                            if (showWeightPicker) {
+                                ModalBottomSheet(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    sheetState = sheetState,
+                                    onDismissRequest = { showWeightPicker = false },
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 16.dp),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                    ) {
+                                        // Whole number picker
+                                        CarouselPicker(
+                                            items = weightRange,
+                                            selectedItem = selectedWeight.value.toString(), // ✅ API value
+                                            onItemSelected = { selectedWeight.value = it.toInt() },
+                                            modifier = Modifier.weight(1f)
+                                        )
+
+                                        // Fraction picker
+                                        CarouselPicker(
+                                            items = FRACTIONAL_PARTS_1_DECIMAL,
+                                            selectedItem = selectedFraction.value, // ✅ API fraction
+                                            onItemSelected = { selectedFraction.value = it },
+                                            modifier = Modifier.weight(1f)
+                                        )
+
+                                        // Unit picker
+                                        CarouselPicker(
+                                            items = WEIGHT_UNITS,
+                                            selectedItem = selectedUnit.value, // ✅ API unit
+                                            onItemSelected = { selectedUnit.value = it },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        //PET IDENTIFIERS
+
                     }
 
 
