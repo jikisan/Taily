@@ -140,7 +140,7 @@ fun AnimatedGradientSnackbarHost(
     duration: SnackbarDuration = SnackbarDuration.SHORT
 ) {
     val density = LocalDensity.current
-    val threshold = with(density) { 100.dp.toPx() }
+    val threshold = with(density) { 50.dp.toPx() }
 
     var offsetX by remember { mutableStateOf(0f) }
     var isDragging by remember { mutableStateOf(false) }

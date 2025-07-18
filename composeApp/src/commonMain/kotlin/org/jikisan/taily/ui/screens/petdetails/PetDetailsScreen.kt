@@ -15,22 +15,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,42 +47,64 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil3.compose.AsyncImage
+import com.vidspark.androidapp.ui.theme.Blue
+import com.vidspark.androidapp.ui.theme.SoftGreen
+import com.vidspark.androidapp.ui.theme.SoftOrange
 import com.vidspark.androidapp.ui.theme.TailyTheme
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.common.EmptyScreen
 import org.jikisan.taily.ui.common.ErrorScreen
 import org.jikisan.taily.ui.common.LoadingScreen
+import org.jikisan.taily.ui.components.AnimatedGradientSnackbarHost
+import org.jikisan.taily.ui.components.DotSeparator
 import org.jikisan.taily.ui.components.GenderIcon
 import org.jikisan.taily.ui.components.GradientSnackbar
+import org.jikisan.taily.ui.components.SnackbarType
+import org.jikisan.taily.util.DateUtils.formatDateForDisplay
 import org.jikisan.taily.util.DateUtils.getAgeOrTimeDifferencePrecise
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
+import taily.composeapp.generated.resources.allergy_24px
 import taily.composeapp.generated.resources.arrow_back_ios_new_24px
+import taily.composeapp.generated.resources.cake_24px
+import taily.composeapp.generated.resources.clip_24px
+import taily.composeapp.generated.resources.colors_24px
+import taily.composeapp.generated.resources.id_card_24px
+import taily.composeapp.generated.resources.microchip_24px
+import taily.composeapp.generated.resources.microchip_loc_24px
+import taily.composeapp.generated.resources.passport_24px
 import taily.composeapp.generated.resources.qr_code_24px
+import taily.composeapp.generated.resources.ruler_24px
 import taily.composeapp.generated.resources.sad_cat
+import taily.composeapp.generated.resources.scissors_24px
+import taily.composeapp.generated.resources.self_care_24px
+import taily.composeapp.generated.resources.stethoscope_24px
 
 data class PetInfoItem(
     val label: String,
     val value: String,
-    val icon: ImageVector,
+    val drawable: DrawableResource,
     val valueColor: Color = Color.Unspecified,
     val isImportant: Boolean = false
 )
+
 @Composable
 fun PetDetailsScreen(
     petId: String,
@@ -89,7 +114,14 @@ fun PetDetailsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
+    var showSnackbar by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+
+    val navBackStackEntry = navHost.currentBackStackEntryAsState().value
+
+    LaunchedEffect(navBackStackEntry) {
+        viewModel.loadPetDetails(petId)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadPetDetails(petId)
@@ -154,7 +186,7 @@ fun PetDetailsScreen(
                             modifier = Modifier
                                 .padding(8.dp)
                                 .clickable(
-                                    onClick = { }
+                                    onClick = {  showSnackbar = true }
                                 ),
                         )
 
@@ -210,7 +242,10 @@ fun PetDetailsScreen(
                     }
 
                     // Pet Info
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
                         val petDetailsItems = mutableListOf<String?>()
                         petDetailsItems.add(pet.breed.ifBlank { pet.petType })
                         pet.dateOfBirth.let {
@@ -234,47 +269,63 @@ fun PetDetailsScreen(
                     }
 
                     // Quick ActionsButons
-                    Card(
+                    val iconColors = listOf(
+                        MaterialTheme.colorScheme.primary,
+                        Blue,
+                        SoftGreen,
+                        SoftOrange // you can replace or expand with custom colors
+                    )
+
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 24.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
-                        )
+                            .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            val buttons = listOf(
-                                "IDs" to Icons.Filled.Favorite,          // Replace with your actual icons
-                                "Passport" to Icons.Filled.Favorite,
-                                "Care" to Icons.Filled.Favorite,
-                                "Medical" to Icons.Filled.Favorite,
-                                "QR" to Icons.Filled.Favorite
-                            )
+                        val buttons = listOf(
+                            "IDs" to Res.drawable.id_card_24px,          // Replace with your actual icons
+                            "Passport" to Res.drawable.passport_24px,
+                            "Care" to Res.drawable.self_care_24px,
+                            "Medical" to Res.drawable.stethoscope_24px,
+                        )
 
-                            buttons.forEach { (label, icon) ->
+                        buttons.forEachIndexed { index, (label, icon) ->
+                            Card(
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .clickable { /* Handle click here */ },
+                                shape = RoundedCornerShape(5.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                ),
+                                elevation = CardDefaults.cardElevation(
+                                    defaultElevation = 4.dp
+                                )
+                            ) {
                                 Column(
                                     modifier = Modifier
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .clickable { /* Handle click here */ }
-                                        .padding(8.dp),
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = label,
-                                        tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(36.dp)
-                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.background),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(icon),
+                                            contentDescription = label,
+                                            modifier = Modifier.size(24.dp),
+                                            tint = iconColors[index % iconColors.size]
+                                        )
+                                    }
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = label,
-                                        style = MaterialTheme.typography.labelMedium,
+                                        style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
@@ -284,10 +335,10 @@ fun PetDetailsScreen(
 
 
                     // Identifiers
-                     PetIdentifiersSection(
-                         pet = pet,
-                         modifier = Modifier.padding(top = 24.dp)
-                     )
+                    PetIdentifiersSection(
+                        pet = pet,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
 
                     // Delete Button
                     DeletePetButton(onClick = { showDeleteDialog = true })
@@ -329,12 +380,19 @@ fun PetDetailsScreen(
 
     if (uiState.isDeletingSuccess) {
         uiState.deleteSuccessMessage?.let {
-            GradientSnackbar(message = it)
+            GradientSnackbar(message = it, type = SnackbarType.SUCCESS)
         }
     }
 
-}
+    if (showSnackbar) {
+        AnimatedGradientSnackbarHost(
+            message = "QR Code will be available soon",
+            type = SnackbarType.INFO,
+            onDismiss = { showSnackbar = false },
+        )
+    }
 
+}
 
 
 @Composable
@@ -345,19 +403,19 @@ fun PetIdentifiersSection(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            .padding(bottom = 16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Section Header
-        Text(
-            text = "Identifiers",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier
-                .fillMaxWidth()
-                .semantics { heading() }
-        )
+//        Text(
+//            text = "Identifiers",
+//            style = MaterialTheme.typography.headlineSmall,
+//            fontWeight = FontWeight.Bold,
+//            color = MaterialTheme.colorScheme.onSurface,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .semantics { heading() }
+//        )
 
         // Identifiers Card
         Card(
@@ -372,6 +430,32 @@ fun PetIdentifiersSection(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+
+                //Birthdate Information Group
+                pet.dateOfBirth.let { birthdate ->
+                    PetInfoSection(
+                        title = "About ${pet.name}",
+                        items = buildList {
+                            add(
+                                PetInfoItem(
+                                    label = "Birthdate",
+                                    value = formatDateForDisplay(birthdate),
+                                    drawable = Res.drawable.cake_24px
+                                )
+                            )
+                        }
+                    )
+                }
+
+                if (pet.identifiers.microchipNumber != null ||
+                    pet.identifiers.microchipLocation != null
+                ) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
+                    )
+                }
+
                 // Microchip Information Group
                 pet.identifiers.microchipNumber?.let { microchipNumber ->
                     PetInfoSection(
@@ -380,16 +464,16 @@ fun PetIdentifiersSection(
                             add(
                                 PetInfoItem(
                                     label = "Microchip Number",
-                                    value = microchipNumber.ifBlank { "None" },
-                                    icon = Icons.Filled.Info
+                                    value = microchipNumber.ifBlank { "No Microchip" },
+                                    drawable = Res.drawable.microchip_24px
                                 )
                             )
                             pet.identifiers.microchipLocation?.let { location ->
                                 add(
                                     PetInfoItem(
                                         label = "Microchip Location",
-                                        value = location.ifBlank { "None" },
-                                        icon = Icons.Filled.Place
+                                        value = location.ifBlank { "No Microchip" },
+                                        drawable = Res.drawable.microchip_loc_24px
                                     )
                                 )
                             }
@@ -398,7 +482,8 @@ fun PetIdentifiersSection(
 
                     if (pet.identifiers.clipLocation != null ||
                         pet.identifiers.size != null ||
-                        pet.identifiers.colorMarkings != null) {
+                        pet.identifiers.colorMarkings != null
+                    ) {
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 4.dp),
                             color = MaterialTheme.colorScheme.outline.copy(alpha = 0.12f)
@@ -412,8 +497,8 @@ fun PetIdentifiersSection(
                         add(
                             PetInfoItem(
                                 label = "Clip Location",
-                                value = it.ifBlank { "None" },
-                                icon = Icons.Filled.Create
+                                value = it.ifBlank { "No Clip" },
+                                drawable = Res.drawable.clip_24px
                             )
                         )
                     }
@@ -422,7 +507,7 @@ fun PetIdentifiersSection(
                             PetInfoItem(
                                 label = "Size",
                                 value = it.ifBlank { "None" },
-                                icon = Icons.Filled.Build
+                                drawable = Res.drawable.ruler_24px
                             )
                         )
                     }
@@ -431,7 +516,7 @@ fun PetIdentifiersSection(
                             PetInfoItem(
                                 label = "Color Markings",
                                 value = it.ifBlank { "-" },
-                                icon = Icons.Filled.Star
+                                drawable = Res.drawable.colors_24px
                             )
                         )
                     }
@@ -456,7 +541,7 @@ fun PetIdentifiersSection(
                         PetInfoItem(
                             label = "Neutered/Spayed",
                             value = if (pet.identifiers.isNeuteredOrSpayed == true) "Yes" else "No",
-                            icon = Icons.Filled.Favorite,
+                            drawable = Res.drawable.scissors_24px,
                             valueColor = if (pet.identifiers.isNeuteredOrSpayed == true)
                                 MaterialTheme.colorScheme.primary else
                                 MaterialTheme.colorScheme.onSurfaceVariant
@@ -465,7 +550,7 @@ fun PetIdentifiersSection(
                             label = "Allergies",
                             value = if (pet.identifiers.allergies.isEmpty()) "No allergies" else
                                 pet.identifiers.allergies.joinToString(", "),
-                            icon = Icons.Default.Warning,
+                            drawable = Res.drawable.allergy_24px,
                             valueColor = if (pet.identifiers.allergies.isNotEmpty())
                                 MaterialTheme.colorScheme.error else
                                 MaterialTheme.colorScheme.onSurfaceVariant
@@ -491,7 +576,7 @@ private fun PetInfoSection(
             text = title,
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.semantics { heading() }
         )
 
@@ -518,41 +603,38 @@ private fun ModernPetInfoRow(
         Box(
             modifier = Modifier
                 .size(40.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surface)
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = item.icon,
+                painter = painterResource(item.drawable),
                 contentDescription = null,
-                tint = Color.LightGray,
+                tint = Color.Black,
                 modifier = Modifier.size(20.dp)
             )
         }
-
 
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Text(
-                text = item.label,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium,
-                color = Color.Gray
-            )
 
             Text(
                 text = item.value,
                 style = MaterialTheme.typography.bodyLarge,
                 color = item.valueColor,
-                fontWeight = if (item.isImportant) FontWeight.SemiBold else FontWeight.Normal
+                fontWeight = FontWeight.SemiBold,
             )
+
+            Text(
+                text = item.label,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+
         }
     }
 }
-
 
 
 @Composable
@@ -582,43 +664,7 @@ private fun DeletePetButton(onClick: () -> Unit) {
 
 }
 
-@Composable
-fun PetInfoRow(
-    title: String,
-    content: String
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Normal,
-            color = Color.Gray,
-            modifier = Modifier.widthIn(min = 130.dp)
-        )
-        Text(
-            text = content,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
 
-
-
-@Composable
-fun DotSeparator() {
-    Text(
-        text = "·",
-        style = MaterialTheme.typography.bodyLarge,
-        color = Color.Gray,
-        modifier = Modifier.padding(horizontal = 16.dp),
-        fontWeight = FontWeight.Bold
-    )
-}
 
 @Preview
 @Composable
