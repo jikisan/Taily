@@ -17,4 +17,5 @@ sealed class NavigationItem(
     data object Settings : NavigationItem("settings", "Settings", Res.drawable.settings_icon)
     data object PetDetails : NavigationItem("petDetails/{petId}", "Pet Details")
     data object AddPet : NavigationItem("addpet/{petId}", "Add Pet")
+    data object EditPet : NavigationItem("edit/{petId}", "Edit Pet")
 }

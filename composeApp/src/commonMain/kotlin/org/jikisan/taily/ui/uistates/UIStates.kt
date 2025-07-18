@@ -40,3 +40,12 @@ data class PetDetailUIState(
     val errorMessage: String? = null,
     val deleteSuccessMessage: String? = null
 )
+
+data class EditPetUIState(
+    val pet: Pet? = null,
+    val imageByteArray: ByteArray = byteArrayOf(),
+    val isLoading: Boolean = false,
+    val isSubmitting: Boolean = false,
+    val isSubmittingSuccess: Boolean = false,
+    val errorMessage: String? = null,
+)

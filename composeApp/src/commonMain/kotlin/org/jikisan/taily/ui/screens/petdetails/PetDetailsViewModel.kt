@@ -7,20 +7,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.launch
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
-import org.jikisan.taily.domain.petdetails.PetDetailsRepository
+import org.jikisan.taily.domain.pet.PetRepository
 import org.jikisan.taily.ui.uistates.PetDetailUIState
 
 class PetDetailsViewModel(
-    private val repository: PetDetailsRepository,
+    private val repository: PetRepository,
     private val storage: StorageManager
 ) : ViewModel() {
 
-    val _uiState = MutableStateFlow(PetDetailUIState(isLoading = true))
+    private val _uiState = MutableStateFlow(PetDetailUIState(isLoading = true))
     val uiState: StateFlow<PetDetailUIState> = _uiState.asStateFlow()
 
     init {
@@ -29,7 +28,7 @@ class PetDetailsViewModel(
 
     fun loadPetDetails(petId: String) {
         viewModelScope.launch {
-            repository.loadPetDetails(petId).collect { pet ->
+            repository.getPetDetails(petId).collect { pet ->
                 _uiState.value = _uiState.value.copy(pet = pet, isLoading = false)
             }
         }

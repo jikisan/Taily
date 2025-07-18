@@ -77,6 +77,7 @@ import org.jikisan.taily.ui.components.DotSeparator
 import org.jikisan.taily.ui.components.GenderIcon
 import org.jikisan.taily.ui.components.GradientSnackbar
 import org.jikisan.taily.ui.components.SnackbarType
+import org.jikisan.taily.ui.navigation.NavigationItem
 import org.jikisan.taily.util.DateUtils.formatDateForDisplay
 import org.jikisan.taily.util.DateUtils.getAgeOrTimeDifferencePrecise
 import org.koin.compose.viewmodel.koinViewModel
@@ -197,7 +198,14 @@ fun PetDetailsScreen(
                             modifier = Modifier
                                 .padding(8.dp)
                                 .clickable(
-                                    onClick = { }
+                                    onClick = {
+                                        navHost.navigate(
+                                            NavigationItem.EditPet.route.replace(
+                                                "{petId}",
+                                                petId
+                                            )
+                                        )
+                                    }
                                 ),
                         )
                     }
@@ -636,7 +644,6 @@ private fun ModernPetInfoRow(
     }
 }
 
-
 @Composable
 private fun DeletePetButton(onClick: () -> Unit) {
 
@@ -663,8 +670,6 @@ private fun DeletePetButton(onClick: () -> Unit) {
     }
 
 }
-
-
 
 @Preview
 @Composable

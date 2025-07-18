@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.vidspark.androidapp.ui.theme.TailyTheme
 import org.jetbrains.compose.resources.DrawableResource
@@ -36,6 +37,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.data.local.mockdata.MockData
 import org.jikisan.taily.domain.model.enum.GenderType
 import org.jikisan.taily.domain.model.pet.Pet
+import org.jikisan.taily.ui.components.GenderContainer
 import org.jikisan.taily.ui.screens.addpet.AddPetHeader
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -77,14 +79,14 @@ fun AddPetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
 
             ) {
             GenderContainer(
-                Res.drawable.male_24px,
-                "Male",
+                drawable = Res.drawable.male_24px,
+                text = "Male",
                 isSelected = selectedGender == GenderType.Male,
                 onClick = { selectedGender = GenderType.Male }
             )
             GenderContainer(
-                Res.drawable.female_24px,
-                "Female",
+                drawable = Res.drawable.female_24px,
+                text = "Female",
                 isSelected = selectedGender == GenderType.Female,
                 onClick = { selectedGender = GenderType.Female }
             )
@@ -95,48 +97,7 @@ fun AddPetGenderContent(viewModel: AddPetViewModel, pet: Pet?) {
 
 }
 
-@Composable
-fun GenderContainer(
-    drawable: DrawableResource,
-    text: String,
-    isSelected: Boolean = false,
-    onClick: () -> Unit = {}
-) {
-    val borderColor = MaterialTheme.colorScheme.primary
-    val backgroundColor =
-        if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else Color.Transparent
 
-    Box(
-        modifier = Modifier
-            .size(150.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .border(
-                width = 2.dp,
-                color = borderColor,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .background(backgroundColor)
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(
-                painter = painterResource(drawable),
-                contentDescription = text,
-                modifier = Modifier.size(64.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = borderColor
-            )
-        }
-    }
-}
 
 
 @Preview

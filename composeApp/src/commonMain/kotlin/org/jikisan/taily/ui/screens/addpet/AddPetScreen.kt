@@ -301,14 +301,7 @@ fun AddPetScreenPreview() {
     // --- Provide a mock PetViewModel and Pet for preview ---
 
     TailyTheme {
-        val dummyRepo = object : PetRepository {
-            override suspend fun getPets() = flowOf(emptyList<Pet>())
-            override suspend fun getPetsByUserId() =
-                flowOf(emptyList<Pet>())
-        }
-        val pet = MockData.mockPets.first()
         Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-
 
             AddPetScreen(
                 navHost = rememberNavController(),
