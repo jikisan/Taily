@@ -50,3 +50,10 @@ data class EditPetUIState(
     val isSubmittingSuccess: Boolean = false,
     val errorMessage: String? = null,
 )
+
+data class PassportUIState(
+    val pet: Pet? = null,
+    val schedule: List<Schedule>? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+)

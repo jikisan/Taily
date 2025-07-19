@@ -21,12 +21,11 @@ import taily.composeapp.generated.resources.sad_cat
 @Composable
 fun EmptyScreen(
     message: String = "Empty",
-    resource: DrawableResource = Res.drawable.sad_cat
+    resource: DrawableResource = Res.drawable.sad_cat,
+    modifier: Modifier = Modifier.fillMaxSize().padding(bottom = 150.dp)
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 150.dp),
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {

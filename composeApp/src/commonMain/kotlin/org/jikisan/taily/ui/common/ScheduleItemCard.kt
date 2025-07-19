@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.vidspark.androidapp.ui.theme.Blue
+import com.vidspark.androidapp.ui.theme.OffBlue
 import org.jetbrains.compose.resources.painterResource
 import org.jikisan.taily.model.pet.Schedule
 import org.jikisan.taily.util.DateUtils
@@ -34,7 +36,9 @@ fun ScheduleItemCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(12.dp))
+            .background(
+                color = OffBlue,
+                shape = RoundedCornerShape(12.dp))
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -44,7 +48,7 @@ fun ScheduleItemCard(
                 .size(48.dp)
                 .border(
                     width = 1.dp, // Thickness of colored corners
-                    color = MaterialTheme.colorScheme.primary, // Corner color
+                    color = Blue, // Corner color
                     shape = RoundedCornerShape(12.dp)
                 ),
             contentAlignment = Alignment.Center
@@ -52,7 +56,7 @@ fun ScheduleItemCard(
             Icon(
                 painter = painterResource(Res.drawable.pill_24px),
                 contentDescription = "Pill icon",
-                tint = MaterialTheme.colorScheme.primary, // Or keep white
+                tint = Blue,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -73,7 +77,7 @@ fun ScheduleItemCard(
                 text = schedule.hospital,
                 style = MaterialTheme.typography.bodySmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = Blue
                 )
             )
         }
