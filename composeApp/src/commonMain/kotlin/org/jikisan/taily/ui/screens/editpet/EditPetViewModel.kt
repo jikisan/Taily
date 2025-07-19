@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
@@ -26,16 +27,17 @@ class EditPetViewModel(
     private val storageManager: StorageManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(EditPetUIState())
+    private val _uiState = MutableStateFlow(EditPetUIState(isLoading = true))
     val uiState: StateFlow<EditPetUIState> = _uiState.asStateFlow()
 
     fun loadPetDetails(petId: String) {
         viewModelScope.launch {
             repository.getPetDetails(petId).collect { pet ->
                 _uiState.value = _uiState.value.copy(pet = pet, isLoading = false)
-                _uiState.value = EditPetUIState(pet = pet)
+                _uiState.value = EditPetUIState(pet = pet, originalPet = pet)
             }
         }
+
     }
 
     private fun updatePet(newPet: Pet) {
@@ -117,70 +119,92 @@ class EditPetViewModel(
     fun submitPet() {
         viewModelScope.launch {
             try {
-                // Set loading state externally in composable, if needed
                 val imageByteArray = _uiState.value.imageByteArray
                 val pet = _uiState.value.pet
 
-
-                if (pet == null || imageByteArray == null) {
+                if (pet == null) {
                     failSubmission(
-                        error = "Pet information or image bytes are missing.",
-                        logmessage = "Pet is null or image bytes are null."
+                        error = "Pet information is missing.",
+                        logmessage = "Pet is null."
                     )
                     return@launch
                 }
 
                 val fileName = pet.photo.name
+                val originalFileName = _uiState.value.originalPet?.photo?.name
 
+                if (fileName == originalFileName) {
+                    Napier.i("FILENAME unchanged")
 
-                val uploadResult = storageManager.uploadFile(
-                    userId = MOCK_USERID,
-                    fileData = imageByteArray,
-                    fileName = fileName
-                )
+                    // No upload needed; update pet directly
+                    val updateResult = repository.updatePet(pet)
+                    updateResult.onSuccess {
+                        updateIsSubmittingSuccess(true)
+                    }.onFailure {
+                        failSubmission(
+                            error = "Failed to save Pet data. Check connection.",
+                            logmessage = it.message
+                        )
+                    }
 
-                if (uploadResult.isSuccess) {
+                } else {
+                    Napier.i("FILENAME changed $originalFileName")
 
-                    uploadResult.onSuccess { photoUrl ->
-                        val updatedPet =
-                            pet.copy(photo = pet.photo.copy(name = fileName, url = photoUrl))
+                    if (imageByteArray == null) {
+                        failSubmission(
+                            error = "Image bytes are missing for upload.",
+                            logmessage = "imageByteArray is null."
+                        )
+                        return@launch
+                    }
 
-                        try {
+                    // Fallback: if originalFileName null (new pet), use new fileName
+                    val uploadFileName = originalFileName ?: fileName
 
-                            val createPetResult = repository.createPet(updatedPet)
+                    val uploadResult = storageManager.uploadFile(
+                        userId = MOCK_USERID,
+                        fileData = imageByteArray,
+                        fileName = originalFileName // ✅ Overwrite old file or create new
+                    )
 
-                            createPetResult.onSuccess {
+                    if (uploadResult.isSuccess) {
+                        uploadResult.onSuccess { photoUrl ->
+                            val updatedPet = pet.copy(
+                                photo = pet.photo.copy(
+                                    // name stays same as original
+                                    name = originalFileName!!,
+                                    url = "$photoUrl?ts=${Clock.System.now().toEpochMilliseconds()}"
+                                )
+                            )
+
+                            val updateResult = repository.updatePet(updatedPet)
+                            updateResult.onSuccess {
                                 updateIsSubmittingSuccess(true)
-                            }
-                            createPetResult.onFailure {
+                            }.onFailure {
                                 failSubmission(
-                                    error = "Failed to save Pet data. Check connection.",
+                                    error = "Failed to save Pet data after image upload.",
                                     logmessage = it.message
                                 )
                             }
-
-                        } catch (e: Exception) {
-
-                            failSubmission(
-                                error = "Failed to save Pet data. Check connection.",
-                                logmessage = e.message
-                            )
                         }
+                    } else {
+                        failSubmission(
+                            error = "Failed to upload image. Check connection.",
+                            logmessage = uploadResult.exceptionOrNull()?.message
+                        )
                     }
-                } else {
-                    failSubmission(
-                        error = "Failed to save Pet data. Check connection.",
-                        logmessage = uploadResult.exceptionOrNull()?.message,
-                    )
                 }
+
             } catch (e: Exception) {
                 failSubmission(
-                    error = "Failed to save Pet data. Check connection.",
-                    logmessage = e.message,
+                    error = "Unexpected error occurred. Check connection.",
+                    logmessage = e.message
                 )
             }
         }
     }
+
+
 
     private fun failSubmission(error: String?, logmessage: String?) {
         Napier.e("$TAG $logmessage")

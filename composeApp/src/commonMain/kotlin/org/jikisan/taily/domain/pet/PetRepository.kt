@@ -7,6 +7,9 @@ import org.jikisan.taily.domain.model.pet.Pet
 interface PetRepository {
 
     suspend fun createPet(pet: Pet): Result<Pet>
+
+    suspend fun updatePet(pet: Pet): Result<Pet>
+
     suspend fun getPets(): Flow<List<Pet>>
     suspend fun getPetsByUserId(): Flow<List<Pet>>
 

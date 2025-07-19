@@ -15,6 +15,7 @@ import org.jikisan.taily.data.local.mockdata.MockData.MOCK_USERID
 import org.jikisan.taily.data.mapper.toDomain
 import org.jikisan.taily.domain.home.HomeRepository
 import org.jikisan.taily.domain.mapper.toCreateRequest
+import org.jikisan.taily.domain.mapper.toUpdateRequest
 import org.jikisan.taily.domain.model.pet.DeletePet
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.validator.isNetworkError
@@ -27,6 +28,12 @@ class PetRepositoryImpl(private val petApi: PetApiService) : PetRepository {
     override suspend fun createPet(pet: Pet): Result<Pet> {
         val request = pet.toCreateRequest()
         return petApi.createPet(request)
+            .mapCatching { it.toDomain() }
+    }
+
+    override suspend fun updatePet(pet: Pet): Result<Pet> {
+        val request = pet.toUpdateRequest()
+        return petApi.updatePet(request)
             .mapCatching { it.toDomain() }
     }
 

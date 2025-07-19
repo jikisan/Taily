@@ -47,6 +47,7 @@ import com.vidspark.androidapp.ui.theme.TailyTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.Identifiers
+import org.jikisan.taily.ui.components.DropdownMenuField
 import org.jikisan.taily.ui.components.ThemeOutlineTextField
 import org.jikisan.taily.ui.screens.addpet.AddPetHeader
 import org.jikisan.taily.ui.screens.addpet.AddPetViewModel
@@ -339,42 +340,7 @@ fun AllergyList(
     }
 }
 
-@Composable
-fun DropdownMenuField(
-    label: String,
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var expanded by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier) {
-        Text(label, style = MaterialTheme.typography.bodyMedium)
-        OutlinedButton(
-            onClick = { expanded = true },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(selectedOption.ifEmpty { "Select..." })
-            Spacer(modifier = Modifier.weight(1f))
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        onOptionSelected(option)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
 
 
 @Preview

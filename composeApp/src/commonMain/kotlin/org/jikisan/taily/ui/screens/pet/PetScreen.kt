@@ -116,40 +116,25 @@ private fun PetScreenContent(
                         modifier = Modifier,
                     )
 
-//                IconButton(
-//                    onClick = {
-//                        navHost.navigate(route = NavigationItem.AddPet.route)
-//                    },
-//                    modifier = Modifier.align(Alignment.CenterVertically)
-//
-//                ) {
-//                    Icon(
-//                        painter = painterResource(Res.drawable.add_2_24px),
-//                        contentDescription = "Add pet",
-//                        tint = Color.Blue,
-//                        modifier = Modifier.size(16.dp),
-//                    )
-//                }
-
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterVertically).clickable(
-                            onClick = {
-                                navHost.navigate(route = NavigationItem.AddPet.route)
-                            }),
-                        verticalAlignment = Alignment.CenterVertically
+                    TextButton(
+                        onClick = {
+                            navHost.navigate(route = NavigationItem.AddPet.route)
+                        }
                     ) {
-//                        Icon(
-//                            painter = painterResource(Res.drawable.add_2_24px),
-//                            contentDescription = "Add pet",
-//                            tint = MaterialTheme.colorScheme.primary,
-//                            modifier = Modifier.size(16.dp),
-//                        )
+                        Icon(
+                            painter = painterResource(Res.drawable.add_2_24px),
+                            contentDescription = "Add pet",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp),
+                        )
+
                         Text(
                             text = "Add",
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = MaterialTheme.typography.bodyLarge.fontSize,
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.End
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.padding(vertical = 8.dp)
                         )
                     }
 

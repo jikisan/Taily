@@ -37,7 +37,7 @@ fun ThemeOutlineTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     readOnly: Boolean = false,
     modifier: Modifier = Modifier,
-    borderThickness: Dp = 3.dp,
+    borderThickness: Dp = 1.dp,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     cornerRadius: Dp = 10.dp,
     maxLength: Int = 20,

@@ -54,7 +54,7 @@ fun PetCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(230.dp)
+            .height(250.dp)
             .clickable(onClick = {
                 navHost.navigate(
                     NavigationItem.PetDetails.route.replace(

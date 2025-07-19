@@ -3,20 +3,21 @@ package org.jikisan.taily.data.model.pet.request
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jikisan.taily.data.model.WeightDTO
+import org.jikisan.taily.data.model.pet.base.PetBase
+import org.jikisan.taily.data.model.pet.response.PhotoDTO
 import org.jikisan.taily.model.pet.IdentifiersDTO
 import org.jikisan.taily.model.pet.OwnerDTO
 
 @Serializable
 data class UpdatePetRequest(
-    @SerialName("_id")
     val id: String,
-    val name: String,
-    val petType: String,
-    val breed: String,
-    val dateOfBirth: String,
-    val gender: String,
-    val photoUrl: String,
-    val weight: WeightDTO,
-    val ownerId: OwnerDTO,
-    val identifiers: IdentifiersDTO,
-)
+    override val name: String,
+    override val petType: String,
+    override val breed: String,
+    override val dateOfBirth: String,
+    override val gender: String,
+    override val photo: PhotoDTO,
+    override val weight: WeightDTO,
+    override val ownerId: OwnerDTO,
+    override val identifiers: IdentifiersDTO
+): PetBase

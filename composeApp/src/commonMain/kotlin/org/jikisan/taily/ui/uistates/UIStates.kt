@@ -43,6 +43,7 @@ data class PetDetailUIState(
 
 data class EditPetUIState(
     val pet: Pet? = null,
+    val originalPet: Pet? = null,
     val imageByteArray: ByteArray = byteArrayOf(),
     val isLoading: Boolean = false,
     val isSubmitting: Boolean = false,

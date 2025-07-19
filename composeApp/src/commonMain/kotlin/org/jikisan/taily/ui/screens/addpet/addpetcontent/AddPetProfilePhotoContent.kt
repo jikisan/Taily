@@ -61,6 +61,7 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
     var selectedImage by remember { mutableStateOf<ImageBitmap?>(null) }
     var openImagePicker by remember { mutableStateOf(false) }
     var imageByteArray by remember { mutableStateOf<ByteArray?>(null) }
+
     var invalidFormat by remember { mutableStateOf(false) }
 
     val imageCropper = rememberImageCropper()
@@ -106,14 +107,7 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                 autoZoom = false,
                 imagePickerDialogHandler = { openImagePicker = it },
                 selectedImageCallback = { imageBitmap ->
-//
-//                    // Check bitmap size before processing
-//                    val bitmapSizeInBytes = imageBitmap.width * imageBitmap.height * 4 // 4 bytes per pixel (ARGB)
-//                    val maxAllowedSize = 50 * 1024 * 1024 // 50MB limit (adjust as needed)
-//
-//                    if (bitmapSizeInBytes > maxAllowedSize) {
-//                        isImageTooLarge = true
-//                    } else {
+
                         selectedImage = imageBitmap
 
                         selectedImage?.let { image ->
@@ -139,28 +133,28 @@ fun AddPetProfilePhotoContent(viewModel: AddPetViewModel, pet: Pet?) {
                 selectedImageFileCallback = { sharedImage ->
                     scope.launch {
 
-                        val compressedFilePath = compressImage(
-                            sharedImage = sharedImage,
-                            targetFileSize = 200 * 1024,
-                            fileName = "pet_profile_photo"
-                        )
-
-                        compressedFilePath?.let { path ->
-                            val compressedByteArray = readFileAsBytes(path)
-                            compressedByteArray?.let { byteArray ->
-                                // For server upload
-                                viewModel.updatePetPhotoByteArray(byteArray)
-
-                                // For UI display - convert compressed bytes to ImageBitmap
-//                                val compressedBitmap = sharedImage.toImageBitmap()
-//                                selectedImage = compressedBitmap
+//                        val compressedFilePath = compressImage(
+//                            sharedImage = sharedImage,
+//                            targetFileSize = 200 * 1024,
+//                            fileName = "pet_profile_photo"
+//                        )
 //
-//                                selectedImage.let { image ->
-//                                    viewModel.updatePhotoImageBitmap(image!!)
-//                                }
-
-                            }
-                        }
+//                        compressedFilePath?.let { path ->
+//                            val compressedByteArray = readFileAsBytes(path)
+//                            compressedByteArray?.let { byteArray ->
+//                                // For server upload
+//                                viewModel.updatePetPhotoByteArray(byteArray)
+//
+//                                // For UI display - convert compressed bytes to ImageBitmap
+////                                val compressedBitmap = sharedImage.toImageBitmap()
+////                                selectedImage = compressedBitmap
+////
+////                                selectedImage.let { image ->
+////                                    viewModel.updatePhotoImageBitmap(image!!)
+////                                }
+//
+//                            }
+//                        }
 //                        } catch (e: Exception) {
 //                            viewModel.updateErrorMessage(e.message.toString())
 //                        }

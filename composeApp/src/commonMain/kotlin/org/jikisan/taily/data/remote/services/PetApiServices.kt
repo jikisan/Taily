@@ -65,8 +65,8 @@ class PetApiService(private val client: HttpClient) {
         }.body<PetDTO>()
     }
 
-    suspend fun updatePet(id: String, request: UpdatePetRequest): Result<PetDTO> = safeApiCall {
-        client.put(ApiRoutes.PET_BY_ID.replace("{id}", id)) {
+    suspend fun updatePet(request: UpdatePetRequest): Result<PetDTO> = safeApiCall {
+        client.put(ApiRoutes.PET_BY_ID.replace("{id}", request.id)) {
             contentType(ContentType.Application.Json)
             setBody(request)
         }.body<PetDTO>()

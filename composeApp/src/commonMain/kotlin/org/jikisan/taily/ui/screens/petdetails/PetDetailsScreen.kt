@@ -31,6 +31,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Snackbar
@@ -85,18 +86,22 @@ import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.allergy_24px
 import taily.composeapp.generated.resources.arrow_back_ios_new_24px
 import taily.composeapp.generated.resources.cake_24px
+import taily.composeapp.generated.resources.calendar_month_24px
 import taily.composeapp.generated.resources.clip_24px
 import taily.composeapp.generated.resources.colors_24px
+import taily.composeapp.generated.resources.hourglass_top_24px
 import taily.composeapp.generated.resources.id_card_24px
 import taily.composeapp.generated.resources.microchip_24px
 import taily.composeapp.generated.resources.microchip_loc_24px
 import taily.composeapp.generated.resources.passport_24px
+import taily.composeapp.generated.resources.paw_24px
 import taily.composeapp.generated.resources.qr_code_24px
 import taily.composeapp.generated.resources.ruler_24px
 import taily.composeapp.generated.resources.sad_cat
 import taily.composeapp.generated.resources.scissors_24px
 import taily.composeapp.generated.resources.self_care_24px
 import taily.composeapp.generated.resources.stethoscope_24px
+import taily.composeapp.generated.resources.weight_24px
 
 data class PetInfoItem(
     val label: String,
@@ -151,7 +156,8 @@ fun PetDetailsScreen(
                     .fillMaxSize()
                     .padding(top = topPadding)
                     .verticalScroll(scrollState),
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
                 // Header
@@ -163,16 +169,17 @@ fun PetDetailsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
-                    Icon(
-                        painter = painterResource(Res.drawable.arrow_back_ios_new_24px),
-                        contentDescription = "",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .clickable(
-                                onClick = { navHost.popBackStack() }
-                            )
-                    )
+                    IconButton(
+                        onClick = { navHost.popBackStack() }
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.arrow_back_ios_new_24px),
+                            contentDescription = "Back Icon",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .padding(8.dp)
+                        )
+                    }
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -180,54 +187,64 @@ fun PetDetailsScreen(
                     ) {
 
 
-                        Icon(
-                            painter = painterResource(Res.drawable.qr_code_24px),
-                            contentDescription = "",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .clickable(
-                                    onClick = {  showSnackbar = true }
-                                ),
-                        )
+                        IconButton(
+                            onClick = { showSnackbar = true }
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.qr_code_24px),
+                                contentDescription = "",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
 
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = "",
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .padding(8.dp)
-                                .clickable(
-                                    onClick = {
-                                        navHost.navigate(
-                                            NavigationItem.EditPet.route.replace(
-                                                "{petId}",
-                                                petId
-                                            )
-                                        )
-                                    }
-                                ),
-                        )
+                        IconButton(
+                            onClick = {
+                                navHost.navigate(
+                                    NavigationItem.EditPet.route.replace(
+                                        "{petId}",
+                                        petId
+                                    )
+                                )
+                            })
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = "Edit Pet Icon",
+                                tint = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
+
                     }
-
 
                 }
 
                 uiState.pet?.let { pet ->
                     // Profile picture
                     Box(
-                        modifier = Modifier.height(150.dp).fillMaxWidth(),
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .height(150.dp)
+                            .aspectRatio(1f) // ensure it's square
+                            .border(
+                                width = 2.dp,
+                                color = MaterialTheme.colorScheme.primary,
+                                shape = CircleShape
+                            )
+                            .padding(6.dp) // gap between border and image
+                            .clip(CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         AsyncImage(
                             model = pet.photo.url,
                             contentDescription = "Pet Profile Picture",
                             modifier = Modifier
-                                .clip(shape = CircleShape)
-                                .aspectRatio(1f / 1f),
+                                .fillMaxSize()
+                                .clip(CircleShape),
                             contentScale = ContentScale.Crop,
                         )
                     }
+
 
                     // Pet Name
                     val petName = pet.name
@@ -249,95 +266,58 @@ fun PetDetailsScreen(
 
                     }
 
-                    // Pet Info
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        val petDetailsItems = mutableListOf<String?>()
-                        petDetailsItems.add(pet.breed.ifBlank { pet.petType })
-                        pet.dateOfBirth.let {
-                            getAgeOrTimeDifferencePrecise(it)?.let { age ->
-                                petDetailsItems.add(age)
+                    val quickActions = listOf(
+                        QuickAction(
+                            label = "IDs",
+                            iconRes = Res.drawable.id_card_24px,
+                            color = MaterialTheme.colorScheme.primary,
+                            onClick = {
+                                navHost.navigate(
+                                    NavigationItem.PetIds.route.replace("{petId}", petId)
+                                )
                             }
-                        }
-                        pet.weight.let { petDetailsItems.add("${it.value} ${it.unit}") }
-
-                        petDetailsItems.filterNotNull().forEachIndexed { index, item ->
-                            Text(
-                                text = item,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.Gray,
-                                fontWeight = FontWeight.Bold
-                            )
-                            if (index < petDetailsItems.filterNotNull().size - 1) {
-                                DotSeparator()
+                        ),
+                        QuickAction(
+                            label = "Passport",
+                            iconRes = Res.drawable.passport_24px,
+                            color = Blue,
+                            onClick = {
+                                navHost.navigate(
+                                    NavigationItem.PetPassport.route.replace("{petId}", petId)
+                                )
                             }
-                        }
-                    }
-
-                    // Quick ActionsButons
-                    val iconColors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        Blue,
-                        SoftGreen,
-                        SoftOrange // you can replace or expand with custom colors
+                        ),
+                        QuickAction(
+                            label = "Care",
+                            iconRes = Res.drawable.self_care_24px,
+                            color = SoftGreen,
+                            onClick = {
+                                navHost.navigate(
+                                    NavigationItem.PetCare.route.replace("{petId}", petId)
+                                )
+                            }
+                        ),
+                        QuickAction(
+                            label = "Medical",
+                            iconRes = Res.drawable.stethoscope_24px,
+                            color = SoftOrange,
+                            onClick = {
+                                navHost.navigate(
+                                    NavigationItem.PetMedical.route.replace("{petId}", petId)
+                                )
+                            }
+                        ),
                     )
+
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 8.dp),
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        val buttons = listOf(
-                            "IDs" to Res.drawable.id_card_24px,          // Replace with your actual icons
-                            "Passport" to Res.drawable.passport_24px,
-                            "Care" to Res.drawable.self_care_24px,
-                            "Medical" to Res.drawable.stethoscope_24px,
-                        )
-
-                        buttons.forEachIndexed { index, (label, icon) ->
-                            Card(
-                                modifier = Modifier
-                                    .width(80.dp)
-                                    .clickable { /* Handle click here */ },
-                                shape = RoundedCornerShape(5.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
-                                ),
-                                elevation = CardDefaults.cardElevation(
-                                    defaultElevation = 4.dp
-                                )
-                            ) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(48.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.background),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            painter = painterResource(icon),
-                                            contentDescription = label,
-                                            modifier = Modifier.size(24.dp),
-                                            tint = iconColors[index % iconColors.size]
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = label,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
-                            }
+                        quickActions.forEach { action ->
+                            QuickActionButton(action = action)
                         }
                     }
 
@@ -402,6 +382,59 @@ fun PetDetailsScreen(
 
 }
 
+data class QuickAction(
+    val label: String,
+    val iconRes: DrawableResource,
+    val color: Color,
+    val onClick: () -> Unit
+)
+
+
+@Composable
+fun QuickActionButton(
+    action: QuickAction,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier
+            .width(80.dp)
+            .clickable { action.onClick() },
+        shape = RoundedCornerShape(5.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(action.iconRes),
+                    contentDescription = action.label,
+                    modifier = Modifier.size(24.dp),
+                    tint = action.color
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = action.label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+    }
+}
+
 
 @Composable
 fun PetIdentifiersSection(
@@ -444,13 +477,42 @@ fun PetIdentifiersSection(
                     PetInfoSection(
                         title = "About ${pet.name}",
                         items = buildList {
+
                             add(
                                 PetInfoItem(
-                                    label = "Birthdate",
+                                    label = if (pet.breed.isBlank()) "Species" else "Breed",
+                                    value = pet.breed.ifBlank { pet.petType },
+                                    drawable = Res.drawable.paw_24px
+                                )
+                            )
+
+                            getAgeOrTimeDifferencePrecise(pet.dateOfBirth)?.let { age ->
+                                add(
+                                    PetInfoItem(
+                                        label = "Age",
+                                        value = age,
+                                        drawable = Res.drawable.hourglass_top_24px
+                                    )
+                                )
+                            }
+
+                            add(
+                                PetInfoItem(
+                                    label = "Weight",
+                                    value = "${pet.weight.value} ${pet.weight.unit}",
+                                    drawable = Res.drawable.weight_24px
+                                )
+                            )
+
+                            add(
+                                PetInfoItem(
+                                    label = "Birth date",
                                     value = formatDateForDisplay(birthdate),
                                     drawable = Res.drawable.cake_24px
                                 )
                             )
+
+
                         }
                     )
                 }
