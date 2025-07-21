@@ -23,7 +23,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
@@ -32,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -125,6 +128,7 @@ import taily.composeapp.generated.resources.female_24px
 import taily.composeapp.generated.resources.male_24px
 import taily.composeapp.generated.resources.sad_cat
 import kotlin.math.roundToInt
+import kotlin.text.ifEmpty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -674,74 +678,36 @@ fun EditPetScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 16.dp)
+                                    .padding(vertical = 16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 // PET SPECIES
                                 Column {
                                     selectedSpecies = pet.petType
-                                    InputTextField(
-                                        value = if (showCustomSpeciesField) "Other" else selectedSpecies,
-                                        label = "Pet Species",
-                                        onValueChange = { },
-                                        placeholder = "e.g. Dog",
-                                        readOnly = true,
-                                        trailingIcon = {
-                                            IconButton(onClick = {
-                                                showSpeciesPicker = !showSpeciesPicker
-                                            }) {
-                                                Icon(
-                                                    painter = painterResource(Res.drawable.arrow_drop_down_24px),
-                                                    contentDescription = "Select species",
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
 
-                                            DropdownMenu(
-                                                expanded = showSpeciesPicker,
-                                                onDismissRequest = { showSpeciesPicker = false },
-                                                modifier = Modifier.width(200.dp),
-                                                shape = RoundedCornerShape(10),
-                                                containerColor = MaterialTheme.colorScheme.surface,
-                                                border = BorderStroke(
-                                                    1.dp,
-                                                    MaterialTheme.colorScheme.primary
-                                                ),
-                                            ) {
-                                                PET_TYPES.forEach { petType ->
-                                                    DropdownMenuItem(
-                                                        text = {
-                                                            Text(
-                                                                text = petType,
-                                                                modifier = Modifier.fillMaxWidth(),
-                                                                textAlign = TextAlign.Center,
-                                                                fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                                                            )
-                                                        },
-                                                        onClick = {
-                                                            showSpeciesPicker = false
-                                                            selectedSpecies = petType
-                                                            if (petType == "Other") {
-                                                                showCustomSpeciesField = true
-                                                            } else {
-                                                                showCustomSpeciesField = false
-                                                                customSpecies = ""
-                                                                viewModel.updatePetType(petType)
-                                                            }
-                                                        },
-                                                        modifier = Modifier.fillMaxWidth(),
-                                                    )
-                                                }
+                                    DropdownMenuField(
+                                        label = "Pet Species",
+                                        options = PET_TYPES,
+                                        selectedOption = if (showCustomSpeciesField) "Other" else selectedSpecies,
+                                        onOptionSelected = { petType ->
+                                            showSpeciesPicker = false
+                                            selectedSpecies = petType
+                                            if (petType == "Other") {
+                                                showCustomSpeciesField = true
+                                            } else {
+                                                showCustomSpeciesField = false
+                                                customSpecies = ""
+                                                viewModel.updatePetType(petType)
                                             }
                                         },
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        showCharacterCounter = false,
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                                     )
 
                                     if (showCustomSpeciesField) {
                                         Spacer(modifier = Modifier.height(4.dp))
 
                                         Box(
-                                            modifier = Modifier.padding(horizontal = 16.dp)
+                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                                         ) {
                                             ThemeOutlineTextField(
                                                 value = customSpecies,
@@ -767,74 +733,46 @@ fun EditPetScreen(
                                     if (hasBreeds) {
 
                                         selectedBreed = pet.breed
-                                        InputTextField(
-                                            value = if (showCustomBreedField) "Other" else selectedBreed,
-                                            label = "Pet Breed",
-                                            onValueChange = { },
-                                            placeholder = "Enter ${pet?.name ?: "pet"}'s breed",
-                                            readOnly = true,
-                                            trailingIcon = {
-                                                IconButton(onClick = {
-                                                    showBreedPicker = !showBreedPicker
-                                                }) {
-                                                    Icon(
-                                                        painter = painterResource(Res.drawable.arrow_drop_down_24px),
-                                                        contentDescription = "Select breed",
-                                                        tint = MaterialTheme.colorScheme.primary
-                                                    )
-                                                }
 
-                                                DropdownMenu(
-                                                    expanded = showBreedPicker,
-                                                    onDismissRequest = { showBreedPicker = false },
-                                                    modifier = Modifier.width(200.dp),
-                                                    shape = RoundedCornerShape(10),
-                                                    containerColor = MaterialTheme.colorScheme.surface,
-                                                    border = BorderStroke(
-                                                        1.dp,
-                                                        MaterialTheme.colorScheme.primary
-                                                    ),
-                                                ) {
-                                                    pet?.petType?.let { petType ->
-                                                        PET_BREEDS[petType]?.forEach {
-                                                            DropdownMenuItem(
-                                                                text = {
-                                                                    Text(
-                                                                        text = it,
-                                                                        modifier = Modifier.fillMaxWidth(),
-                                                                        textAlign = TextAlign.Center,
-                                                                        fontSize = MaterialTheme.typography.bodyLarge.fontSize
-                                                                    )
-                                                                },
-                                                                onClick = {
-                                                                    showBreedPicker = false
+                                        pet.petType.let { petType ->
 
-                                                                    if (it.equals(
-                                                                            "Other",
-                                                                            ignoreCase = true
-                                                                        ) || petType.equals(
-                                                                            "Other",
-                                                                            ignoreCase = true
-                                                                        )
-                                                                    ) {
-                                                                        showCustomBreedField = true
-                                                                        // Don't update viewModel yet, wait for custom input
-                                                                    } else {
-                                                                        showCustomBreedField = false
-                                                                        customBreed = ""
-                                                                        viewModel.updateBreed(it)
-                                                                    }
-                                                                },
-                                                                modifier = Modifier.fillMaxWidth(),
+                                            PET_BREEDS[petType]?.let {
 
-                                                                )
+                                                DropdownMenuField(
+                                                    label = "Pet Breed",
+                                                    options = it,
+                                                    selectedOption = if (showCustomBreedField) "Other" else selectedBreed,
+                                                    onOptionSelected = { petBreed ->
+
+                                                        showBreedPicker = false
+
+                                                        if (petBreed.equals(
+                                                                other = "Other",
+                                                                ignoreCase = true
+                                                            ) || petType.equals(
+                                                                "Other",
+                                                                ignoreCase = true
+                                                            )
+                                                        ) {
+                                                            showCustomBreedField = true
+                                                            // Don't update viewModel yet, wait for custom input
+                                                        } else {
+                                                            showCustomBreedField = false
+                                                            customBreed = ""
+                                                            viewModel.updateBreed(breed = petBreed)
                                                         }
-                                                    }
-                                                }
-                                            },
-                                            modifier = Modifier.padding(horizontal = 16.dp),
-                                            showCharacterCounter = false,
-                                        )
+
+
+                                                    },
+                                                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                                )
+
+                                            }
+
+                                        }
+
+
+
 
                                         if (showCustomBreedField) {
 
@@ -862,23 +800,25 @@ fun EditPetScreen(
 
                                 //PET WEIGHT
                                 Column {
-                                    InputTextField(
-                                        value = weight.value,
-                                        label = "Pet Weight",
-                                        onValueChange = {}, // Read-only
-                                        readOnly = true,
-                                        trailingIcon = {
-                                            IconButton(onClick = { showWeightPicker = true }) {
-                                                Icon(
-                                                    painter = painterResource(Res.drawable.arrow_drop_down_24px),
-                                                    contentDescription = "Select weight",
-                                                    tint = MaterialTheme.colorScheme.primary
-                                                )
-                                            }
-                                        },
-                                        modifier = Modifier.padding(horizontal = 16.dp),
-                                        showCharacterCounter = false,
+
+                                    Text(
+                                        text = "Pet Weight",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        modifier = Modifier.padding(horizontal = 16.dp)
                                     )
+                                    OutlinedButton(
+                                        onClick = { showWeightPicker = true },
+                                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            contentColor = MaterialTheme.colorScheme.primary
+                                        ),
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                                    ) {
+                                        Text(weight.value.ifEmpty { "Select..." })
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                                    }
+
                                     if (showWeightPicker) {
                                         ModalBottomSheet(
                                             modifier = Modifier.fillMaxWidth(),

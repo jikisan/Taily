@@ -95,8 +95,6 @@ fun AddPetScreen(
     val pet = uiState.pet
     val validation = pet!!.validate(pagerState.currentPage)
 
-
-
     Column(
         modifier = Modifier.fillMaxSize().padding(top = topPadding),
     ) {

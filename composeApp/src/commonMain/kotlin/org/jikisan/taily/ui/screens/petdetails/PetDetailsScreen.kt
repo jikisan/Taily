@@ -567,7 +567,7 @@ fun PetIdentifiersSection(
                         add(
                             PetInfoItem(
                                 label = "Clip Location",
-                                value = it.ifBlank { "No Clip" },
+                                value = it.takeIf { s -> s.isNotBlank() && !s.contentEquals("None") } ?: "No Clip",
                                 drawable = Res.drawable.clip_24px
                             )
                         )
@@ -612,18 +612,14 @@ fun PetIdentifiersSection(
                             label = "Neutered/Spayed",
                             value = if (pet.identifiers.isNeuteredOrSpayed == true) "Yes" else "No",
                             drawable = Res.drawable.scissors_24px,
-                            valueColor = if (pet.identifiers.isNeuteredOrSpayed == true)
-                                MaterialTheme.colorScheme.primary else
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                            valueColor = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
                         PetInfoItem(
                             label = "Allergies",
                             value = if (pet.identifiers.allergies.isEmpty()) "No allergies" else
                                 pet.identifiers.allergies.joinToString(", "),
                             drawable = Res.drawable.allergy_24px,
-                            valueColor = if (pet.identifiers.allergies.isNotEmpty())
-                                MaterialTheme.colorScheme.error else
-                                MaterialTheme.colorScheme.onSurfaceVariant
+                            valueColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
                 )

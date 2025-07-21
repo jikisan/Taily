@@ -112,7 +112,7 @@ fun HomeScreen(
                 }
             }
 
-            selectedDate?.let { date ->
+            selectedDate.let { date ->
                 Text(
                     text = formatDateForDisplayWithDayOfWeek(LocalDate.now()),
                     style = MaterialTheme.typography.bodyLarge,

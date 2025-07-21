@@ -14,6 +14,6 @@ data class ScheduleDTO(
     val notes: String,
     val schedDateTime: String,
     val vaccineType: String,
-    val vet: String,
-    val weight: WeightDTO
+    val vet: String? = "",
+    val weight: WeightDTO? = null
 )

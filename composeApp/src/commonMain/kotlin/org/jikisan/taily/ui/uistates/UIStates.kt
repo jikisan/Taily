@@ -2,6 +2,7 @@ package org.jikisan.taily.ui.uistates
 
 import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderList
+import org.jikisan.taily.domain.model.SchedulesList
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.model.pet.MedicalRecord
 import org.jikisan.taily.model.pet.Passport
@@ -53,7 +54,7 @@ data class EditPetUIState(
 
 data class PassportUIState(
     val pet: Pet? = null,
-    val schedule: List<Schedule>? = null,
+    val schedules: List<Schedule>? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )

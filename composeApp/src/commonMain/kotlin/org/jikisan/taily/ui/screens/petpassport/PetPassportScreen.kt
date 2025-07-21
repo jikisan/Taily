@@ -1,7 +1,6 @@
 package org.jikisan.taily.ui.screens.petpassport
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,10 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +22,6 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,26 +35,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.vidspark.androidapp.ui.theme.Blue
-import com.vidspark.androidapp.ui.theme.OffBlue
 import org.jetbrains.compose.resources.painterResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.jikisan.taily.domain.model.enum.FilterType
+import org.jikisan.taily.model.pet.Schedule
 import org.jikisan.taily.ui.common.EmptyScreen
 import org.jikisan.taily.ui.common.ErrorScreen
 import org.jikisan.taily.ui.common.LoadingScreen
 import org.jikisan.taily.ui.common.ScheduleItemCard
-import org.jikisan.taily.ui.components.Header
-import org.jikisan.taily.ui.navigation.NavigationItem
-import org.jikisan.taily.ui.screens.pet.PetViewModel
-import org.jikisan.taily.ui.uistates.PassportUIState
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.add_2_24px
 import taily.composeapp.generated.resources.arrow_back_ios_new_24px
 import taily.composeapp.generated.resources.happy_pet
-import taily.composeapp.generated.resources.qr_code_24px
-import taily.composeapp.generated.resources.sad_cat
 
 @Composable
 fun PetPassportScreen(
@@ -85,10 +73,11 @@ fun PetPassportScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -106,7 +95,7 @@ fun PetPassportScreen(
             }
 
             TextButton(
-                onClick = {  }
+                onClick = { }
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.add_2_24px),
@@ -131,16 +120,44 @@ fun PetPassportScreen(
 
         // Header
         uiState.pet?.let {
-            Header(
-                headerText = "${it.name}'s Passport",
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            Text(
+                text = "${it.name}'s Health Passport",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
             )
         }
 
         Spacer(modifier = Modifier.height(4.dp))
 
-        when {
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = Color.Transparent,
+            contentColor = Blue,
+            indicator = { tabPositions ->
+                HorizontalDivider(
+                    color = Blue,
+                    thickness = 2.dp,
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex])
+                )
+            },
+            divider = {
+                HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
+            }
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(text = title) }
+                )
+            }
+        }
 
+        when {
             uiState.isLoading && uiState.pet?.passport?.schedules == null -> {
                 LoadingScreen(0.dp)
             }
@@ -162,52 +179,40 @@ fun PetPassportScreen(
 
             else -> {
 
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    containerColor = Color.Transparent,
-                    contentColor = Blue,
-                    indicator = { tabPositions ->
-                        HorizontalDivider(color = Blue, thickness = 2.dp, modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]))
-                    },
-                    divider = {
-                        HorizontalDivider(color = Color.LightGray, thickness = 1.dp)
-                    }
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { selectedTabIndex = index },
-                            text = { Text(text = title) }
-                        )
-                    }
-                }
-
                 when (selectedTabIndex) {
                     0 -> { // Upcoming
-                        UpcomingList(uiState)
-                    }
-                    1 -> { // History
-                        // TODO: Implement History tab content
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("History Content Here")
+                        val todayAndUpcomingReminders = viewModel.getTodayAndUpcomingReminders()
+
+                        if (todayAndUpcomingReminders.isNullOrEmpty()) {
+                            EmptyScreen("No Upcoming Reminders", Res.drawable.happy_pet)
+                        } else {
+                            ScheduleList(schedulesList = todayAndUpcomingReminders, filterType = FilterType.UPCOMING)
                         }
                     }
+
+                    1 -> {
+                        val historyReminders = viewModel.getHistoryReminders()
+
+                        if (historyReminders.isNullOrEmpty()) {
+                            EmptyScreen("No History Reminders", Res.drawable.happy_pet)
+                        } else {
+                            ScheduleList(schedulesList = historyReminders, filterType = FilterType.HISTORY)
+                        }
+                    }
+
                 }
-
-
-
-
-
 
             }
         }
+
+
     }
 
 
 }
 
 @Composable
-private fun UpcomingList(uiState: PassportUIState) {
+private fun ScheduleList(schedulesList: List<Schedule>, filterType: FilterType) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -215,10 +220,9 @@ private fun UpcomingList(uiState: PassportUIState) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        uiState.schedule?.let {
-            items(it.size) { index ->
-                ScheduleItemCard(schedule = it[index])
-            }
+
+        items(schedulesList) { schedules ->
+            ScheduleItemCard(schedule = schedules, scheduleType = filterType)
         }
     }
 }

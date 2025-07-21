@@ -17,19 +17,16 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.domain.home.HomeRepository
-import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderList
 import org.jikisan.taily.domain.model.enum.ReminderType
-import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.ui.components.EventDot
 import org.jikisan.taily.ui.uistates.HomeUIState
-import org.jikisan.taily.util.DateUtils.sortDateTime
+import org.jikisan.taily.util.sortDateTime
 
 class HomeViewModel(
     private val homeRepository: HomeRepository
 ) : ViewModel() {
 
-//    val SUPABASE_URL = Buid
     private val _uiState = MutableStateFlow(HomeUIState())
     val uiState: StateFlow<HomeUIState> = _uiState.asStateFlow()
 
@@ -98,8 +95,7 @@ class HomeViewModel(
         return uiState.value.reminders.filter { reminderList ->
             try {
                 val reminderInstant = Instant.parse(reminderList.dateTime)
-                val reminderDate =
-                    reminderInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                val reminderDate = reminderInstant.toLocalDateTime(TimeZone.currentSystemDefault()).date
                 val isSelectedDate = reminderDate == selectedDate
 
                 isSelectedDate

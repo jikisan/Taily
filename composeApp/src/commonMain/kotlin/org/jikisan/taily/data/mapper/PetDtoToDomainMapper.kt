@@ -145,7 +145,7 @@ fun ScheduleDTO.toDomain(): Schedule {
         schedDateTime = schedDateTime,
         vaccineType = vaccineType,
         vet = vet,
-        weight = weight.toDomain()
+        weight = weight?.toDomain()
     )
 }
 

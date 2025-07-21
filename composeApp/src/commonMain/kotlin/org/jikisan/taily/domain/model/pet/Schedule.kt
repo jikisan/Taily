@@ -11,6 +11,6 @@ data class Schedule(
     val notes: String,
     val schedDateTime: String,
     val vaccineType: String,
-    val vet: String,
-    val weight: Weight
+    val vet: String? = "",
+    val weight: Weight? = null
 )

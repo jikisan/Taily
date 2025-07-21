@@ -159,9 +159,6 @@ object DateUtils {
     }
 
 
-
-
-
     /*GENERIC DATE UTILS*/
 
     /**
@@ -307,7 +304,8 @@ object DateUtils {
             // Parse the full ISO string with timezone info
             val instant = Instant.parse(isoDateString)
             val pastDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-            val currentDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            val currentDateTime =
+                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 
             // Check if the date is in the future
             if (pastDateTime > currentDateTime) {
@@ -327,7 +325,8 @@ object DateUtils {
                 months--
                 // Get days in the previous month
                 val previousMonth = currentDate.minus(1, DateTimeUnit.MONTH)
-                val daysInPreviousMonth = getDaysInMonth(previousMonth.year, previousMonth.monthNumber)
+                val daysInPreviousMonth =
+                    getDaysInMonth(previousMonth.year, previousMonth.monthNumber)
                 days += daysInPreviousMonth
             }
 
@@ -339,14 +338,18 @@ object DateUtils {
 
             // If we haven't reached the exact birthday yet this year, subtract a year
             if (years > 0) {
-                val birthdayThisYear = LocalDate(currentDate.year, pastDate.month, pastDate.dayOfMonth)
+                val birthdayThisYear =
+                    LocalDate(currentDate.year, pastDate.month, pastDate.dayOfMonth)
                 if (currentDate < birthdayThisYear) {
                     years--
                     months = currentDate.monthNumber - pastDate.monthNumber + 12
                     if (currentDate.dayOfMonth < pastDate.dayOfMonth) {
                         months--
                         val prevMonth = currentDate.minus(1, DateTimeUnit.MONTH)
-                        days = currentDate.dayOfMonth + getDaysInMonth(prevMonth.year, prevMonth.monthNumber) - pastDate.dayOfMonth
+                        days = currentDate.dayOfMonth + getDaysInMonth(
+                            prevMonth.year,
+                            prevMonth.monthNumber
+                        ) - pastDate.dayOfMonth
                     } else {
                         days = currentDate.dayOfMonth - pastDate.dayOfMonth
                     }
@@ -370,58 +373,6 @@ object DateUtils {
         }
     }
 
-    fun sortDateTime(pets: List<Pet>): List<ReminderList> = pets.flatMap { pet ->
-        // Collect all reminders for this pet
-        val allReminders = mutableListOf<Pair<String, Reminder>>()
-
-        // Add passport schedules
-        pet.passport?.schedules?.forEach { schedule ->
-            allReminders.add(
-                schedule.schedDateTime to Reminder(
-                    id = schedule.id,
-                    type = schedule.vaccineType,
-                    reminderType = ReminderType.PASSPORT,
-                    petId = pet.id,
-                    petName = pet.name
-                )
-            )
-        }
-
-        // Add pet care
-        pet.petCare?.forEach { care ->
-            allReminders.add(
-                care.groomingDateTime to Reminder(
-                    id = care.id,
-                    type = care.careType,
-                    reminderType = ReminderType.PETCARE,
-                    petId = pet.id,
-                    petName = pet.name
-                )
-            )
-        }
-
-        // Add medical records
-        pet.medicalRecords?.forEach { medical ->
-            allReminders.add(
-                medical.medicalDateTime to Reminder(
-                    id = medical.id,
-                    type = medical.medicalType,
-                    reminderType = ReminderType.MEDICAL,
-                    petId = pet.id,
-                    petName = pet.name
-                )
-            )
-        }
-
-        // Group by exact datetime and create ReminderList
-        allReminders.groupBy { it.first }
-            .map { (dateTime, reminders) ->
-                ReminderList(
-                    dateTime = dateTime,
-                    reminders = reminders.map { it.second }
-                )
-            }
-    }.sortedBy { it.dateTime }
 
 
     // Helper function to check leap year
