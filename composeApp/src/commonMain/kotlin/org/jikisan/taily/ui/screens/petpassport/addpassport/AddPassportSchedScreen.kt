@@ -19,10 +19,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -56,6 +58,9 @@ import org.jikisan.taily.domain.validator.validate
 import org.jikisan.taily.ui.common.UploadingScreen
 import org.jikisan.taily.ui.components.ThemeClickableField
 import org.jikisan.taily.ui.components.ThemeOutlineTextField
+import org.jikisan.taily.ui.screens.addpet.PetConstants.FRACTIONAL_PARTS_1_DECIMAL
+import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
+import org.jikisan.taily.ui.screens.addpet.addpetcontent.CarouselPicker
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.CustomDatePickerDialog
 import org.jikisan.taily.util.DateUtils.convertToISO_MPP
 import org.jikisan.taily.util.DateUtils.formatDateForDisplay
@@ -88,11 +93,17 @@ fun AddPassportSchedScreen(
     var isVetLimitReached by remember { mutableStateOf(false) }
     val validation = sched!!.validate(isPassedDate)
 
+    val sheetState = rememberModalBottomSheetState()
     val datePickerState = rememberDatePickerState()
     var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
     var dob by remember { mutableStateOf("") }
     var dateError by remember { mutableStateOf("") }
     var isDateError by remember { mutableStateOf(false) }
+
+    var selectedHour by remember { mutableStateOf("08") }
+    var selectedMinute by remember { mutableStateOf("30") }
+    var selectedAmPm by remember { mutableStateOf("AM") }
 
     LaunchedEffect(uiState.isSubmittingSuccess, uiState.isSubmitting) {
         enabledButton = !uiState.isSubmitting && !uiState.isSubmittingSuccess
@@ -214,7 +225,8 @@ fun AddPassportSchedScreen(
                                 onClick = {
                                     println("Date picker clicked! 2") // Add this line
                                     Napier.i { "Date picker clicked! 2" }
-                                    showDatePicker = true }
+                                    showDatePicker = true
+                                }
 
                             )
                         }
@@ -227,12 +239,12 @@ fun AddPassportSchedScreen(
                                 .weight(1f)
                         ) {
                             ThemeClickableField(
-                                value = formatDateForDisplay(sched.schedDateTime),
+                                value = "${selectedHour}:${selectedMinute} ${selectedAmPm}",
                                 label = "Time",
                                 placeholder = "e.g. 10:00 AM",
                                 isError = false,
                                 errorMessage = "",
-                                onClick = { showDatePicker = true }
+                                onClick = { showTimePicker = true }
 
                             )
                         }
@@ -266,18 +278,26 @@ fun AddPassportSchedScreen(
                 ElevatedCard(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    ThemeOutlineTextField(
-                        value = sched.vet ?: "",
-                        label = "Veterinarian",
-                        placeholder = "e.g. Dr. Maria Santos",
-                        maxLength = 30,
-                        onValueChange = { text ->
-                            isVetLimitReached = text.length >= 30
-                            viewModel.updateVet(text)
-                        },
-                        isError = isVetLimitReached,
-                        errorMessage = "Maximum character limit reached"
-                    )
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        ThemeOutlineTextField(
+                            value = sched.vet ?: "",
+                            label = "Veterinarian",
+                            placeholder = "e.g. Dr. Maria Santos",
+                            maxLength = 30,
+                            onValueChange = { text ->
+                                isVetLimitReached = text.length >= 30
+                                viewModel.updateVet(text)
+                            },
+                            isError = isVetLimitReached,
+                            errorMessage = "Maximum character limit reached"
+                        )
+                    }
 
                 }
             }
@@ -388,6 +408,46 @@ fun AddPassportSchedScreen(
             onDismiss = { showDatePicker = false }
         )
     }
+
+    if (showTimePicker) {
+        ModalBottomSheet(
+            modifier = Modifier.fillMaxWidth(),
+            sheetState = sheetState,
+            onDismissRequest = { showTimePicker = false },
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                // Hour picker: 1 to 12
+                CarouselPicker(
+                    items = (1..12).map { it.toString().padStart(2, '0') },
+                    selectedItem = selectedHour,
+                    onItemSelected = { selectedHour = it },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Minute picker: 00 to 59
+                CarouselPicker(
+                    items = (0..59).map { it.toString().padStart(2, '0') },
+                    selectedItem = selectedMinute,
+                    onItemSelected = { selectedMinute = it },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // AM/PM picker
+                CarouselPicker(
+                    items = listOf("AM", "PM"),
+                    selectedItem = selectedAmPm,
+                    onItemSelected = { selectedAmPm = it },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+
 }
 
 @Preview
