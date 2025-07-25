@@ -33,7 +33,10 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import taily.composeapp.generated.resources.Res
 
 @Composable
-fun UploadingScreen() {
+fun UploadingScreen(
+    title: String = "Fetching your furry friend...",
+    message: String = "Hang tight! We’re preparing your pet’s profile just for you.",
+) {
 
     Box(
         modifier = Modifier
@@ -74,7 +77,7 @@ fun UploadingScreen() {
                 )
 
                 Text(
-                    text = "Fetching your furry friend...",
+                    text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -85,7 +88,7 @@ fun UploadingScreen() {
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Hang tight! We’re preparing your pet’s profile just for you.",
+                    text = message,
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()

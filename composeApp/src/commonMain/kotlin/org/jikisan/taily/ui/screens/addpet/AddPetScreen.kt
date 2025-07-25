@@ -248,20 +248,22 @@ fun AddPetScreen(
             title = { Text("Discard New Pet?") },
             text = { Text("You are currently adding a new pet. If you leave now, any unsaved changes will be lost. Are you sure you want to discard and leave?") },
             dismissButton = {
+                TextButton(onClick = { showLeaveDialog.value = false }) {
+                    Text(text = "Continue Editing", color = Color.Gray)
+                }
+
+
+            },
+            confirmButton = {
                 TextButton(onClick = {
                     navHost.popBackStack()
                 }) {
-                    Text("Discard & Leave", color = Color.Gray)
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showLeaveDialog.value = false }) {
-                    Text(text = "Continue Editing")
+                    Text("Discard & Leave")
                 }
             },
 
 
-            )
+        )
     }
 
     if (uiState.isSubmitting) {

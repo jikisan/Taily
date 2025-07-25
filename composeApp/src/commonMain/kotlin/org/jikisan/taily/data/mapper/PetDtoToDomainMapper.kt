@@ -151,7 +151,10 @@ fun ScheduleDTO.toDomain(): Schedule {
 
 fun GivenDTO.toDomain(): Given {
     return Given(
-        isGiven = isGiven
+        isGiven = isGiven,
+        type = type,
+        dateTime = dateTime,
+        proofPhoto = proofPhoto
     )
 }
 

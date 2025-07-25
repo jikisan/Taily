@@ -20,6 +20,7 @@ sealed class NavigationItem(
     data object EditPet : NavigationItem("edit/{petId}", "Edit Pet")
     data object PetIds : NavigationItem("petid/{petId}", "Pet IDs")
     data object PetPassport : NavigationItem("passport/{petId}", "Pet Passport")
+    data object AddPetPassport : NavigationItem("addpassportsched/{petId}", "Add Pet Passport")
     data object PetCare : NavigationItem("care/{petId}", "Pet Care")
     data object PetMedical : NavigationItem("medical/{petId}", "Pet Medical")
 }

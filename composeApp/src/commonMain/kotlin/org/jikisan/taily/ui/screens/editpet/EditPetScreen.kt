@@ -533,10 +533,11 @@ fun EditPetScreen(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 16.dp)
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 // PET NAME
-                                InputTextField(
+                                ThemeOutlineTextField(
                                     value = pet.name,
                                     label = "Pet Name",
                                     maxLength = 20,
@@ -549,9 +550,7 @@ fun EditPetScreen(
                                 )
 
                                 // PET GENDER
-                                Column(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
-                                ) {
+                                Column {
 
                                     Text(
                                         text = "Pet Gender",
@@ -586,7 +585,7 @@ fun EditPetScreen(
 
                                 // PET DOB
                                 Column {
-                                    InputTextField(
+                                    ThemeOutlineTextField(
                                         value = formatDateForDisplay(pet.dateOfBirth),
                                         onValueChange = { /* Read-only field */ },
                                         label = "Pet Date of Birth",
@@ -1129,55 +1128,6 @@ fun EditPetScreen(
                 navHost.popBackStack()
             },
         )
-    }
-
-}
-
-
-@Composable
-fun InputTextField(
-    label: String,
-    value: String,
-    placeholder: String? = "",
-    onValueChange: (String) -> Unit,
-    maxLength: Int = 20,
-    modifier: Modifier = Modifier.padding(horizontal = 16.dp),
-    trailingIcon: @Composable (() -> Unit)? = null,
-    readOnly: Boolean = false,
-    showCharacterCounter: Boolean = true,
-    errorMessage: String? = "",
-    isError: Boolean = false
-) {
-
-    Column(modifier = modifier) {
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        ThemeOutlineTextField(
-            value = value,
-            placeholder = placeholder!!,
-            onValueChange = { newValue ->
-                onValueChange(newValue)
-            },
-            isError = isError,
-            trailingIcon = trailingIcon,
-            readOnly = readOnly,
-            maxLength = maxLength,
-            showCharacterCounter = showCharacterCounter,
-            errorMessage = errorMessage!!,
-        )
-
-//        if (isError) {
-//            Text(
-//                text = "Max $maxLength characters allowed",
-//                style = MaterialTheme.typography.labelSmall,
-//                color = MaterialTheme.colorScheme.error,
-//            )
-//        }
     }
 
 }

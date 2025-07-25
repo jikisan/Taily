@@ -15,7 +15,8 @@ import org.jikisan.taily.ui.screens.editpet.EditPetViewModel
 import org.jikisan.taily.ui.screens.home.HomeViewModel
 import org.jikisan.taily.ui.screens.pet.PetViewModel
 import org.jikisan.taily.ui.screens.petdetails.PetDetailsViewModel
-import org.jikisan.taily.ui.screens.petpassport.PetPassportViewModel
+import org.jikisan.taily.ui.screens.petpassport.addpassport.AddPassportSchedViewmodel
+import org.jikisan.taily.ui.screens.petpassport.viewpassport.PetPassportViewModel
 import org.jikisan.taily.viewmodel.PetApiService
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
@@ -49,6 +50,7 @@ val sharedModule = module {
     viewModelOf(::AddPetViewModel)
     viewModelOf(::EditPetViewModel)
     viewModelOf(::PetPassportViewModel)
+    viewModelOf(::AddPassportSchedViewmodel)
 
 
 }

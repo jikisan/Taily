@@ -2,6 +2,7 @@ package org.jikisan.taily.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 fun ThemeOutlineTextField(
     value: String,
+    label: String = "",
     placeholder: String = "",
     onValueChange: (String) -> Unit,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -41,14 +43,16 @@ fun ThemeOutlineTextField(
     borderColor: Color = MaterialTheme.colorScheme.primary,
     cornerRadius: Dp = 10.dp,
     maxLength: Int = 20,
+    maxLines: Int = 1,
+    singleLine: Boolean = true,
     errorMessage: String = "Maximum character limit reached",
     isError: Boolean = false,
-    showCharacterCounter: Boolean = true
+    showCharacterCounter: Boolean = true,
 ) {
     val focusRequester = remember { FocusRequester() }
     val currentBorderColor = if (isError) MaterialTheme.colorScheme.error else borderColor
 
-    Column(modifier = modifier) {
+    Column {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -63,14 +67,18 @@ fun ThemeOutlineTextField(
                 .padding(2.dp)
         ) {
             OutlinedTextField(
+                label = { Text(label) },
                 value = value,
-                placeholder = { Text(placeholder) },
+                placeholder = { Text(text = placeholder, color = Color.LightGray) },
                 onValueChange = { newValue ->
                     if (newValue.length <= maxLength) {
                         onValueChange(newValue)
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
+                readOnly = readOnly,
+                modifier = modifier
+                    .fillMaxWidth()
+                    .then(if (readOnly) Modifier.focusable(false) else Modifier), // Add this line
                 shape = RoundedCornerShape(cornerRadius),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
@@ -79,10 +87,10 @@ fun ThemeOutlineTextField(
                     unfocusedContainerColor = Color.Transparent,
                     unfocusedPlaceholderColor = Color.LightGray
                 ),
-                singleLine = true,
+                singleLine = singleLine,
                 leadingIcon = leadingIcon,
                 trailingIcon = trailingIcon,
-                readOnly = readOnly
+                maxLines = maxLines
             )
         }
 

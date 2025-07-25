@@ -58,3 +58,12 @@ data class PassportUIState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
 )
+
+data class AddPassportSchedUIState(
+    val sched: Schedule? = null,
+    val imageByteArray: ByteArray = byteArrayOf(),
+    val isLoading: Boolean = false,
+    val isSubmitting: Boolean = false,
+    val isSubmittingSuccess: Boolean = false,
+    val errorMessage: String? = null,
+)

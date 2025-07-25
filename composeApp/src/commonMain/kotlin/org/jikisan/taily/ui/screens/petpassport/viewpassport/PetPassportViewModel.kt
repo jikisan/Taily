@@ -1,4 +1,4 @@
-package org.jikisan.taily.ui.screens.petpassport
+package org.jikisan.taily.ui.screens.petpassport.viewpassport
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,7 +53,7 @@ class PetPassportViewModel(private val repository: PetRepository): ViewModel() {
     fun getHistoryReminders(): List<Schedule>? {
         return uiState.value.schedules?.let {
             filterSchedules(
-                schedules = it,
+                schedules = it.sortedByDescending { it.schedDateTime },
                 filterType = FilterType.HISTORY
             )
         }

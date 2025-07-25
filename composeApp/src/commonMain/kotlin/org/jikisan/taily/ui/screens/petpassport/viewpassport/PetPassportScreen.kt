@@ -1,4 +1,4 @@
-package org.jikisan.taily.ui.screens.petpassport
+package org.jikisan.taily.ui.screens.petpassport.viewpassport
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -43,6 +43,7 @@ import org.jikisan.taily.ui.common.EmptyScreen
 import org.jikisan.taily.ui.common.ErrorScreen
 import org.jikisan.taily.ui.common.LoadingScreen
 import org.jikisan.taily.ui.common.ScheduleItemCard
+import org.jikisan.taily.ui.navigation.NavigationItem
 import org.koin.compose.viewmodel.koinViewModel
 import taily.composeapp.generated.resources.Res
 import taily.composeapp.generated.resources.add_2_24px
@@ -95,7 +96,7 @@ fun PetPassportScreen(
             }
 
             TextButton(
-                onClick = { }
+                onClick = { navHost.navigate(NavigationItem.AddPetPassport.route.replace("{petId}", petId)) },
             ) {
                 Icon(
                     painter = painterResource(Res.drawable.add_2_24px),
@@ -184,7 +185,7 @@ fun PetPassportScreen(
                         val todayAndUpcomingReminders = viewModel.getTodayAndUpcomingReminders()
 
                         if (todayAndUpcomingReminders.isNullOrEmpty()) {
-                            EmptyScreen("No Upcoming Reminders", Res.drawable.happy_pet)
+                            EmptyScreen("No Upcoming Appointments", Res.drawable.happy_pet)
                         } else {
                             ScheduleList(schedulesList = todayAndUpcomingReminders, filterType = FilterType.UPCOMING)
                         }

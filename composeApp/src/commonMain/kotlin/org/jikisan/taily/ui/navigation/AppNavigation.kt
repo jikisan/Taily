@@ -12,12 +12,13 @@ import androidx.navigation.compose.composable
 import org.jikisan.taily.ui.screens.addpet.AddPetScreen
 import org.jikisan.taily.ui.screens.editpet.EditPetScreen
 import org.jikisan.taily.ui.screens.home.HomeScreen
-import org.jikisan.taily.ui.screens.petpassport.PetPassportScreen
+import org.jikisan.taily.ui.screens.petpassport.viewpassport.PetPassportScreen
 import org.jikisan.taily.ui.screens.pet.PetScreen
 import org.jikisan.taily.ui.screens.petcare.PetCareScreen
 import org.jikisan.taily.ui.screens.petdetails.PetDetailsScreen
 import org.jikisan.taily.ui.screens.petid.PetIdScreen
 import org.jikisan.taily.ui.screens.petmedical.PetMedicalScreen
+import org.jikisan.taily.ui.screens.petpassport.addpassport.AddPassportSchedScreen
 import org.jikisan.taily.ui.screens.settings.SettingsScreen
 
 @Composable
@@ -70,6 +71,12 @@ fun AppNavigation(
             ) { backStackEntry ->
                 val petId = backStackEntry.arguments?.getString("petId") ?: ""
                 PetPassportScreen(petId = petId, navHost = navHostController, topPadding)
+            }
+            composable(
+                route = NavigationItem.AddPetPassport.route,
+            ) { backStackEntry ->
+                val petId = backStackEntry.arguments?.getString("petId") ?: ""
+                AddPassportSchedScreen(petId = petId, navHost = navHostController, topPadding = topPadding)
             }
             composable(
                 route = NavigationItem.PetCare.route,
