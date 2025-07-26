@@ -1,7 +1,10 @@
 package org.jikisan.taily.ui.screens.petpassport.addpassport
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -80,6 +85,7 @@ fun AddPassportSchedScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     val sched = uiState.sched
+    val scrollState = rememberScrollState()
 
     val coroutineScope = rememberCoroutineScope()
     val showSubmitDialog = remember { mutableStateOf(false) }
@@ -101,9 +107,28 @@ fun AddPassportSchedScreen(
     var dateError by remember { mutableStateOf("") }
     var isDateError by remember { mutableStateOf(false) }
 
-    var selectedHour by remember { mutableStateOf("08") }
-    var selectedMinute by remember { mutableStateOf("30") }
-    var selectedAmPm by remember { mutableStateOf("AM") }
+    var selectedHour by remember { mutableStateOf("") }
+    var selectedMinute by remember { mutableStateOf("") }
+    var selectedAmPm by remember { mutableStateOf("") }
+
+    var showWeightPicker by remember { mutableStateOf(false) }
+    val weightRange = remember { (0..200).map { it.toString() } }
+    val selectedWeight = remember { mutableStateOf(weightRange[7].toInt()) }
+    val selectedFraction = remember { mutableStateOf(FRACTIONAL_PARTS_1_DECIMAL[3]) }
+    val selectedUnit = remember { mutableStateOf(WEIGHT_UNITS[0]) }
+
+    val givenSheetState = rememberModalBottomSheetState()
+
+    val givenDatePickerState = rememberDatePickerState()
+    var showGivenDatePicker by remember { mutableStateOf(false) }
+    val givenTimePickerState = rememberDatePickerState()
+    var showGivenTimePicker by remember { mutableStateOf(false) }
+    var givenDateError by remember { mutableStateOf("") }
+    var isGivenDateError by remember { mutableStateOf(false) }
+
+    var selectedGivenHour by remember { mutableStateOf("") }
+    var selectedGivenMinute by remember { mutableStateOf("") }
+    var selectedGivenAmPm by remember { mutableStateOf("") }
 
     LaunchedEffect(uiState.isSubmittingSuccess, uiState.isSubmitting) {
         enabledButton = !uiState.isSubmitting && !uiState.isSubmittingSuccess
@@ -152,128 +177,177 @@ fun AddPassportSchedScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = "Add Vaccine Schedule",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(scrollState)
         ) {
+            Text(
+                text = "Add Vaccine Schedule",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Bold
+            )
 
-
-            ElevatedCard(
-                modifier = Modifier.fillMaxWidth()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp)
+                    .weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-
-                    ThemeOutlineTextField(
-                        value = sched.vaccineType,
-                        label = "Vaccine Type",
-                        placeholder = "e.g. 5-in-1 vaccine",
-                        maxLength = 30,
-                        onValueChange = { text ->
-                            isVaccineTypeLimitReached = text.length >= 30
-                            viewModel.updateVaccineType(text)
-                        },
-                        isError = isVaccineTypeLimitReached,
-                        errorMessage = "Maximum character limit reached"
-                    )
-
-                    ThemeOutlineTextField(
-                        value = sched.hospital,
-                        label = "Hospital",
-                        placeholder = "e.g. Cebu Vets Clinic",
-                        maxLength = 50,
-                        onValueChange = { text ->
-                            isHospitalLimitReached = text.length >= 50
-                            viewModel.updateHospital(text)
-                        },
-                        isError = isHospitalLimitReached,
-                        errorMessage = "Maximum character limit reached"
-                    )
-
-                    Row {
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-
-                        ) {
-                            ThemeClickableField(
-                                value = formatDateForDisplay(sched.schedDateTime),
-                                label = "Date",
-                                placeholder = "e.g. May 15, 2020",
-                                isError = isDateError,
-                                errorMessage = dateError,
-                                onClick = {
-                                    println("Date picker clicked! 2") // Add this line
-                                    Napier.i { "Date picker clicked! 2" }
-                                    showDatePicker = true
-                                }
-
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                        ) {
-                            ThemeClickableField(
-                                value = "${selectedHour}:${selectedMinute} ${selectedAmPm}",
-                                label = "Time",
-                                placeholder = "e.g. 10:00 AM",
-                                isError = false,
-                                errorMessage = "",
-                                onClick = { showTimePicker = true }
-
-                            )
-                        }
-
-                    }
-
-                    ThemeOutlineTextField(
-                        value = sched.notes,
-                        label = "Notes",
-                        placeholder = "e.g. Annual vaccine checkup",
-                        maxLength = 100,
-                        onValueChange = { text ->
-                            isNotesLimitReached = text.length >= 100
-                            viewModel.updateNotes(text)
-                        },
-                        isError = isNotesLimitReached,
-                        errorMessage = "Maximum character limit reached",
-                        maxLines = 5,
-                        singleLine = false,
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(150.dp),
-                    )
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
 
+                        // Vaccine Type
+                        ThemeOutlineTextField(
+                            value = sched.vaccineType,
+                            label = "\uD83D\uDC8A Vaccine Type",
+                            placeholder = "e.g. 5-in-1 vaccine",
+                            maxLength = 30,
+                            onValueChange = { text ->
+                                isVaccineTypeLimitReached = text.length >= 30
+                                viewModel.updateVaccineType(text)
+                            },
+                            isError = isVaccineTypeLimitReached,
+                            errorMessage = "Maximum character limit reached"
+                        )
 
+                        // Hospital
+                        ThemeOutlineTextField(
+                            value = sched.hospital,
+                            label = " \uD83C\uDFE5 Hospital",
+                            placeholder = "e.g. Cebu Vets Clinic",
+                            maxLength = 50,
+                            onValueChange = { text ->
+                                isHospitalLimitReached = text.length >= 50
+                                viewModel.updateHospital(text)
+                            },
+                            isError = isHospitalLimitReached,
+                            errorMessage = "Maximum character limit reached"
+                        )
+
+                    }
                 }
+
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Date and Time
+                        Row {
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+
+                            ) {
+                                ThemeClickableField(
+                                    value = formatDateForDisplay(sched.schedDateTime),
+                                    label = " \uD83D\uDCC5 Date",
+                                    placeholder = "e.g. May 15, 2020",
+                                    isError = isDateError,
+                                    errorMessage = dateError,
+                                    onClick = {
+                                        showDatePicker = true
+                                    }
+
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            ) {
+                                ThemeClickableField(
+                                    value = "${selectedHour}:${selectedMinute} ${selectedAmPm}",
+                                    label = "\uD83D\uDD52 Time",
+                                    placeholder = "e.g. 10:00 AM",
+                                    isError = false,
+                                    errorMessage = "",
+                                    onClick = { showTimePicker = true }
+
+                                )
+                            }
+
+                        }
+                    }
+                }
+
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        // Notes
+                        ThemeOutlineTextField(
+                            value = sched.notes,
+                            label = "\uD83D\uDCDD Notes",
+                            placeholder = "e.g. Annual vaccine checkup",
+                            maxLength = 100,
+                            onValueChange = { text ->
+                                isNotesLimitReached = text.length >= 100
+                                viewModel.updateNotes(text)
+                            },
+                            isError = isNotesLimitReached,
+                            errorMessage = "Maximum character limit reached",
+                            maxLines = 5,
+                            singleLine = false,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp),
+                        )
+                    }
+                }
+
             }
 
             if (isPassedDate) {
+                Column {
+                    Text(
+                        text = "\uD83D\uDC3E Log Completed Appointment",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, top = 4.dp),
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = "This appointment is in the past — tell us how your pet’s visit went!",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        textAlign = TextAlign.Center,
+                    )
+                }
 
                 ElevatedCard(
                     modifier = Modifier.fillMaxWidth(),
@@ -285,6 +359,56 @@ fun AddPassportSchedScreen(
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+
+                        // Given Type
+
+
+                        // Given Date and Time
+                        Row {
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+
+                            ) {
+                                sched.given.dateTime?.let {
+                                    ThemeClickableField(
+                                        value = formatDateForDisplay(it),
+                                        label = "Given Date",
+                                        placeholder = "e.g. May 15, 2020",
+                                        isError = isDateError,
+                                        errorMessage = dateError,
+                                        onClick = {
+                                            showGivenDatePicker = true
+                                        }
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            ) {
+                                ThemeClickableField(
+                                    value = "${selectedGivenHour}:${selectedGivenMinute} ${selectedGivenAmPm}",
+                                    label = "Given Time",
+                                    placeholder = "e.g. 10:00 AM",
+                                    isError = false,
+                                    errorMessage = "",
+                                    onClick = { showGivenTimePicker = true }
+                                )
+                            }
+
+                        }
+                        // Given Proof Photo
+
+                        // Weight
+
+                        // Veterinarian
                         ThemeOutlineTextField(
                             value = sched.vet ?: "",
                             label = "Veterinarian",
@@ -300,10 +424,11 @@ fun AddPassportSchedScreen(
                     }
 
                 }
+
             }
-
-
         }
+
+
 
     }
 
@@ -376,27 +501,32 @@ fun AddPassportSchedScreen(
                         .toLocalDateTime(TimeZone.currentSystemDefault()).date
 
                     when {
-                        selectedDate > currentDate -> {
+                        selectedDate < currentDate -> {
                             isPassedDate = true
+                            viewModel.updateSchedDateTime(
+                                newDateTime = convertToISO_MPP(
+                                    input = formatDateToString(
+                                        selectedDate
+                                    )
+                                )
+                            )
                         }
 
                         else -> {
-                            val maxAgeDate =
-                                currentDate.minus(
-                                    50,
-                                    DateTimeUnit.YEAR
-                                )
+                            val maxAgeDate = currentDate.minus(50, DateTimeUnit.YEAR)
+                            isPassedDate = false
 
                             if (selectedDate < maxAgeDate) {
                                 dateError = "Please enter a reasonable date"
                                 isDateError = true
                             } else {
                                 dateError = ""
-                                dob = formatDateToString(selectedDate)
                                 isDateError = false
                                 viewModel.updateSchedDateTime(
-                                    convertToISO_MPP(
-                                        dob
+                                    newDateTime = convertToISO_MPP(
+                                        input = formatDateToString(
+                                            selectedDate
+                                        )
                                     )
                                 )
                             }
@@ -442,6 +572,131 @@ fun AddPassportSchedScreen(
                     items = listOf("AM", "PM"),
                     selectedItem = selectedAmPm,
                     onItemSelected = { selectedAmPm = it },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+
+    if (showGivenDatePicker) {
+        CustomDatePickerDialog(
+            datePickerState = datePickerState,
+            onDateSelected = { selectedGivenDateMillis ->
+                selectedGivenDateMillis?.let { millis ->
+                    val selectedGivenDate =
+                        Instant.fromEpochMilliseconds(millis)
+                            .toLocalDateTime(TimeZone.currentSystemDefault()).date
+                    val currentDate = Clock.System.now()
+                        .toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+                    when {
+                        selectedGivenDate > currentDate -> {
+//                            isPassedDate = true
+                        }
+
+                        else -> {
+                            val maxAgeDate =
+                                currentDate.minus(
+                                    value = 50,
+                                    unit = DateTimeUnit.YEAR
+                                )
+
+                            if (selectedGivenDate < maxAgeDate) {
+                                givenDateError = "Please enter a reasonable date"
+                                isGivenDateError = true
+                            } else {
+                                givenDateError = ""
+                                dob = formatDateToString(selectedGivenDate)
+                                isGivenDateError = false
+                                viewModel.updateGivenDateTime(
+                                    newDateTime = convertToISO_MPP(input = dob)
+                                )
+                            }
+                        }
+                    }
+                }
+                showGivenDatePicker = false
+            },
+            onDismiss = { showGivenDatePicker = false }
+        )
+    }
+
+    if (showGivenTimePicker) {
+        ModalBottomSheet(
+            modifier = Modifier.fillMaxWidth(),
+            sheetState = givenSheetState,
+            onDismissRequest = { showGivenTimePicker = false },
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                // Hour picker: 1 to 12
+                CarouselPicker(
+                    items = (1..12).map { it.toString().padStart(2, '0') },
+                    selectedItem = selectedGivenHour,
+                    onItemSelected = { selectedGivenHour = it },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Minute picker: 00 to 59
+                CarouselPicker(
+                    items = (0..59).map { it.toString().padStart(2, '0') },
+                    selectedItem = selectedGivenMinute,
+                    onItemSelected = { selectedGivenMinute = it },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // AM/PM picker
+                CarouselPicker(
+                    items = listOf("AM", "PM"),
+                    selectedItem = selectedGivenAmPm,
+                    onItemSelected = { selectedGivenAmPm = it },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+    }
+
+    if (showWeightPicker) {
+        ModalBottomSheet(
+            modifier = Modifier.fillMaxWidth(),
+            sheetState = sheetState,
+            onDismissRequest = { showWeightPicker = false },
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                // Whole number picker
+                CarouselPicker(
+                    items = weightRange,
+                    selectedItem = selectedWeight.value.toString(), // ✅ API value
+                    onItemSelected = {
+                        selectedWeight.value = it.toInt()
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Fraction picker
+                CarouselPicker(
+                    items = FRACTIONAL_PARTS_1_DECIMAL,
+                    selectedItem = selectedFraction.value, // ✅ API fraction
+                    onItemSelected = {
+                        selectedFraction.value = it
+                    },
+                    modifier = Modifier.weight(1f)
+                )
+
+                // Unit picker
+                CarouselPicker(
+                    items = WEIGHT_UNITS,
+                    selectedItem = selectedUnit.value, // ✅ API unit
+                    onItemSelected = { selectedUnit.value = it },
                     modifier = Modifier.weight(1f)
                 )
             }
