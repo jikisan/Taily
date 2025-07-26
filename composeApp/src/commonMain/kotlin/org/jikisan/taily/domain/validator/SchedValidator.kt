@@ -21,9 +21,6 @@ fun Schedule.validate(isPassedDate: Boolean): SchedValidationResult {
         givenDateTimeError = if (isPassedDate && given?.dateTime.isNullOrBlank())
             "Given date/time is required" else null,
 
-        givenProofPhotoError = if (isPassedDate && given?.proofPhoto.isNullOrBlank())
-            "Proof photo is required" else null,
-
         weightValueError = if ((weight?.value == null || weight.value <= 0.0))
             "Valid weight is required" else null,
 

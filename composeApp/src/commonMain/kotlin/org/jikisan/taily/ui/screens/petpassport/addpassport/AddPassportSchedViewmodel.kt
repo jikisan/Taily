@@ -1,5 +1,6 @@
 package org.jikisan.taily.ui.screens.petpassport.addpassport
 
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -7,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.jikisan.cmpecommerceapp.util.ApiRoutes.TAG
 import org.jikisan.taily.data.remote.supabase.storage.StorageManager
+import org.jikisan.taily.domain.model.Photo
 import org.jikisan.taily.domain.model.Weight
 import org.jikisan.taily.domain.model.pet.Pet
 import org.jikisan.taily.domain.pet.PetRepository
@@ -28,10 +30,12 @@ class AddPassportSchedViewmodel(
             isGiven = false,
             type = "",
             dateTime = "",
-            proofPhoto = ""
+            proofPhoto = Photo(
+                name = "",
+                url = "",
+            )
         ),
         hospital = "",
-        id = "",
         notes = "",
         schedDateTime = "",
         vaccineType = "",
@@ -40,6 +44,7 @@ class AddPassportSchedViewmodel(
             value = 0.0,
             unit = WEIGHT_UNITS[0]
         ),
+        imageBitmap = null
     )
 
     init {
@@ -48,7 +53,7 @@ class AddPassportSchedViewmodel(
 
     private fun updateSched(newSched: Schedule) {
         _uiState.value = _uiState.value.copy(sched = newSched)
-        Napier.i("$TAG Pet Updated: ${_uiState.value.sched}")
+        Napier.i("$TAG Sched Updated: ${_uiState.value.sched}")
     }
 
     fun updateHospital(newHospital: String) {
@@ -116,13 +121,27 @@ class AddPassportSchedViewmodel(
         }
     }
 
-    fun updateGivenProofPhoto(newUrl: String) {
+    fun updateGivenProofPhoto(newPhoto: Photo) {
         val sched = _uiState.value.sched
         sched?.let { currentSched ->
-            updateSched(currentSched.copy(given = currentSched.given.copy(proofPhoto = newUrl)))
+            updateSched(currentSched.copy(given = currentSched.given.copy(proofPhoto = newPhoto)))
         }
     }
 
+    fun updatePetPhotoByteArray(newImageByteArray: ByteArray) {
+        val metadata = _uiState.value.imageByteArray
+        metadata.let {
+            _uiState.value = _uiState.value.copy(imageByteArray = newImageByteArray)
+        }
+
+    }
+
+    fun updatePhotoImageBitmap(image: ImageBitmap) {
+        val sched = _uiState.value.sched
+        sched?.let {
+            updateSched(it.copy(imageBitmap = image))
+        }
+    }
 
 
     fun updateErrorMessage(message: String?) {

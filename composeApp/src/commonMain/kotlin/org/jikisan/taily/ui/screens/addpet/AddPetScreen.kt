@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -113,7 +114,6 @@ fun AddPetScreen(
                 if (pagerState.currentPage <= 0) {
                     showLeaveDialog.value = true
 
-
                 } else {
                     coroutineScope.launch {
 
@@ -144,15 +144,33 @@ fun AddPetScreen(
             color = Color.Gray
         )
 
-        LinearProgressIndicator(
-            progress = { (pagerState.currentPage.toFloat() + 1) / totalPages.toFloat() },
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .height(5.dp)
-                .clip(RoundedCornerShape(5.dp)),
-            color = MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surface
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+//                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            LinearProgressIndicator(
+                progress = { (pagerState.currentPage.toFloat() + 1) / totalPages.toFloat() },
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(5.dp)
+                    .weight(4f)
+                    .clip(RoundedCornerShape(5.dp)),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surface
+            )
+
+            Text(
+                text = " ${pagerState.currentPage + 1} / $totalPages",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Gray,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+
 
         HorizontalPager(
             state = pagerState,
@@ -207,7 +225,6 @@ fun AddPetScreen(
                     }
                 }
             ) {
-
                 if (uiState.isSubmitting || uiState.isSubmittingSuccess) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {

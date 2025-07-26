@@ -100,6 +100,7 @@ import org.jikisan.taily.ui.common.ErrorScreen
 import org.jikisan.taily.ui.common.LoadingScreen
 import org.jikisan.taily.ui.common.UploadingScreen
 import org.jikisan.taily.ui.components.AnimatedGradientSnackbarHost
+import org.jikisan.taily.ui.components.CarouselPicker
 import org.jikisan.taily.ui.components.DropdownMenuField
 import org.jikisan.taily.ui.components.SnackbarDuration
 import org.jikisan.taily.ui.components.SnackbarType
@@ -112,7 +113,6 @@ import org.jikisan.taily.ui.screens.addpet.PetConstants.PET_TYPES
 import org.jikisan.taily.ui.screens.addpet.PetConstants.SIZE_OPTIONS
 import org.jikisan.taily.ui.screens.addpet.PetConstants.WEIGHT_UNITS
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.AllergyList
-import org.jikisan.taily.ui.screens.addpet.addpetcontent.CarouselPicker
 import org.jikisan.taily.ui.screens.addpet.addpetcontent.CustomDatePickerDialog
 import org.jikisan.taily.util.DateUtils.convertToISO_MPP
 import org.jikisan.taily.util.DateUtils.formatDateForDisplay

@@ -76,7 +76,7 @@ fun GroomedDTO.toDomain(): Groomed {
     return Groomed(
         groomedDateTime = groomedDateTime,
         isGroomed = isGroomed,
-        referencePhoto = referencePhoto
+        referencePhoto = referencePhoto?.toDomain()
     )
 }
 
@@ -154,7 +154,7 @@ fun GivenDTO.toDomain(): Given {
         isGiven = isGiven,
         type = type,
         dateTime = dateTime,
-        proofPhoto = proofPhoto
+        proofPhoto = proofPhoto?.toDomain()
     )
 }
 

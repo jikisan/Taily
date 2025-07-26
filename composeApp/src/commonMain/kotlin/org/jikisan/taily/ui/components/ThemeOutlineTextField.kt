@@ -67,7 +67,7 @@ fun ThemeOutlineTextField(
                 .padding(2.dp)
         ) {
             OutlinedTextField(
-                label = { Text(label) },
+                label = { Text(text = label, color = borderColor) },
                 value = value,
                 placeholder = { Text(text = placeholder, color = Color.LightGray) },
                 onValueChange = { newValue ->

@@ -15,7 +15,7 @@ fun sortDateTime(pets: List<Pet>): List<ReminderList> = pets.flatMap { pet ->
     pet.passport?.schedules?.forEach { schedule ->
         allReminders.add(
             schedule.schedDateTime to Reminder(
-                id = schedule.id,
+                id = schedule.id!!,
                 type = schedule.vaccineType,
                 reminderType = ReminderType.PASSPORT,
                 petId = pet.id,

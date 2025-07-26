@@ -9,6 +9,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.minus
 import kotlinx.datetime.periodUntil
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.jikisan.taily.domain.model.Reminder
 import org.jikisan.taily.domain.model.ReminderList
@@ -235,6 +236,34 @@ object DateUtils {
         val year = date.year.toString()
         return "$month/$day/$year"
     }
+
+
+    /**
+     * Combines a LocalDate and a "hh:mm a" time string (e.g., "01:30 PM")
+     * into an ISO 8601 UTC string.
+     */
+    fun combineDateAndTimeToISO(date: LocalDate, timeStr: String): String {
+        val (time, meridiem) = timeStr.trim().split(" ")
+        val (hourStr, minuteStr) = time.split(":")
+
+        var hour = hourStr.toInt()
+        val minute = minuteStr.toInt()
+
+        // Convert to 24-hour format
+        if (meridiem.equals("PM", ignoreCase = true) && hour != 12) hour += 12
+        if (meridiem.equals("AM", ignoreCase = true) && hour == 12) hour = 0
+
+        val dateTime = LocalDateTime(
+            year = date.year,
+            monthNumber = date.monthNumber,
+            dayOfMonth = date.dayOfMonth,
+            hour = hour,
+            minute = minute
+        )
+
+        return dateTime.toInstant(TimeZone.currentSystemDefault()).toString()
+    }
+
 
     /**
     Helper function to convert 12/31/2000 string to LocalDate
